@@ -62,19 +62,19 @@
 
 ### Base Models
 
-- [ ] T016 [P] [FOUNDATION] Create Recipe model at `/Users/jasonevans/projects/project-tabletop/app/Models/Recipe.php` with fillable fields, casts (dietary_tags to array, meal_type/difficulty to enums), relationships (belongsTo User, belongsToMany Ingredient via recipe_ingredients, hasMany MealAssignment), computed attributes (total_time, is_system_recipe, ingredient_count)
+- [X] T016 [P] [FOUNDATION] Create Recipe model at `/Users/jasonevans/projects/project-tabletop/app/Models/Recipe.php` with fillable fields, casts (dietary_tags to array, meal_type/difficulty to enums), relationships (belongsTo User, belongsToMany Ingredient via recipe_ingredients, hasMany MealAssignment), computed attributes (total_time, is_system_recipe, ingredient_count)
 
-- [ ] T017 [P] [FOUNDATION] Create Ingredient model at `/Users/jasonevans/projects/project-tabletop/app/Models/Ingredient.php` with fillable fields, casts (category to enum), relationships (belongsToMany Recipe via recipe_ingredients, hasMany RecipeIngredient), mutator for lowercase name storage
+- [X] T017 [P] [FOUNDATION] Create Ingredient model at `/Users/jasonevans/projects/project-tabletop/app/Models/Ingredient.php` with fillable fields, casts (category to enum), relationships (belongsToMany Recipe via recipe_ingredients, hasMany RecipeIngredient), mutator for lowercase name storage
 
-- [ ] T018 [P] [FOUNDATION] Create RecipeIngredient model at `/Users/jasonevans/projects/project-tabletop/app/Models/RecipeIngredient.php` with fillable fields, casts (unit to enum), relationships (belongsTo Recipe, belongsTo Ingredient)
+- [X] T018 [P] [FOUNDATION] Create RecipeIngredient model at `/Users/jasonevans/projects/project-tabletop/app/Models/RecipeIngredient.php` with fillable fields, casts (unit to enum), relationships (belongsTo Recipe, belongsTo Ingredient)
 
-- [ ] T019 [P] [FOUNDATION] Create MealPlan model at `/Users/jasonevans/projects/project-tabletop/app/Models/MealPlan.php` with fillable fields, casts (start_date/end_date to date), relationships (belongsTo User, hasMany MealAssignment, hasOne GroceryList, belongsToMany Recipe via meal_assignments), computed attributes (duration_days, is_active, is_past, is_future, assignment_count)
+- [X] T019 [P] [FOUNDATION] Create MealPlan model at `/Users/jasonevans/projects/project-tabletop/app/Models/MealPlan.php` with fillable fields, casts (start_date/end_date to date), relationships (belongsTo User, hasMany MealAssignment, hasOne GroceryList, belongsToMany Recipe via meal_assignments), computed attributes (duration_days, is_active, is_past, is_future, assignment_count)
 
-- [ ] T020 [P] [FOUNDATION] Create MealAssignment model at `/Users/jasonevans/projects/project-tabletop/app/Models/MealAssignment.php` with fillable fields, casts (date to date, meal_type to enum), relationships (belongsTo MealPlan, belongsTo Recipe)
+- [X] T020 [P] [FOUNDATION] Create MealAssignment model at `/Users/jasonevans/projects/project-tabletop/app/Models/MealAssignment.php` with fillable fields, casts (date to date, meal_type to enum), relationships (belongsTo MealPlan, belongsTo Recipe)
 
-- [ ] T021 [P] [FOUNDATION] Create GroceryList model at `/Users/jasonevans/projects/project-tabletop/app/Models/GroceryList.php` with fillable fields, casts (generated_at/regenerated_at/share_expires_at to datetime), relationships (belongsTo User, belongsTo MealPlan nullable, hasMany GroceryItem), computed attributes (is_standalone, is_meal_plan_linked, is_shared, share_url, total_items, completed_items, completion_percentage)
+- [X] T021 [P] [FOUNDATION] Create GroceryList model at `/Users/jasonevans/projects/project-tabletop/app/Models/GroceryList.php` with fillable fields, casts (generated_at/regenerated_at/share_expires_at to datetime), relationships (belongsTo User, belongsTo MealPlan nullable, hasMany GroceryItem), computed attributes (is_standalone, is_meal_plan_linked, is_shared, share_url, total_items, completed_items, completion_percentage)
 
-- [ ] T022 [P] [FOUNDATION] Create GroceryItem model at `/Users/jasonevans/projects/project-tabletop/app/Models/GroceryItem.php` with fillable fields, casts (category/source_type/unit to enums, original_values to array, purchased to boolean, purchased_at to datetime), relationships (belongsTo GroceryList), SoftDeletes trait, computed attributes (is_generated, is_manual, is_edited, display_quantity)
+- [X] T022 [P] [FOUNDATION] Create GroceryItem model at `/Users/jasonevans/projects/project-tabletop/app/Models/GroceryItem.php` with fillable fields, casts (category/source_type/unit to enums, original_values to array, purchased to boolean, purchased_at to datetime), relationships (belongsTo GroceryList), SoftDeletes trait, computed attributes (is_generated, is_manual, is_edited, display_quantity)
 
 ### Service Classes (with Unit Tests FIRST)
 
