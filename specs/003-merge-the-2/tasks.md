@@ -52,13 +52,13 @@
 
 ### Enums
 
-- [ ] T012 [P] [FOUNDATION] Create MealType enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/MealType.php` with cases: BREAKFAST='breakfast', LUNCH='lunch', DINNER='dinner', SNACK='snack'
+- [X] T012 [P] [FOUNDATION] Create MealType enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/MealType.php` with cases: BREAKFAST='breakfast', LUNCH='lunch', DINNER='dinner', SNACK='snack'
 
-- [ ] T013 [P] [FOUNDATION] Create IngredientCategory enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/IngredientCategory.php` with cases: PRODUCE='produce', DAIRY='dairy', MEAT='meat', SEAFOOD='seafood', PANTRY='pantry', FROZEN='frozen', BAKERY='bakery', DELI='deli', BEVERAGES='beverages', OTHER='other'
+- [X] T013 [P] [FOUNDATION] Create IngredientCategory enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/IngredientCategory.php` with cases: PRODUCE='produce', DAIRY='dairy', MEAT='meat', SEAFOOD='seafood', PANTRY='pantry', FROZEN='frozen', BAKERY='bakery', DELI='deli', BEVERAGES='beverages', OTHER='other'
 
-- [ ] T014 [P] [FOUNDATION] Create MeasurementUnit enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/MeasurementUnit.php` with cases for volume (TSP, TBSP, FL_OZ, CUP, PINT, QUART, GALLON, ML, LITER), weight (OZ, LB, GRAM, KG), count (WHOLE, CLOVE, SLICE, PIECE), non-standard (PINCH, DASH, TO_TASTE)
+- [X] T014 [P] [FOUNDATION] Create MeasurementUnit enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/MeasurementUnit.php` with cases for volume (TSP, TBSP, FL_OZ, CUP, PINT, QUART, GALLON, ML, LITER), weight (OZ, LB, GRAM, KG), count (WHOLE, CLOVE, SLICE, PIECE), non-standard (PINCH, DASH, TO_TASTE)
 
-- [ ] T015 [P] [FOUNDATION] Create SourceType enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/SourceType.php` with cases: GENERATED='generated', MANUAL='manual'
+- [X] T015 [P] [FOUNDATION] Create SourceType enum at `/Users/jasonevans/projects/project-tabletop/app/Enums/SourceType.php` with cases: GENERATED='generated', MANUAL='manual'
 
 ### Base Models
 
