@@ -20,7 +20,7 @@
 
 - [X] T001 [P] [SETUP] Run Laravel Pint to verify code formatting setup: `vendor/bin/pint --test`
 - [X] T002 [P] [SETUP] Verify DDEV environment running: `ddev start && ddev describe`
-- [ ] T003 [P] [SETUP] Install PDF export dependency: `composer require barryvdh/laravel-dompdf`
+- [X] T003 [P] [SETUP] Install PDF export dependency: `composer require barryvdh/laravel-dompdf`
 
 **Checkpoint**: Development environment ready, all dependencies installed
 
