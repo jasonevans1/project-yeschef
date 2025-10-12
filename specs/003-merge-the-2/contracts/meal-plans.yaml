@@ -1,0 +1,313 @@
+# Meal Planning API Contract
+# Livewire Component Interactions for Meal Planning
+
+version: 1.0.0
+domain: MealPlans
+components:
+  - App\Livewire\MealPlans\Index
+  - App\Livewire\MealPlans\Create
+  - App\Livewire\MealPlans\Show
+  - App\Livewire\MealPlans\Edit
+  - App\Livewire\MealPlans\Delete
+
+# ============================================================================
+# Component: MealPlans\Index (List Meal Plans)
+# ============================================================================
+
+Index:
+  route: GET /meal-plans
+  auth: required
+  purpose: List user's meal plans with filtering
+
+  properties:
+    filter:
+      type: string
+      default: "all"
+      url: true
+      options: [all, active, past, future]
+
+  computed_properties:
+    mealPlans:
+      type: Collection<MealPlan>
+      pagination: 12
+      query_logic: |
+        - Scope to current user
+        - Filter by status (active/past/future)
+        - Order by start_date DESC
+        - Eager load: mealAssignments.recipe
+
+  methods:
+    setFilter(string $filter):
+      action: Update filter property
+      side_effects: Updates URL, re-renders
+
+# ============================================================================
+# Component: MealPlans\Create (Create Meal Plan)
+# ============================================================================
+
+Create:
+  route: GET /meal-plans/create
+  auth: required
+  purpose: Create a new meal plan
+
+  properties:
+    name:
+      type: string
+      validate: required|string|min:3|max:255
+
+    start_date:
+      type: string (date)
+      validate: required|date|after_or_equal:today
+
+    end_date:
+      type: string (date)
+      validate: required|date|after_or_equal:start_date|before_or_equal:+28 days
+
+    description:
+      type: string|null
+      validate: nullable|string|max:1000
+
+  methods:
+    save():
+      action: |
+        1. Validate inputs
+        2. Create MealPlan with user_id = auth()->id()
+        3. Redirect to meal plan show/edit page
+      response: Redirect to meal-plans.show with success message
+
+# ============================================================================
+# Component: MealPlans\Show (View Meal Plan Calendar)
+# ============================================================================
+
+Show:
+  route: GET /meal-plans/{mealPlan}
+  auth: required
+  purpose: Display meal plan in calendar format
+
+  properties:
+    mealPlan:
+      type: MealPlan
+      mount_param: true
+
+  computed_properties:
+    calendarDays:
+      type: array
+      description: Array of dates from start_date to end_date with assigned meals
+      structure: |
+        [
+          {
+            "date": "2025-10-14",
+            "breakfast": { "recipe": Recipe|null, "serving_multiplier": 1.0 },
+            "lunch": { "recipe": Recipe|null, "serving_multiplier": 1.0 },
+            "dinner": { "recipe": Recipe|null, "serving_multiplier": 1.0 },
+            "snack": { "recipe": Recipe|null, "serving_multiplier": 1.0 }
+          }
+        ]
+
+    canGenerateGroceryList:
+      type: boolean
+      logic: mealPlan has at least one meal assignment
+
+  methods:
+    mount(MealPlan $mealPlan):
+      authorization: $mealPlan->user_id === auth()->id()
+      action: Load meal plan with assignments and recipes
+
+    generateGroceryList():
+      trigger: User clicks "Generate Grocery List" button
+      authorization: canGenerateGroceryList must be true
+      action: Redirect to grocery-lists.generate with mealPlan parameter
+      response: Redirect to grocery list generation flow
+
+# ============================================================================
+# Component: MealPlans\Edit (Edit Meal Plan & Assign Recipes)
+# ============================================================================
+
+Edit:
+  route: GET /meal-plans/{mealPlan}/edit
+  auth: required
+  purpose: Edit meal plan and assign/remove recipes
+
+  properties:
+    mealPlan:
+      type: MealPlan
+      mount_param: true
+
+    selectedDate:
+      type: string|null
+      default: null
+      description: Currently selected date for recipe assignment
+
+    selectedMealType:
+      type: string|null
+      default: null
+      options: [breakfast, lunch, dinner, snack]
+
+    showRecipePicker:
+      type: boolean
+      default: false
+      description: Whether recipe selection modal is visible
+
+    recipeSearch:
+      type: string
+      default: ""
+      description: Search query in recipe picker
+
+  computed_properties:
+    availableRecipes:
+      type: Collection<Recipe>
+      description: Recipes available for assignment (system + user's)
+      query_logic: |
+        - System recipes + user's personal recipes
+        - Filter by recipeSearch if present
+        - Paginate 12 per page
+
+  methods:
+    mount(MealPlan $mealPlan):
+      authorization: $mealPlan->user_id === auth()->id()
+
+    selectSlot(string $date, string $mealType):
+      trigger: User clicks empty meal slot in calendar
+      action: |
+        1. Set selectedDate = $date
+        2. Set selectedMealType = $mealType
+        3. Set showRecipePicker = true
+      side_effects: Opens recipe picker modal
+
+    assignRecipe(int $recipeId, float $servingMultiplier = 1.0):
+      trigger: User selects recipe in picker modal
+      parameters:
+        - recipeId: Recipe to assign
+        - servingMultiplier: Serving size adjustment (default 1.0)
+      action: |
+        1. Create or update MealAssignment for (mealPlan, selectedDate, selectedMealType, recipe)
+        2. Store serving_multiplier
+        3. Close recipe picker modal
+        4. Re-render calendar
+      response: Success message, updated calendar
+
+    removeAssignment(string $date, string $mealType):
+      trigger: User clicks "Remove" on assigned recipe
+      action: Delete MealAssignment for (mealPlan, date, mealType)
+      response: Re-render calendar
+
+    updateServingMultiplier(int $assignmentId, float $multiplier):
+      trigger: User adjusts serving size on assigned recipe
+      validation: multiplier between 0.25 and 10.0
+      action: Update MealAssignment serving_multiplier
+      response: Re-render calendar
+
+    cancel():
+      action: Redirect to meal-plans.show without saving
+
+  events_emitted:
+    - meal-assigned: { mealPlanId, assignmentId }
+    - meal-removed: { mealPlanId, assignmentId }
+
+# ============================================================================
+# Component: MealPlans\Delete (Delete Meal Plan)
+# ============================================================================
+
+Delete:
+  route: N/A (embedded in Show component)
+  auth: required
+  purpose: Delete meal plan with confirmation
+
+  properties:
+    mealPlan:
+      type: MealPlan
+      mount_param: true
+
+    showConfirmation:
+      type: boolean
+      default: false
+
+  methods:
+    confirmDelete():
+      action: Set showConfirmation = true
+
+    delete():
+      authorization: $mealPlan->user_id === auth()->id()
+      action: |
+        1. Check if meal plan has generated grocery list
+        2. If yes, offer to delete grocery list too (optional)
+        3. Delete meal plan (CASCADE deletes meal_assignments)
+        4. Optionally delete associated grocery list
+        5. Redirect to meal-plans.index
+      response: Redirect with success message
+
+    cancel():
+      action: Close modal
+
+# ============================================================================
+# Data Transfer Objects
+# ============================================================================
+
+dtos:
+  MealPlanDTO:
+    properties:
+      id: int
+      user_id: int
+      name: string
+      start_date: string (date)
+      end_date: string (date)
+      description: string|null
+      duration_days: int
+      is_active: boolean
+      is_past: boolean
+      is_future: boolean
+      assignment_count: int
+      created_at: string (ISO 8601)
+      updated_at: string (ISO 8601)
+
+  MealAssignmentDTO:
+    properties:
+      id: int
+      meal_plan_id: int
+      recipe_id: int
+      recipe: RecipeDTO
+      date: string (date)
+      meal_type: string (enum)
+      serving_multiplier: float
+      notes: string|null
+
+# ============================================================================
+# Validation Rules
+# ============================================================================
+
+validation:
+  create_meal_plan:
+    name: required|string|min:3|max:255
+    start_date: required|date|after_or_equal:today
+    end_date: required|date|after_or_equal:start_date|before_or_equal:+28 days
+    description: nullable|string|max:1000
+
+  assign_recipe:
+    meal_plan_id: required|exists:meal_plans,id
+    recipe_id: required|exists:recipes,id
+    date: required|date|between:{meal_plan.start_date},{meal_plan.end_date}
+    meal_type: required|in:breakfast,lunch,dinner,snack
+    serving_multiplier: required|numeric|min:0.25|max:10.0
+    notes: nullable|string|max:500
+
+# ============================================================================
+# Authorization Policies
+# ============================================================================
+
+policies:
+  MealPlanPolicy:
+    view:
+      logic: Owned by current user (meal_plan.user_id = auth()->id())
+      error: "You can only view your own meal plans."
+
+    create:
+      logic: Authenticated user
+      error: "You must be logged in to create meal plans."
+
+    update:
+      logic: Owned by current user
+      error: "You can only edit your own meal plans."
+
+    delete:
+      logic: Owned by current user
+      error: "You can only delete your own meal plans."

@@ -1,0 +1,525 @@
+# Grocery List Management API Contract
+# Livewire Component Interactions for Grocery Lists
+
+version: 1.0.0
+domain: GroceryLists
+components:
+  - App\Livewire\GroceryLists\Index
+  - App\Livewire\GroceryLists\Show
+  - App\Livewire\GroceryLists\Create
+  - App\Livewire\GroceryLists\Generate
+  - App\Livewire\GroceryLists\Export
+
+# ============================================================================
+# Component: GroceryLists\Index (List Grocery Lists)
+# ============================================================================
+
+Index:
+  route: GET /grocery-lists
+  auth: required
+  purpose: List user's grocery lists
+
+  properties:
+    filter:
+      type: string
+      default: "all"
+      url: true
+      options: [all, meal-plan-linked, standalone]
+
+  computed_properties:
+    groceryLists:
+      type: Collection<GroceryList>
+      pagination: 12
+      query_logic: |
+        - Scope to current user
+        - Filter by type (meal-plan-linked vs standalone)
+        - Order by created_at DESC
+        - Eager load: mealPlan, items
+
+  methods:
+    setFilter(string $filter):
+      action: Update filter property
+
+# ============================================================================
+# Component: GroceryLists\Generate (Generate from Meal Plan)
+# ============================================================================
+
+Generate:
+  route: GET /grocery-lists/generate/{mealPlan}
+  auth: required
+  purpose: Generate grocery list from meal plan
+
+  properties:
+    mealPlan:
+      type: MealPlan
+      mount_param: true
+
+    name:
+      type: string
+      validate: required|string|min:3|max:255
+
+  computed_properties:
+    previewItems:
+      type: Collection
+      description: Preview of aggregated ingredients before saving
+      logic: |
+        - Use GroceryListGenerator service
+        - Aggregate all ingredients from meal plan recipes
+        - Apply serving multipliers
+        - Convert units and combine duplicates
+        - Group by category
+
+  methods:
+    mount(MealPlan $mealPlan):
+      authorization: $mealPlan->user_id === auth()->id()
+      action: |
+        1. Load meal plan with assignments and recipes
+        2. Set default name = "{meal_plan.name} Grocery List"
+        3. Generate preview items
+
+    generate():
+      trigger: User clicks "Generate Grocery List" button
+      validation: name is required
+      action: |
+        1. Use GroceryListGenerator::generate($mealPlan)
+        2. Create GroceryList with name, meal_plan_id, user_id
+        3. Create GroceryItems (source_type = 'generated')
+        4. Save to database
+        5. Redirect to grocery-lists.show
+      service_call: GroceryListGenerator::generate(MealPlan)
+      response: Redirect to grocery-lists.show with success message
+
+# ============================================================================
+# Component: GroceryLists\Show (View & Manage Grocery List)
+# ============================================================================
+
+Show:
+  route: GET /grocery-lists/{groceryList}
+  auth: required
+  purpose: View and manage grocery list items
+
+  properties:
+    groceryList:
+      type: GroceryList
+      mount_param: true
+
+    showAddItemForm:
+      type: boolean
+      default: false
+
+    showEditItemForm:
+      type: int|null
+      default: null
+      description: ID of item being edited, null if none
+
+    # Add item form fields
+    newItemName:
+      type: string
+      default: ""
+      validate: required|string|min:1|max:255
+
+    newItemQuantity:
+      type: float|null
+      default: null
+      validate: nullable|numeric|min:0.001|max:9999.999
+
+    newItemUnit:
+      type: string|null
+      default: null
+      validate: nullable|in:{unit_options}
+
+    newItemCategory:
+      type: string
+      default: "other"
+      validate: required|in:{category_options}
+
+    # Edit item properties (populated when editing)
+    editItemId:
+      type: int|null
+      default: null
+
+    editItemName:
+      type: string
+      default: ""
+
+    editItemQuantity:
+      type: float|null
+      default: null
+
+    editItemUnit:
+      type: string|null
+      default: null
+
+    editItemCategory:
+      type: string
+      default: "other"
+
+  computed_properties:
+    itemsByCategory:
+      type: Collection
+      description: Grocery items grouped by category
+      logic: |
+        - groceryList.items()->whereNull('deleted_at')
+        - Group by category
+        - Order by sort_order within each category
+
+    canRegenerate:
+      type: boolean
+      logic: groceryList.meal_plan_id !== null
+
+    completionPercentage:
+      type: int
+      logic: (completed_items / total_items) * 100
+
+  methods:
+    mount(GroceryList $groceryList):
+      authorization: $groceryList->user_id === auth()->id()
+      action: Load grocery list with items
+
+    togglePurchased(int $itemId):
+      trigger: User clicks checkbox on item
+      action: |
+        1. Find GroceryItem
+        2. Toggle purchased boolean
+        3. Set purchased_at = now() if true, null if false
+        4. Save
+      response: Re-render item
+
+    openAddItemForm():
+      action: Set showAddItemForm = true
+
+    closeAddItemForm():
+      action: |
+        1. Set showAddItemForm = false
+        2. Reset all newItem* properties
+
+    addItem():
+      trigger: User submits add item form
+      validation: Validate newItem* properties
+      action: |
+        1. Create GroceryItem with:
+           - grocery_list_id
+           - name = newItemName
+           - quantity = newItemQuantity
+           - unit = newItemUnit
+           - category = newItemCategory
+           - source_type = 'manual'
+           - purchased = false
+        2. Save
+        3. Reset form
+        4. Close form
+      response: Re-render list with new item, success message
+
+    openEditItemForm(int $itemId):
+      trigger: User clicks "Edit" on item
+      action: |
+        1. Find GroceryItem
+        2. Set editItemId = itemId
+        3. Populate editItem* properties from item
+        4. Set showEditItemForm = itemId
+
+    closeEditItemForm():
+      action: |
+        1. Set showEditItemForm = null
+        2. Set editItemId = null
+        3. Reset all editItem* properties
+
+    updateItem():
+      trigger: User submits edit item form
+      validation: Validate editItem* properties
+      action: |
+        1. Find GroceryItem by editItemId
+        2. If source_type = 'generated' and not already edited:
+           - Store current values in original_values JSON
+        3. Update name, quantity, unit, category
+        4. Save
+        5. Close form
+      response: Re-render list, success message
+
+    deleteItem(int $itemId):
+      trigger: User clicks "Delete" on item
+      action: |
+        1. Find GroceryItem
+        2. If source_type = 'manual': Hard delete
+        3. If source_type = 'generated': Soft delete (set deleted_at)
+        4. Save
+      response: Re-render list, success message
+
+    regenerate():
+      trigger: User clicks "Regenerate from Meal Plan" button
+      authorization: canRegenerate must be true
+      confirmation: Show modal with preview of changes
+      action: |
+        1. Use GroceryListGenerator::regenerate($groceryList)
+        2. Service handles:
+           - Keep manual items (source_type = 'manual')
+           - Keep edited generated items (original_values not null)
+           - Respect soft-deleted items (don't re-add)
+           - Update unmodified generated items
+           - Add new items from updated meal plan
+        3. Update regenerated_at timestamp
+        4. Re-render list
+      service_call: GroceryListGenerator::regenerate(GroceryList)
+      response: Re-render with success message
+
+    clearCompleted():
+      trigger: User clicks "Clear Completed Items"
+      confirmation: Required
+      action: Delete all items where purchased = true
+      response: Re-render list
+
+# ============================================================================
+# Component: GroceryLists\Create (Create Standalone Grocery List)
+# ============================================================================
+
+Create:
+  route: GET /grocery-lists/create
+  auth: required
+  purpose: Create standalone grocery list (not linked to meal plan)
+
+  properties:
+    name:
+      type: string
+      default: ""
+      validate: required|string|min:3|max:255
+
+  methods:
+    save():
+      trigger: User clicks "Create Grocery List" button
+      validation: Validate name
+      action: |
+        1. Create GroceryList with:
+           - user_id = auth()->id()
+           - name
+           - meal_plan_id = null (standalone)
+        2. Save
+        3. Redirect to grocery-lists.show
+      response: Redirect to empty grocery list, user adds items manually
+
+# ============================================================================
+# Component: GroceryLists\Export (Export Grocery List)
+# ============================================================================
+
+Export:
+  route: N/A (modal in Show component)
+  auth: required
+  purpose: Export grocery list as PDF or text
+
+  properties:
+    groceryList:
+      type: GroceryList
+      mount_param: true
+
+    exportFormat:
+      type: string
+      default: "pdf"
+      options: [pdf, text]
+
+    includeRecipes:
+      type: boolean
+      default: false
+      description: Include recipe names in export
+
+    groupByCategory:
+      type: boolean
+      default: true
+      description: Group items by category
+
+  methods:
+    mount(GroceryList $groceryList):
+      authorization: $groceryList->user_id === auth()->id()
+
+    export():
+      trigger: User clicks "Export" button
+      action: |
+        1. Load grocery list items with filters:
+           - Exclude soft-deleted items
+           - Include purchased status
+           - Group by category if enabled
+        2. If exportFormat = 'pdf':
+           - Use Laravel-DomPDF
+           - Render grocery-lists.pdf view
+           - Return PDF download response
+        3. If exportFormat = 'text':
+           - Generate plain text format
+           - Return text file download response
+      response: File download (PDF or TXT)
+
+    generateShareLink():
+      trigger: User clicks "Generate Share Link" button
+      action: |
+        1. Generate UUID for share_token
+        2. Set share_expires_at = now() + 7 days
+        3. Save grocery list
+        4. Return shareable URL
+      response: Display shareable link, copy to clipboard
+
+# ============================================================================
+# Services
+# ============================================================================
+
+services:
+  GroceryListGenerator:
+    methods:
+      generate(MealPlan $mealPlan):
+        returns: Collection<GroceryItemDTO>
+        description: Generate aggregated grocery items from meal plan
+        algorithm: |
+          1. Load all meal assignments with recipes and ingredients
+          2. For each recipe ingredient:
+             - Apply serving_multiplier from meal assignment
+             - Use ServingSizeScaler::scale(quantity, multiplier)
+          3. For each ingredient:
+             - Use UnitConverter::toBaseUnit(quantity, unit)
+             - Group by ingredient name
+          4. Use IngredientAggregator::aggregate(groupedItems)
+          5. For each aggregated item:
+             - Use UnitConverter::toFriendlyUnit(base_quantity, base_unit)
+             - Create GroceryItemDTO
+          6. Sort by category, then name
+          7. Return collection
+
+      regenerate(GroceryList $groceryList):
+        returns: Collection<GroceryItemDTO>
+        description: Regenerate grocery list preserving manual edits
+        algorithm: |
+          1. Load existing items (including soft-deleted)
+          2. Generate new items from current meal plan
+          3. For each new item:
+             a. Check for existing item with same name
+             b. If exists and source_type = 'manual': Keep manual item
+             c. If exists and source_type = 'generated' and original_values not null: Keep edited item
+             d. If exists and deleted_at not null: Skip (don't re-add)
+             e. If exists and unmodified: Update quantity from new generation
+             f. If new: Create as generated item
+          4. For each existing item not in new generation:
+             a. If source_type = 'manual': Keep
+             b. If source_type = 'generated' and edited: Keep (with indicator)
+             c. If source_type = 'generated' and unmodified: Soft delete
+          5. Update regenerated_at timestamp
+          6. Return updated collection
+
+  IngredientAggregator:
+    methods:
+      aggregate(Collection $ingredients):
+        returns: Collection<AggregatedIngredient>
+        description: Combine duplicate ingredients
+        logic: |
+          1. Group by ingredient name (case-insensitive)
+          2. For each group:
+             - If all units compatible: Sum quantities
+             - If units incompatible: Keep separate entries
+             - Assign category from first ingredient
+          3. Return aggregated collection
+
+  UnitConverter:
+    methods:
+      toBaseUnit(float $quantity, string $unit):
+        returns: [float $baseQuantity, string $baseUnit]
+        description: Convert to base unit for aggregation
+        base_units:
+          volume: fl_oz
+          weight: oz
+          count: whole
+
+      toFriendlyUnit(float $baseQuantity, string $baseUnit):
+        returns: [float $quantity, string $unit]
+        description: Convert from base unit to user-friendly unit
+        logic: Prefer largest whole unit (e.g., 16 fl_oz → 1 pint or 2 cups)
+
+      areUnitsCompatible(string $unit1, string $unit2):
+        returns: boolean
+        description: Check if two units can be converted
+        logic: Both must be volume, weight, or count (not mixed)
+
+  ServingSizeScaler:
+    methods:
+      scale(float $quantity, float $multiplier):
+        returns: float
+        description: Apply serving size multiplier to quantity
+        formula: quantity * multiplier
+
+# ============================================================================
+# Data Transfer Objects
+# ============================================================================
+
+dtos:
+  GroceryListDTO:
+    properties:
+      id: int
+      user_id: int
+      meal_plan_id: int|null
+      name: string
+      is_standalone: boolean
+      is_meal_plan_linked: boolean
+      total_items: int
+      completed_items: int
+      completion_percentage: int
+      generated_at: string (ISO 8601)
+      regenerated_at: string|null (ISO 8601)
+      share_token: string|null
+      share_url: string|null
+      created_at: string (ISO 8601)
+      updated_at: string (ISO 8601)
+
+  GroceryItemDTO:
+    properties:
+      id: int
+      grocery_list_id: int
+      name: string
+      quantity: float|null
+      unit: string|null
+      category: string
+      source_type: string (enum)
+      is_generated: boolean
+      is_manual: boolean
+      is_edited: boolean
+      purchased: boolean
+      purchased_at: string|null (ISO 8601)
+      notes: string|null
+      display_quantity: string
+
+# ============================================================================
+# Validation Rules
+# ============================================================================
+
+validation:
+  create_grocery_list:
+    name: required|string|min:3|max:255
+
+  add_grocery_item:
+    grocery_list_id: required|exists:grocery_lists,id
+    name: required|string|min:1|max:255
+    quantity: nullable|numeric|min:0.001|max:9999.999
+    unit: nullable|in:{unit_options}
+    category: required|in:{category_options}
+    notes: nullable|string|max:500
+
+  update_grocery_item:
+    # Same as add_grocery_item
+
+# ============================================================================
+# Authorization Policies
+# ============================================================================
+
+policies:
+  GroceryListPolicy:
+    view:
+      logic: Owned by current user OR valid share token
+      error: "You can only view your own grocery lists."
+
+    create:
+      logic: Authenticated user
+      error: "You must be logged in to create grocery lists."
+
+    update:
+      logic: Owned by current user
+      error: "You can only edit your own grocery lists."
+
+    delete:
+      logic: Owned by current user
+      error: "You can only delete your own grocery lists."
+
+    regenerate:
+      logic: Owned by current user AND meal_plan_id is not null
+      error: "You can only regenerate meal-plan-linked grocery lists you own."
