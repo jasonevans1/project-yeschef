@@ -28,7 +28,10 @@ return new class extends Migration
             $table->timestamps();
 
             // Indexes
-            $table->fullText(['name', 'description']);
+            // Only create fulltext index if not using SQLite (for testing compatibility)
+            if (config('database.default') !== 'sqlite') {
+                $table->fullText(['name', 'description']);
+            }
             $table->index('meal_type');
         });
     }
