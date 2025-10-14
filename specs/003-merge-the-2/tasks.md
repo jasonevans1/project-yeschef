@@ -96,11 +96,11 @@
 
 ### Authorization Policies
 
-- [ ] T031 [P] [FOUNDATION] Create RecipePolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/RecipePolicy.php` with methods: view (allow all for system recipes, owner only for personal), create (authenticated users), update (owner only, not system recipes), delete (owner only, not system recipes)
+- [X] T031 [P] [FOUNDATION] Create RecipePolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/RecipePolicy.php` with methods: view (allow all for system recipes, owner only for personal), create (authenticated users), update (owner only, not system recipes), delete (owner only, not system recipes)
 
-- [ ] T032 [P] [FOUNDATION] Create MealPlanPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/MealPlanPolicy.php` with methods: viewAny, view, create, update, delete (all owner-only operations)
+- [X] T032 [P] [FOUNDATION] Create MealPlanPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/MealPlanPolicy.php` with methods: viewAny, view, create, update, delete (all owner-only operations)
 
-- [ ] T033 [P] [FOUNDATION] Create GroceryListPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/GroceryListPolicy.php` with methods: viewAny, view, create, update, delete (all owner-only), viewShared (requires authentication, checks share_token and expiration)
+- [X] T033 [P] [FOUNDATION] Create GroceryListPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/GroceryListPolicy.php` with methods: viewAny, view, create, update, delete (all owner-only), viewShared (requires authentication, checks share_token and expiration)
 
 ### Factories & Seeders
 
