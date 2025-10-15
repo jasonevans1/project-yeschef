@@ -136,13 +136,13 @@
 
 ### Tests for User Story 1 (TDD - Write tests FIRST, ensure they FAIL)
 
-- [ ] T043 [P] [US1] Feature test for browsing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/BrowseRecipesTest.php` covering: authenticated user can view recipes index, recipes display with name/image/description, pagination works (24 per page), system recipes visible to all users, user's personal recipes visible in list
+- [X] T043 [P] [US1] Feature test for browsing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/BrowseRecipesTest.php` covering: authenticated user can view recipes index, recipes display with name/image/description, pagination works (24 per page), system recipes visible to all users, user's personal recipes visible in list
 
-- [ ] T044 [P] [US1] Feature test for viewing recipe details at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/ViewRecipeTest.php` covering: user can view system recipe details, user can view own recipe details, recipe shows all fields (name, description, times, servings, instructions), ingredients list displays with quantities/units, unauthorized user cannot view another user's personal recipe
+- [X] T044 [P] [US1] Feature test for viewing recipe details at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/ViewRecipeTest.php` covering: user can view system recipe details, user can view own recipe details, recipe shows all fields (name, description, times, servings, instructions), ingredients list displays with quantities/units, unauthorized user cannot view another user's personal recipe
 
-- [ ] T045 [P] [US1] Feature test for searching recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/SearchRecipesTest.php` covering: search by recipe name (full-text), search by ingredient name, filter by meal type, filter by dietary tags, combined filters (search + meal type), URL contains search parameters (shareable)
+- [X] T045 [P] [US1] Feature test for searching recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/SearchRecipesTest.php` covering: search by recipe name (full-text), search by ingredient name, filter by meal type, filter by dietary tags, combined filters (search + meal type), URL contains search parameters (shareable)
 
-- [ ] T046 [P] [US1] E2E test for recipe browsing journey at `/Users/jasonevans/projects/project-tabletop/e2e/recipes.spec.ts` covering: user logs in, navigates to recipes page, sees recipe grid, uses search filter, clicks recipe card, views full recipe details, uses back button, tries different meal type filter
+- [X] T046 [P] [US1] E2E test for recipe browsing journey at `/Users/jasonevans/projects/project-tabletop/e2e/recipes.spec.ts` covering: user logs in, navigates to recipes page, sees recipe grid, uses search filter, clicks recipe card, views full recipe details, uses back button, tries different meal type filter
 
 ### Implementation for User Story 1
 
