@@ -16,12 +16,16 @@ class MealPlanFactory extends Factory
      */
     public function definition(): array
     {
+        $startDate = fake()->dateTimeBetween('now', '+30 days');
+        $durationDays = fake()->numberBetween(1, 28); // 1 day to 4 weeks (28 days)
+        $endDate = (clone $startDate)->modify("+{$durationDays} days");
+
         return [
             'user_id' => \App\Models\User::factory(),
-            'name' => fake()->words(3, true),
-            'start_date' => now()->startOfWeek(),
-            'end_date' => now()->endOfWeek(),
-            'description' => fake()->optional()->sentence(),
+            'name' => fake()->words(rand(2, 4), true),
+            'start_date' => $startDate,
+            'end_date' => $endDate,
+            'description' => fake()->optional(0.7)->sentence(),
         ];
     }
 }

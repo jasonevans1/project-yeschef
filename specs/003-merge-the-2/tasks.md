@@ -104,25 +104,25 @@
 
 ### Factories & Seeders
 
-- [ ] T034 [P] [FOUNDATION] Create RecipeFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/RecipeFactory.php` generating realistic recipe data with ingredients (via RecipeIngredient), supports user_id nullable for system recipes
+- [X] T034 [P] [FOUNDATION] Create RecipeFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/RecipeFactory.php` generating realistic recipe data with ingredients (via RecipeIngredient), supports user_id nullable for system recipes
 
-- [ ] T035 [P] [FOUNDATION] Create IngredientFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/IngredientFactory.php` generating ingredient names with appropriate categories
+- [X] T035 [P] [FOUNDATION] Create IngredientFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/IngredientFactory.php` generating ingredient names with appropriate categories
 
-- [ ] T036 [P] [FOUNDATION] Create MealPlanFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/MealPlanFactory.php` generating meal plans with date ranges (1-28 days)
+- [X] T036 [P] [FOUNDATION] Create MealPlanFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/MealPlanFactory.php` generating meal plans with date ranges (1-28 days)
 
-- [ ] T037 [P] [FOUNDATION] Create GroceryListFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/GroceryListFactory.php` generating lists with items (both generated and manual)
+- [X] T037 [P] [FOUNDATION] Create GroceryListFactory at `/Users/jasonevans/projects/project-tabletop/database/factories/GroceryListFactory.php` generating lists with items (both generated and manual)
 
-- [ ] T038 [FOUNDATION] Create RecipeSeeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/RecipeSeeder.php` seeding 50-100 system recipes (user_id = null) with diverse cuisines, meal types, difficulties, dietary tags, and realistic ingredients (can run: php artisan db:seed --class=RecipeSeeder)
+- [X] T038 [FOUNDATION] Create RecipeSeeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/RecipeSeeder.php` seeding 50-100 system recipes (user_id = null) with diverse cuisines, meal types, difficulties, dietary tags, and realistic ingredients (can run: php artisan db:seed --class=RecipeSeeder)
 
-- [ ] T039 [FOUNDATION] Update DatabaseSeeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/DatabaseSeeder.php` to call RecipeSeeder in appropriate order
+- [X] T039 [FOUNDATION] Update DatabaseSeeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/DatabaseSeeder.php` to call RecipeSeeder in appropriate order
 
 ### Routes Structure
 
-- [ ] T040 [FOUNDATION] Add recipe routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: recipes.index, recipes.show, recipes.create, recipes.edit (all using Livewire component classes, all within auth middleware group)
+- [X] T040 [FOUNDATION] Add recipe routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: recipes.index, recipes.show, recipes.create, recipes.edit (all using Livewire component classes, all within auth middleware group)
 
-- [ ] T041 [FOUNDATION] Add meal plan routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: meal-plans.index, meal-plans.create, meal-plans.show, meal-plans.edit (all using Livewire component classes, all within auth middleware group)
+- [X] T041 [FOUNDATION] Add meal plan routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: meal-plans.index, meal-plans.create, meal-plans.show, meal-plans.edit (all using Livewire component classes, all within auth middleware group)
 
-- [ ] T042 [FOUNDATION] Add grocery list routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: grocery-lists.index, grocery-lists.show, grocery-lists.create, grocery-lists.generate, grocery-lists.export, grocery-lists.shared (all using Livewire component classes, auth required except shared uses separate middleware)
+- [X] T042 [FOUNDATION] Add grocery list routes to `/Users/jasonevans/projects/project-tabletop/routes/web.php` for: grocery-lists.index, grocery-lists.show, grocery-lists.create, grocery-lists.generate, grocery-lists.export, grocery-lists.shared (all using Livewire component classes, auth required except shared uses separate middleware)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel. All migrations run successfully, all models have relationships, all services have passing unit tests, all policies defined, factories work, routes registered.
 
