@@ -32,22 +32,22 @@ Route::view('dashboard', 'dashboard')
 Route::middleware(['auth'])->group(function () {
     // Recipe Routes
     Route::get('recipes', RecipesIndex::class)->name('recipes.index');
-    Route::get('recipes/create', RecipesCreate::class)->name('recipes.create');
+    // Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // TODO: US5 - T099
     Route::get('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
-    Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit');
+    // Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // TODO: US5 - T101
 
     // Meal Plan Routes
-    Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index');
-    Route::get('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create');
-    Route::get('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show');
-    Route::get('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit');
+    // Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index'); // TODO: US2 - T059
+    // Route::get('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create'); // TODO: US2 - T061
+    // Route::get('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show'); // TODO: US2 - T063
+    // Route::get('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit'); // TODO: US2 - T065
 
     // Grocery List Routes (authenticated)
-    Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index');
-    Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create');
-    Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show');
-    Route::get('grocery-lists/{groceryList}/generate', GroceryListsGenerate::class)->name('grocery-lists.generate');
-    Route::get('grocery-lists/{groceryList}/export', GroceryListsExport::class)->name('grocery-lists.export');
+    // Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // TODO: US3 - T074
+    // Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // TODO: US6 - T110
+    // Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // TODO: US3 - T078
+    // Route::get('grocery-lists/{groceryList}/generate', GroceryListsGenerate::class)->name('grocery-lists.generate'); // TODO: US3 - T076
+    // Route::get('grocery-lists/{groceryList}/export', GroceryListsExport::class)->name('grocery-lists.export'); // TODO: US8 - T126
 
     // Settings Routes
     Route::redirect('settings', 'settings/profile');
@@ -69,8 +69,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // Shared Grocery List Route (requires authentication)
-Route::get('grocery-lists/shared/{token}', GroceryListsShared::class)
-    ->middleware(['auth'])
-    ->name('grocery-lists.shared');
+// Route::get('grocery-lists/shared/{token}', GroceryListsShared::class)
+//     ->middleware(['auth'])
+//     ->name('grocery-lists.shared'); // TODO: US8 - T129
 
 require __DIR__.'/auth.php';

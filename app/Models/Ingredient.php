@@ -35,10 +35,15 @@ class Ingredient extends Model
         return $this->hasMany(RecipeIngredient::class);
     }
 
-    // Mutators
+    // Mutators & Accessors
 
     public function setNameAttribute(string $value): void
     {
         $this->attributes['name'] = strtolower(trim($value));
+    }
+
+    public function getNameAttribute(string $value): string
+    {
+        return ucfirst($value);
     }
 }

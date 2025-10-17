@@ -31,7 +31,9 @@ class RecipeFactory extends Factory
             'difficulty' => fake()->optional(0.8)->randomElement(['easy', 'medium', 'hard']),
             'dietary_tags' => fake()->optional(0.6)->randomElements($dietaryTags, rand(1, 3)),
             'instructions' => fake()->paragraphs(rand(3, 6), true),
-            'image_url' => fake()->optional(0.7)->imageUrl(),
+            'image_url' => fake()->optional(0.7)->randomElement([
+                'https://picsum.photos/seed/'.fake()->numberBetween(1, 1000).'/640/480',
+            ]),
         ];
     }
 

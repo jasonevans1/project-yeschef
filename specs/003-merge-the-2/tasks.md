@@ -146,17 +146,17 @@
 
 ### Implementation for User Story 1
 
-- [ ] T047 [P] [US1] Create Recipes\Index Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Index.php` with properties: #[Url] search (string), #[Url] mealTypes (array), #[Url] dietaryTags (array), render method returning paginated recipes (24 per page) with eager loading (recipeIngredients.ingredient), query builder with whereFullText, whereIn, whereJsonContains, updatedSearch() method to reset pagination
+- [X] T047 [P] [US1] Create Recipes\Index Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Index.php` with properties: #[Url] search (string), #[Url] mealTypes (array), #[Url] dietaryTags (array), render method returning paginated recipes (24 per page) with eager loading (recipeIngredients.ingredient), query builder with whereFullText, whereIn, whereJsonContains, updatedSearch() method to reset pagination
 
-- [ ] T048 [P] [US1] Create index view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/index.blade.php` using Flux components for: search input (wire:model.live.debounce.300ms="search"), meal type filter checkboxes, dietary tag filter checkboxes, recipe grid (4 columns desktop, 2 tablet, 1 mobile), recipe cards with image/name/brief description, pagination controls
+- [X] T048 [P] [US1] Create index view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/index.blade.php` using Flux components for: search input (wire:model.live.debounce.300ms="search"), meal type filter checkboxes, dietary tag filter checkboxes, recipe grid (4 columns desktop, 2 tablet, 1 mobile), recipe cards with image/name/brief description, pagination controls
 
-- [ ] T049 [P] [US1] Create Recipes\Show Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Show.php` with mount(Recipe $recipe) method checking authorization (view policy), computed properties for total_time and is_system_recipe, render method with eager loaded recipe data
+- [X] T049 [P] [US1] Create Recipes\Show Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Show.php` with mount(Recipe $recipe) method checking authorization (view policy), computed properties for total_time and is_system_recipe, render method with eager loaded recipe data
 
-- [ ] T050 [P] [US1] Create show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/show.blade.php` using Flux components displaying: recipe header (name, image, cuisine, difficulty), time information (prep, cook, total), servings, dietary tags as badges, ingredients list grouped with quantities/units/notes, step-by-step instructions, "Edit" button (if user owns recipe), "Back to Recipes" button
+- [X] T050 [P] [US1] Create show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/show.blade.php` using Flux components displaying: recipe header (name, image, cuisine, difficulty), time information (prep, cook, total), servings, dietary tags as badges, ingredients list grouped with quantities/units/notes, step-by-step instructions, "Edit" button (if user owns recipe), "Back to Recipes" button
 
-- [ ] T051 [US1] Add authorization checks to routes for recipes in `/Users/jasonevans/projects/project-tabletop/routes/web.php` ensuring RecipePolicy is applied
+- [X] T051 [US1] Add authorization checks to routes for recipes in `/Users/jasonevans/projects/project-tabletop/routes/web.php` ensuring RecipePolicy is applied
 
-- [ ] T052 [US1] Create reusable recipe-card Blade component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/recipe-card.blade.php` accepting recipe prop, displaying image/name/description/meal-type-badge/dietary-tags, clickable link to recipe.show route
+- [X] T052 [US1] Create reusable recipe-card Blade component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/recipe-card.blade.php` accepting recipe prop, displaying image/name/description/meal-type-badge/dietary-tags, clickable link to recipe.show route
 
 **Checkpoint**: User Story 1 fully functional - users can browse recipes, search/filter, view details. Run tests (php artisan test tests/Feature/Recipes/ && npx playwright test e2e/recipes.spec.ts) - all should pass. Test manually by creating/seeding recipes and navigating through UI.
 

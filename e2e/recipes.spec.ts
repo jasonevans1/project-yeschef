@@ -54,15 +54,11 @@ test.describe('Recipe browsing journey', () => {
     // Step 6: Verify we're on recipe details page
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
-    // Verify recipe details are visible
-    await expect(page.locator('h1, h2').first()).toBeVisible();
-
-    // Look for common recipe detail elements
-    const recipeContent = page.locator('text=/ingredients?/i, text=/instructions?/i').first();
-    await expect(recipeContent).toBeVisible({ timeout: 3000 }).catch(() => {
-      // Alternative: just verify page loaded with content
-      return expect(page.locator('body')).not.toBeEmpty();
-    });
+    // Verify recipe details are visible (Flux components don't use h1/h2 tags)
+    // Look for key sections: Back to Recipes link and Ingredients/Instructions sections
+    await expect(page.getByText('Back to Recipes')).toBeVisible();
+    await expect(page.getByText('Ingredients')).toBeVisible();
+    await expect(page.getByText('Instructions')).toBeVisible();
 
     // Step 7: Use back button to return to recipe list
     await page.goBack();
@@ -146,5 +142,35 @@ test.describe('Recipe browsing journey', () => {
 
     // Should be redirected to login page
     await expect(page).toHaveURL(/\/login/);
+  });
+
+  test('filter labels are visible', async ({ page }) => {
+    // Login first
+    await page.goto(`${BASE_URL}/login`);
+    await page.fill('input[name="email"]', 'test@example.com');
+    await page.fill('input[name="password"]', 'password');
+    await page.click('button[type="submit"]');
+    await page.waitForURL(/dashboard|recipes/);
+
+    // Go to recipes page
+    await page.goto(`${BASE_URL}/recipes`);
+
+    // Verify Meal Type filter section heading
+    await expect(page.getByText('Meal Type')).toBeVisible();
+
+    // Verify all meal type filter labels are visible
+    await expect(page.getByRole('checkbox', { name: 'Breakfast' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Lunch' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Dinner' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Snack' })).toBeVisible();
+
+    // Verify Dietary Preferences filter section heading
+    await expect(page.getByText('Dietary Preferences')).toBeVisible();
+
+    // Verify all dietary preference filter labels are visible
+    await expect(page.getByRole('checkbox', { name: 'Vegetarian' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Vegan' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Gluten-Free' })).toBeVisible();
+    await expect(page.getByRole('checkbox', { name: 'Dairy-Free' })).toBeVisible();
   });
 });
