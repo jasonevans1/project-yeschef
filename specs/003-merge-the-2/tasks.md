@@ -170,17 +170,17 @@
 
 ### Tests for User Story 2 (TDD - Write tests FIRST)
 
-- [ ] T053 [P] [US2] Feature test for creating meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/CreateMealPlanTest.php` covering: user can create meal plan with name/start_date/end_date, validation requires all fields, validation enforces end_date >= start_date, validation enforces max 28 days duration, meal plan saved with correct user_id, redirects to meal plan show page
+- [X] T053 [P] [US2] Feature test for creating meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/CreateMealPlanTest.php` covering: user can create meal plan with name/start_date/end_date, validation requires all fields, validation enforces end_date >= start_date, validation enforces max 28 days duration, meal plan saved with correct user_id, redirects to meal plan show page
 
-- [ ] T054 [P] [US2] Feature test for assigning recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php` covering: user can assign recipe to meal slot (date + meal_type), assignment saved with meal_plan_id/recipe_id/date/meal_type, unique constraint prevents duplicate assignments to same slot, user can reassign different recipe to same slot (replaces), user cannot assign to date outside meal plan range
+- [X] T054 [P] [US2] Feature test for assigning recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php` covering: user can assign recipe to meal slot (date + meal_type), assignment saved with meal_plan_id/recipe_id/date/meal_type, unique constraint prevents duplicate assignments to same slot, user can reassign different recipe to same slot (replaces), user cannot assign to date outside meal plan range
 
-- [ ] T055 [P] [US2] Feature test for viewing meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php` covering: user can view own meal plan, meal plan shows all days in range, assigned recipes display in correct slots, empty slots show as available, user cannot view another user's meal plan
+- [X] T055 [P] [US2] Feature test for viewing meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php` covering: user can view own meal plan, meal plan shows all days in range, assigned recipes display in correct slots, empty slots show as available, user cannot view another user's meal plan
 
-- [ ] T056 [P] [US2] Feature test for editing meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/EditMealPlanTest.php` covering: user can remove recipe from slot, user can add note to meal assignment, user can update meal plan name/dates, cannot edit another user's meal plan
+- [X] T056 [P] [US2] Feature test for editing meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/EditMealPlanTest.php` covering: user can remove recipe from slot, user can add note to meal assignment, user can update meal plan name/dates, cannot edit another user's meal plan
 
-- [ ] T057 [P] [US2] Feature test for deleting meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/DeleteMealPlanTest.php` covering: user can delete own meal plan, meal assignments cascade delete, cannot delete another user's meal plan
+- [X] T057 [P] [US2] Feature test for deleting meal plans at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/DeleteMealPlanTest.php` covering: user can delete own meal plan, meal assignments cascade delete, cannot delete another user's meal plan
 
-- [ ] T058 [P] [US2] E2E test for meal planning journey at `/Users/jasonevans/projects/project-tabletop/e2e/meal-plans.spec.ts` covering: user logs in, creates new meal plan with date range, clicks on Monday dinner slot, searches for recipe, assigns recipe to slot, sees recipe appear in calendar, assigns recipe to Tuesday breakfast, views full meal plan, removes one assignment, deletes entire meal plan
+- [X] T058 [P] [US2] E2E test for meal planning journey at `/Users/jasonevans/projects/project-tabletop/e2e/meal-plans.spec.ts` covering: user logs in, creates new meal plan with date range, clicks on Monday dinner slot, searches for recipe, assigns recipe to slot, sees recipe appear in calendar, assigns recipe to Tuesday breakfast, views full meal plan, removes one assignment, deletes entire meal plan
 
 ### Implementation for User Story 2
 
