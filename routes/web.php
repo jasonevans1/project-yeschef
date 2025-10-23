@@ -37,10 +37,20 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // TODO: US5 - T101
 
     // Meal Plan Routes
-    // Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index'); // TODO: US2 - T059
-    // Route::get('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create'); // TODO: US2 - T061
-    // Route::get('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show'); // TODO: US2 - T063
-    // Route::get('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit'); // TODO: US2 - T065
+    Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index');
+    Route::get('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create');
+    Route::get('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show');
+    Route::get('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit');
+
+    // Meal Plan Actions (POST/PUT/DELETE)
+    Route::post('meal-plans', [\App\Http\Controllers\MealPlanController::class, 'store'])->name('meal-plans.store');
+    Route::put('meal-plans/{mealPlan}', [\App\Http\Controllers\MealPlanController::class, 'update'])->name('meal-plans.update');
+    Route::delete('meal-plans/{mealPlan}', [\App\Http\Controllers\MealPlanController::class, 'destroy'])->name('meal-plans.destroy');
+
+    // Meal Plan Assignment Routes (nested resource)
+    Route::post('meal-plans/{mealPlan}/assignments', [\App\Http\Controllers\MealAssignmentController::class, 'store'])->name('meal-plans.assignments.store');
+    Route::put('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'update'])->name('meal-plans.assignments.update');
+    Route::delete('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'destroy'])->name('meal-plans.assignments.destroy');
 
     // Grocery List Routes (authenticated)
     // Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // TODO: US3 - T074

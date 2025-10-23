@@ -25,12 +25,14 @@ it('allows user to assign recipe to meal slot', function () {
 
     $response->assertRedirect();
 
-    $this->assertDatabaseHas('meal_assignments', [
-        'meal_plan_id' => $mealPlan->id,
-        'recipe_id' => $recipe->id,
-        'date' => '2025-10-15',
-        'meal_type' => MealType::DINNER->value,
-    ]);
+    // Check assignment was created (accounting for date storage format)
+    $assignment = MealAssignment::where('meal_plan_id', $mealPlan->id)
+        ->where('recipe_id', $recipe->id)
+        ->first();
+
+    expect($assignment)->not->toBeNull();
+    expect($assignment->date->format('Y-m-d'))->toBe('2025-10-15');
+    expect($assignment->meal_type)->toBe(MealType::DINNER);
 });
 
 it('saves meal assignment with all required fields', function () {

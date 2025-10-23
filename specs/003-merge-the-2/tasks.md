@@ -184,27 +184,27 @@
 
 ### Implementation for User Story 2
 
-- [ ] T059 [P] [US2] Create MealPlans\Index Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Index.php` with render method returning auth()->user()->mealPlans()->latest()->paginate(10), separate lists for active, future, and past meal plans using computed attributes
+- [X] T059 [P] [US2] Create MealPlans\Index Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Index.php` with render method returning auth()->user()->mealPlans()->latest()->paginate(10), separate lists for active, future, and past meal plans using computed attributes
 
-- [ ] T060 [P] [US2] Create index view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/index.blade.php` using Flux components displaying: "Create New Meal Plan" button, list of meal plans grouped by status (Active, Upcoming, Past) showing name/date-range/assignment-count, click to view/edit
+- [X] T060 [P] [US2] Create index view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/index.blade.php` using Flux components displaying: "Create New Meal Plan" button, list of meal plans grouped by status (Active, Upcoming, Past) showing name/date-range/assignment-count, click to view/edit
 
-- [ ] T061 [P] [US2] Create MealPlans\Create Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Create.php` with #[Validate] properties: name (required|min:3|max:255), start_date (required|date|after_or_equal:today), end_date (required|date|after_or_equal:start_date, custom rule: max 28 days), save() method creating MealPlan with auth()->user()->mealPlans()->create()
+- [X] T061 [P] [US2] Create MealPlans\Create Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Create.php` with #[Validate] properties: name (required|min:3|max:255), start_date (required|date|after_or_equal:today), end_date (required|date|after_or_equal:start_date, custom rule: max 28 days), save() method creating MealPlan with auth()->user()->mealPlans()->create()
 
-- [ ] T062 [P] [US2] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/create.blade.php` using Flux form components: text input for name, date inputs for start_date/end_date, description textarea (optional), submit button, validation error display
+- [X] T062 [P] [US2] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/create.blade.php` using Flux form components: text input for name, date inputs for start_date/end_date, description textarea (optional), submit button, validation error display
 
-- [ ] T063 [P] [US2] Create MealPlans\Show Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php` with mount(MealPlan $mealPlan) checking authorization, properties for selectedDate/selectedMealType, methods: assignRecipe(Recipe $recipe), removeAssignment(MealAssignment $assignment), render method eager loading mealAssignments.recipe
+- [X] T063 [P] [US2] Create MealPlans\Show Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php` with mount(MealPlan $mealPlan) checking authorization, properties for selectedDate/selectedMealType, methods: assignRecipe(Recipe $recipe), removeAssignment(MealAssignment $assignment), render method eager loading mealAssignments.recipe
 
-- [ ] T064 [P] [US2] Create show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php` using Flux components displaying: meal plan header (name, date range, actions), calendar grid (rows=days, columns=meal types), each cell showing assigned recipe or "Add Recipe" button, click cell opens recipe selector modal, "Generate Grocery List" button
+- [X] T064 [P] [US2] Create show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php` using Flux components displaying: meal plan header (name, date range, actions), calendar grid (rows=days, columns=meal types), each cell showing assigned recipe or "Add Recipe" button, click cell opens recipe selector modal, "Generate Grocery List" button
 
-- [ ] T065 [P] [US2] Create MealPlans\Edit Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Edit.php` with mount(MealPlan $mealPlan) checking authorization, #[Validate] properties for name/dates, update() method saving changes, similar to Create but pre-populated
+- [X] T065 [P] [US2] Create MealPlans\Edit Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Edit.php` with mount(MealPlan $mealPlan) checking authorization, #[Validate] properties for name/dates, update() method saving changes, similar to Create but pre-populated
 
-- [ ] T066 [P] [US2] Create edit view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/edit.blade.php` similar to create view but with existing values, "Update" vs "Create" button, "Cancel" returns to show page
+- [X] T066 [P] [US2] Create edit view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/edit.blade.php` similar to create view but with existing values, "Update" vs "Create" button, "Cancel" returns to show page
 
-- [ ] T067 [P] [US2] Create MealPlans\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Delete.php` with delete(MealPlan $mealPlan) method checking authorization, deleting model, redirecting to index with success message
+- [X] T067 [P] [US2] Create MealPlans\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Delete.php` with delete(MealPlan method checking authorization, deleting model, redirecting to index with success message
 
-- [ ] T068 [US2] Create reusable meal-calendar Blade component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/meal-calendar.blade.php` accepting mealPlan and assignments props, rendering responsive grid with dates and meal slots, wire:click handlers for cell selection
+- [X] T068 [US2] Create reusable meal-calendar Blade component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/meal-calendar.blade.php` accepting mealPlan and assignments props, rendering responsive grid with dates and meal slots, wire:click handlers for cell selection
 
-- [ ] T069 [US2] Create recipe selector modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/partials/recipe-selector.blade.php` with search input, filtered recipe list, click to assign, uses existing Recipes\Index component logic or inlined search
+- [X] T069 [US2] Create recipe selector modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/partials/recipe-selector.blade.php` with search input, filtered recipe list, click to assign, uses existing Recipes\Index component logic or inlined search
 
 **Checkpoint**: User Story 2 fully functional - users can create meal plans, assign recipes to meal slots, view in calendar, edit, delete. Run tests (php artisan test tests/Feature/MealPlans/ && npx playwright test e2e/meal-plans.spec.ts) - all should pass. Test manually by creating a meal plan for the current week and assigning multiple recipes.
 

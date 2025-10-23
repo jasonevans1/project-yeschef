@@ -18,13 +18,15 @@ it('allows user to create a meal plan with name, start_date, and end_date', func
 
     $response->assertRedirect();
 
-    $this->assertDatabaseHas('meal_plans', [
-        'user_id' => $user->id,
-        'name' => 'Week of Oct 14',
-        'start_date' => '2025-10-14',
-        'end_date' => '2025-10-20',
-        'description' => 'My weekly meal plan',
-    ]);
+    // Check meal plan was created (accounting for date storage format)
+    $mealPlan = MealPlan::where('user_id', $user->id)
+        ->where('name', 'Week of Oct 14')
+        ->first();
+
+    expect($mealPlan)->not->toBeNull();
+    expect($mealPlan->start_date->format('Y-m-d'))->toBe('2025-10-14');
+    expect($mealPlan->end_date->format('Y-m-d'))->toBe('2025-10-20');
+    expect($mealPlan->description)->toBe('My weekly meal plan');
 });
 
 it('requires name, start_date, and end_date fields', function () {
