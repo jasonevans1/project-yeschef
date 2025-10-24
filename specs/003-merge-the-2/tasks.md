@@ -218,13 +218,13 @@
 
 ### Tests for User Story 3 (TDD - Write tests FIRST)
 
-- [ ] T070 [P] [US3] Feature test for generating grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/GenerateGroceryListTest.php` covering: user can generate list from meal plan, list contains all ingredients from assigned recipes, duplicate ingredients aggregated (same unit), duplicate ingredients aggregated (different compatible units using UnitConverter), items organized by category, grocery list linked to source meal plan, serving multipliers applied correctly, empty meal plan generates empty list with helpful message
+- [X] T070 [P] [US3] Feature test for generating grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/GenerateGroceryListTest.php` covering: user can generate list from meal plan, list contains all ingredients from assigned recipes, duplicate ingredients aggregated (same unit), duplicate ingredients aggregated (different compatible units using UnitConverter), items organized by category, grocery list linked to source meal plan, serving multipliers applied correctly, empty meal plan generates empty list with helpful message
 
-- [ ] T071 [P] [US3] Feature test for marking items purchased at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/MarkItemsTest.php` covering: user can mark item as purchased (purchased = true, purchased_at = now), user can unmark item (purchased = false, purchased_at = null), completion percentage updates correctly, only list owner can mark items
+- [X] T071 [P] [US3] Feature test for marking items purchased at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/MarkItemsTest.php` covering: user can mark item as purchased (purchased = true, purchased_at = now), user can unmark item (purchased = false, purchased_at = null), completion percentage updates correctly, only list owner can mark items
 
-- [ ] T072 [P] [US3] Feature test for viewing grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ViewGroceryListTest.php` covering: user can view own grocery list, items display with name/quantity/unit, items grouped by category, purchased items visually distinguished, user cannot view another user's grocery list
+- [X] T072 [P] [US3] Feature test for viewing grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ViewGroceryListTest.php` covering: user can view own grocery list, items display with name/quantity/unit, items grouped by category, purchased items visually distinguished, user cannot view another user's grocery list
 
-- [ ] T073 [P] [US3] E2E test for grocery list generation at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists.spec.ts` covering: user creates meal plan, assigns 3 recipes with overlapping ingredients, clicks "Generate Grocery List", sees grocery list with aggregated items, items grouped by category (Produce, Dairy, etc.), marks 2 items as purchased, sees checkmarks, views completion progress
+- [X] T073 [P] [US3] E2E test for grocery list generation at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists.spec.ts` covering: user creates meal plan, assigns 3 recipes with overlapping ingredients, clicks "Generate Grocery List", sees grocery list with aggregated items, items grouped by category (Produce, Dairy, etc.), marks 2 items as purchased, sees checkmarks, views completion progress
 
 ### Implementation for User Story 3
 
