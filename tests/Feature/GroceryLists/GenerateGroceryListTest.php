@@ -1,12 +1,12 @@
 <?php
 
+use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
 use App\Models\GroceryList;
 use App\Models\Ingredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
-use App\Enums\MeasurementUnit;
-use App\Enums\IngredientCategory;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -63,12 +63,12 @@ test('user can generate grocery list from meal plan', function () {
     expect($groceryList)->toBeInstanceOf(GroceryList::class)
         ->and($groceryList->user_id)->toBe($this->user->id)
         ->and($groceryList->meal_plan_id)->toBe($mealPlan->id)
-        ->and($groceryList->items()->count())->toBe(2);
+        ->and($groceryList->groceryItems()->count())->toBe(2);
 
-    $items = $groceryList->items;
+    $items = $groceryList->groceryItems;
 
-    expect($items->firstWhere('name', 'chicken breast'))->not->toBeNull()
-        ->and($items->firstWhere('name', 'pasta'))->not->toBeNull();
+    expect($items->firstWhere('name', 'Chicken breast'))->not->toBeNull()
+        ->and($items->firstWhere('name', 'Pasta'))->not->toBeNull();
 });
 
 test('list contains all ingredients from assigned recipes', function () {
@@ -114,12 +114,12 @@ test('list contains all ingredients from assigned recipes', function () {
 
     $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
 
-    expect($groceryList->items()->count())->toBe(3);
+    expect($groceryList->groceryItems()->count())->toBe(3);
 
-    $itemNames = $groceryList->items->pluck('name')->toArray();
-    expect($itemNames)->toContain('tomato')
-        ->and($itemNames)->toContain('onion')
-        ->and($itemNames)->toContain('garlic');
+    $itemNames = $groceryList->groceryItems->pluck('name')->toArray();
+    expect($itemNames)->toContain('Tomato')
+        ->and($itemNames)->toContain('Onion')
+        ->and($itemNames)->toContain('Garlic');
 });
 
 test('duplicate ingredients with same unit are aggregated', function () {
@@ -159,12 +159,12 @@ test('duplicate ingredients with same unit are aggregated', function () {
     $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
 
     // Should have only 1 milk item with aggregated quantity
-    $milkItems = $groceryList->items->where('name', 'milk');
+    $milkItems = $groceryList->groceryItems->where('name', 'Milk');
 
     expect($milkItems->count())->toBe(1);
 
     $milkItem = $milkItems->first();
-    expect($milkItem->quantity)->toBe(3.0) // 2 + 1 = 3 cups
+    expect((float) $milkItem->quantity)->toBe(3.0) // 2 + 1 = 3 cups
         ->and($milkItem->unit)->toBe(MeasurementUnit::CUP)
         ->and($milkItem->category)->toBe(IngredientCategory::DAIRY);
 });
@@ -207,7 +207,7 @@ test('duplicate ingredients with different compatible units are aggregated using
 
     // Should have only 1 milk item with aggregated quantity
     // 2 cups (16 fl oz) + 1 pint (16 fl oz) = 32 fl oz = 1 quart or 4 cups
-    $milkItems = $groceryList->items->where('name', 'milk');
+    $milkItems = $groceryList->groceryItems->where('name', 'Milk');
 
     expect($milkItems->count())->toBe(1);
 
@@ -216,7 +216,7 @@ test('duplicate ingredients with different compatible units are aggregated using
     // The aggregated quantity should equal 32 fl oz (or equivalent in chosen unit)
     // Assuming the service converts to a common unit
     expect($milkItem->quantity)->toBeGreaterThan(0)
-        ->and($milkItem->name)->toBe('milk');
+        ->and($milkItem->name)->toBe('Milk');
 });
 
 test('items are organized by category', function () {
@@ -265,19 +265,19 @@ test('items are organized by category', function () {
 
     $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
 
-    $items = $groceryList->items;
+    $items = $groceryList->groceryItems;
 
     expect($items->where('category', IngredientCategory::MEAT)->count())->toBe(1)
         ->and($items->where('category', IngredientCategory::DAIRY)->count())->toBe(1)
         ->and($items->where('category', IngredientCategory::PRODUCE)->count())->toBe(1);
 
-    $chickenItem = $items->where('name', 'chicken')->first();
+    $chickenItem = $items->where('name', 'Chicken')->first();
     expect($chickenItem->category)->toBe(IngredientCategory::MEAT);
 
-    $milkItem = $items->where('name', 'milk')->first();
+    $milkItem = $items->where('name', 'Milk')->first();
     expect($milkItem->category)->toBe(IngredientCategory::DAIRY);
 
-    $tomatoItem = $items->where('name', 'tomato')->first();
+    $tomatoItem = $items->where('name', 'Tomato')->first();
     expect($tomatoItem->category)->toBe(IngredientCategory::PRODUCE);
 });
 
@@ -335,10 +335,10 @@ test('serving multipliers are applied correctly', function () {
 
     $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
 
-    $flourItem = $groceryList->items->where('name', 'flour')->first();
+    $flourItem = $groceryList->groceryItems->where('name', 'Flour')->first();
 
     // 2 cups * 1.5 = 3 cups
-    expect($flourItem->quantity)->toBe(3.0)
+    expect((float) $flourItem->quantity)->toBe(3.0)
         ->and($flourItem->unit)->toBe(MeasurementUnit::CUP);
 });
 
@@ -352,7 +352,7 @@ test('empty meal plan generates empty list with helpful message', function () {
     $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class)
-        ->and($groceryList->items()->count())->toBe(0)
+        ->and($groceryList->groceryItems()->count())->toBe(0)
         ->and($groceryList->user_id)->toBe($this->user->id)
         ->and($groceryList->meal_plan_id)->toBe($mealPlan->id);
 });

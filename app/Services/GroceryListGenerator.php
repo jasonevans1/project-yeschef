@@ -57,7 +57,7 @@ class GroceryListGenerator
             }
         }
 
-        return $groceryList->fresh();
+        return $groceryList->fresh('groceryItems');
     }
 
     /**
@@ -144,7 +144,7 @@ class GroceryListGenerator
             'regenerated_at' => now(),
         ]);
 
-        return $groceryList->fresh();
+        return $groceryList->fresh('groceryItems');
     }
 
     /**

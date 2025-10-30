@@ -1,11 +1,11 @@
 <?php
 
-use App\Models\GroceryList;
-use App\Models\GroceryItem;
-use App\Models\User;
-use App\Enums\SourceType;
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
+use App\Enums\SourceType;
+use App\Models\GroceryItem;
+use App\Models\GroceryList;
+use App\Models\User;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -85,8 +85,9 @@ test('purchased_at timestamp is set when item is marked purchased', function () 
     $item->refresh();
 
     expect($item->purchased_at)->not->toBeNull()
-        ->and($item->purchased_at->greaterThanOrEqualTo($beforeTimestamp))->toBeTrue()
-        ->and($item->purchased_at->lessThanOrEqualTo(now()))->toBeTrue();
+        ->and($item->purchased_at)->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->and($item->purchased_at->timestamp)->toBeGreaterThanOrEqual($beforeTimestamp->timestamp)
+        ->and($item->purchased_at->timestamp)->toBeLessThanOrEqual(now()->timestamp);
 });
 
 test('purchased_at timestamp is cleared when item is unmarked', function () {
@@ -112,11 +113,11 @@ test('completion percentage updates correctly with no items', function () {
     // Empty grocery list
     $emptyList = GroceryList::factory()->for($this->user)->create();
 
-    expect($emptyList->items()->count())->toBe(0);
+    expect($emptyList->groceryItems()->count())->toBe(0);
 
     $completionPercentage = $emptyList->completion_percentage;
 
-    expect($completionPercentage)->toBe(0);
+    expect($completionPercentage)->toBe(0.0);
 });
 
 test('completion percentage updates correctly with all items unpurchased', function () {
@@ -130,7 +131,7 @@ test('completion percentage updates correctly with all items unpurchased', funct
 
     expect($this->groceryList->total_items)->toBe(5)
         ->and($this->groceryList->completed_items)->toBe(0)
-        ->and($this->groceryList->completion_percentage)->toBe(0);
+        ->and($this->groceryList->completion_percentage)->toBe(0.0);
 });
 
 test('completion percentage updates correctly with all items purchased', function () {
@@ -144,7 +145,7 @@ test('completion percentage updates correctly with all items purchased', functio
 
     expect($this->groceryList->total_items)->toBe(5)
         ->and($this->groceryList->completed_items)->toBe(5)
-        ->and($this->groceryList->completion_percentage)->toBe(100);
+        ->and($this->groceryList->completion_percentage)->toBe(100.0);
 });
 
 test('completion percentage updates correctly with partial completion', function () {
@@ -163,7 +164,7 @@ test('completion percentage updates correctly with partial completion', function
 
     expect($this->groceryList->total_items)->toBe(10)
         ->and($this->groceryList->completed_items)->toBe(7)
-        ->and($this->groceryList->completion_percentage)->toBe(70);
+        ->and($this->groceryList->completion_percentage)->toBe(70.0);
 });
 
 test('completion percentage updates dynamically when item is marked purchased', function () {
@@ -175,7 +176,7 @@ test('completion percentage updates dynamically when item is marked purchased', 
 
     $this->groceryList->refresh();
 
-    expect($this->groceryList->completion_percentage)->toBe(0);
+    expect($this->groceryList->completion_percentage)->toBe(0.0);
 
     // Mark 2 items as purchased
     $items[0]->update(['purchased' => true, 'purchased_at' => now()]);
@@ -184,7 +185,7 @@ test('completion percentage updates dynamically when item is marked purchased', 
     $this->groceryList->refresh();
 
     // 2 out of 4 = 50%
-    expect($this->groceryList->completion_percentage)->toBe(50);
+    expect($this->groceryList->completion_percentage)->toBe(50.0);
 
     // Mark 1 more item as purchased
     $items[2]->update(['purchased' => true, 'purchased_at' => now()]);
@@ -192,7 +193,7 @@ test('completion percentage updates dynamically when item is marked purchased', 
     $this->groceryList->refresh();
 
     // 3 out of 4 = 75%
-    expect($this->groceryList->completion_percentage)->toBe(75);
+    expect($this->groceryList->completion_percentage)->toBe(75.0);
 });
 
 test('only list owner can mark items as purchased', function () {
@@ -308,7 +309,7 @@ test('soft deleted items are not counted in completion percentage', function () 
     $this->groceryList->refresh();
 
     // 3 out of 5 = 60%
-    expect($this->groceryList->completion_percentage)->toBe(60);
+    expect($this->groceryList->completion_percentage)->toBe(60.0);
 
     // Soft delete one of the purchased items
     $items[0]->delete();
@@ -318,15 +319,15 @@ test('soft deleted items are not counted in completion percentage', function () 
     // Now 2 purchased out of 4 remaining = 50%
     expect($this->groceryList->total_items)->toBe(4)
         ->and($this->groceryList->completed_items)->toBe(2)
-        ->and($this->groceryList->completion_percentage)->toBe(50);
+        ->and($this->groceryList->completion_percentage)->toBe(50.0);
 });
 
 test('completion percentage handles division by zero gracefully', function () {
     // Create a grocery list with no items
     $emptyList = GroceryList::factory()->for($this->user)->create();
 
-    expect($emptyList->items()->count())->toBe(0);
+    expect($emptyList->groceryItems()->count())->toBe(0);
 
     // Should return 0, not throw division by zero error
-    expect($emptyList->completion_percentage)->toBe(0);
+    expect($emptyList->completion_percentage)->toBe(0.0);
 });

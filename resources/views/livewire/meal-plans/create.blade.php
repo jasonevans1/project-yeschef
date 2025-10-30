@@ -1,6 +1,6 @@
 <div>
     <div class="max-w-2xl mx-auto">
-        <flux:heading size="xl" class="mb-6">Create Meal Plan</flux:heading>
+        <flux:heading size="xl" level="1" class="mb-6">Create Meal Plan</flux:heading>
 
         <div class="bg-white rounded-lg shadow p-6">
             <form wire:submit="save" class="space-y-6">

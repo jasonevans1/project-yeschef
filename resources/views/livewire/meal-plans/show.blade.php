@@ -3,7 +3,7 @@
     <div class="mb-6">
         <div class="flex items-center justify-between mb-4">
             <div>
-                <flux:heading size="xl">{{ $mealPlan->name }}</flux:heading>
+                <flux:heading size="xl" level="1">{{ $mealPlan->name }}</flux:heading>
                 <flux:text class="text-gray-600">
                     {{ $mealPlan->start_date->format('M d, Y') }} - {{ $mealPlan->end_date->format('M d, Y') }}
                     ({{ $mealPlan->duration_days }} {{ Str::plural('day', $mealPlan->duration_days) }})

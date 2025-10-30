@@ -53,10 +53,10 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'destroy'])->name('meal-plans.assignments.destroy');
 
     // Grocery List Routes (authenticated)
-    // Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // TODO: US3 - T074
+    Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // US3 - T074
     // Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // TODO: US6 - T110
-    // Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // TODO: US3 - T078
-    // Route::get('grocery-lists/{groceryList}/generate', GroceryListsGenerate::class)->name('grocery-lists.generate'); // TODO: US3 - T076
+    Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // US3 - T078
+    Route::get('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
     // Route::get('grocery-lists/{groceryList}/export', GroceryListsExport::class)->name('grocery-lists.export'); // TODO: US8 - T126
 
     // Settings Routes

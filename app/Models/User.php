@@ -58,6 +58,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's grocery lists
+     */
+    public function groceryLists(): HasMany
+    {
+        return $this->hasMany(GroceryList::class);
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string
