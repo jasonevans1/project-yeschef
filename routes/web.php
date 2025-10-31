@@ -59,9 +59,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
     // Route::get('grocery-lists/{groceryList}/export', GroceryListsExport::class)->name('grocery-lists.export'); // TODO: US8 - T126
 
-    // Grocery List Item Actions (POST/PUT)
+    // Grocery List Item Actions (POST/PUT/DELETE)
     Route::post('grocery-lists/{groceryList}/items', [\App\Http\Controllers\GroceryItemController::class, 'store'])->name('grocery-lists.items.store'); // US4 - T087
     Route::put('grocery-lists/{groceryList}/items/{item}', [\App\Http\Controllers\GroceryItemController::class, 'update'])->name('grocery-lists.items.update'); // US4 - T088
+    Route::delete('grocery-lists/{groceryList}/items/{item}', [\App\Http\Controllers\GroceryItemController::class, 'destroy'])->name('grocery-lists.items.destroy'); // US4 - T089
 
     // Settings Routes
     Route::redirect('settings', 'settings/profile');

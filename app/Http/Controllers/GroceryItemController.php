@@ -84,4 +84,27 @@ class GroceryItemController extends Controller
 
         return redirect()->route('grocery-lists.show', $groceryList);
     }
+
+    /**
+     * Remove the specified grocery item from storage.
+     */
+    public function destroy(GroceryList $groceryList, GroceryItem $item)
+    {
+        $this->authorize('update', $groceryList);
+
+        // Verify item belongs to this list
+        if ($item->grocery_list_id !== $groceryList->id) {
+            abort(403);
+        }
+
+        if ($item->is_manual) {
+            // Hard delete manual items
+            $item->forceDelete();
+        } else {
+            // Soft delete generated items
+            $item->delete();
+        }
+
+        return redirect()->route('grocery-lists.show', $groceryList);
+    }
 }
