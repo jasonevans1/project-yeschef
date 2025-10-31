@@ -256,7 +256,7 @@
 
 ### Tests for User Story 4 (TDD - Write tests FIRST)
 
-- [ ] T082 [P] [US4] Feature test for adding manual items at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/AddManualItemTest.php` covering: user can add item with name only, user can add item with name/quantity/unit/category, validation requires name, validation allows optional quantity/unit, item saved with source_type='manual', item appears in correct category, user cannot add to another user's list
+- [X] T082 [P] [US4] Feature test for adding manual items at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/AddManualItemTest.php` covering: user can add item with name only, user can add item with name/quantity/unit/category, validation requires name, validation allows optional quantity/unit, item saved with source_type='manual', item appears in correct category, user cannot add to another user's list
 
 - [ ] T083 [P] [US4] Feature test for editing items at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/EditItemTest.php` covering: user can edit manual item (all fields), user can edit generated item (tracks original_values in JSON), edited generated item marked as edited (original_values not null), user cannot edit item in another user's list, validation on edit (name required, quantity positive)
 
@@ -268,7 +268,7 @@
 
 ### Implementation for User Story 4
 
-- [ ] T087 [P] [US4] Add addManualItem() method to GroceryLists\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Show.php` with #[Validate] properties: itemName, itemQuantity (nullable), itemUnit (nullable), itemCategory, createItem() method saving GroceryItem with source_type='manual', resetting form, refreshing list
+- [X] T087 [P] [US4] Add addManualItem() method to GroceryLists\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Show.php` with #[Validate] properties: itemName, itemQuantity (nullable), itemUnit (nullable), itemCategory, createItem() method saving GroceryItem with source_type='manual', resetting form, refreshing list
 
 - [ ] T088 [P] [US4] Add editItem() method to GroceryLists\Show component with properties: editingItemId, editItemName, editItemQuantity, editItemUnit, editItemCategory, startEditing(GroceryItem $item) populating edit form, saveEdit() method: if generated item, store original_values JSON before update, save changes, reset editing state
 
