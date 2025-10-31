@@ -262,7 +262,7 @@
 
 - [X] T084 [P] [US4] Feature test for deleting items at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/DeleteItemTest.php` covering: user can delete manual item (hard delete), user can delete generated item (soft delete - deleted_at set), deleted generated item not shown in list view, user cannot delete item from another user's list
 
-- [ ] T085 [P] [US4] Feature test for regeneration preserving manual edits at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/RegenerateWithManualChangesTest.php` covering: manual items preserved after regeneration, edited generated items preserved with user's values, soft-deleted generated items not re-added, unmodified generated items updated to reflect meal plan changes, new ingredients from meal plan added as generated items
+- [X] T085 [P] [US4] Feature test for regeneration preserving manual edits at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/RegenerateWithManualChangesTest.php` covering: manual items preserved after regeneration, edited generated items preserved with user's values, soft-deleted generated items not re-added, unmodified generated items updated to reflect meal plan changes, new ingredients from meal plan added as generated items
 
 - [ ] T086 [P] [US4] E2E test for manual item management at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-manual.spec.ts` covering: user opens grocery list, clicks "Add Item", fills form (name, quantity, unit, category), saves, sees item appear, clicks edit on item, changes quantity, saves, sees update, clicks delete, confirms, item removed, user regenerates list, manually added item still present
 
@@ -274,7 +274,7 @@
 
 - [X] T089 [P] [US4] Add deleteItem() method to GroceryLists\Show component with delete(GroceryItem $item) method: if manual item, hard delete ($item->forceDelete()), if generated item, soft delete ($item->delete()), refresh list
 
-- [ ] T090 [P] [US4] Add regenerate() method to GroceryLists\Show component using GroceryListGenerator->regenerate($groceryList), showing confirmation dialog with diff preview (items added/updated/removed counts), success message after regeneration
+- [X] T090 [P] [US4] Add regenerate() method to GroceryLists\Show component using GroceryListGenerator->regenerate($groceryList), showing confirmation dialog with diff preview (items added/updated/removed counts), success message after regeneration
 
 - [ ] T091 [P] [US4] Update show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/show.blade.php` adding: "Add Item" button opening inline form or modal, form fields for name (required), quantity (optional), unit (optional dropdown), category (dropdown with enum values), "Save Item" button, edit icon on each item opening edit form (similar to add), delete icon with confirmation, "Regenerate" button (if is_meal_plan_linked) with confirmation dialog
 

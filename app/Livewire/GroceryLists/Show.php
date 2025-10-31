@@ -32,6 +32,11 @@ class Show extends Component
 
     public string $itemNotes = '';
 
+    // Properties for regeneration confirmation (US4 - T090)
+    public bool $showRegenerateConfirm = false;
+
+    public array $regenerateDiff = [];
+
     protected function rules()
     {
         return [
@@ -211,7 +216,127 @@ class Show extends Component
     }
 
     /**
-     * Regenerate the grocery list from meal plan (US4)
+     * Show regenerate confirmation dialog with diff preview (US4 - T090)
+     */
+    public function showRegenerateConfirmation()
+    {
+        $this->authorize('update', $this->groceryList);
+
+        // Only meal-plan-linked lists can be regenerated
+        if (! $this->groceryList->is_meal_plan_linked) {
+            session()->flash('error', 'Only meal plan lists can be regenerated');
+
+            return;
+        }
+
+        // Calculate diff preview
+        $this->regenerateDiff = $this->calculateRegenerateDiff();
+        $this->showRegenerateConfirm = true;
+    }
+
+    /**
+     * Cancel regeneration
+     */
+    public function cancelRegenerate()
+    {
+        $this->showRegenerateConfirm = false;
+        $this->regenerateDiff = [];
+    }
+
+    /**
+     * Calculate the diff preview for regeneration (US4 - T090)
+     * Returns counts of items that will be added, updated, or removed
+     */
+    private function calculateRegenerateDiff(): array
+    {
+        $mealPlan = $this->groceryList->mealPlan;
+
+        // Get existing items (excluding soft-deleted)
+        $existingItems = $this->groceryList->groceryItems()->get();
+
+        // Get what would be generated from current meal plan
+        $generator = app(GroceryListGenerator::class);
+        $freshIngredients = $generator->processIngredients(
+            $this->collectIngredientsFromMealPlan($mealPlan),
+            1.0
+        );
+        $aggregatedIngredients = $generator->aggregateIngredients($freshIngredients);
+
+        // Separate existing items by type
+        $manualItems = $existingItems->where('source_type', 'manual');
+        $editedGeneratedItems = $existingItems->where('source_type', 'generated')
+            ->whereNotNull('original_values');
+        $unmodifiedGeneratedItems = $existingItems->where('source_type', 'generated')
+            ->whereNull('original_values');
+
+        // Count items that will be added (new ingredients not in list)
+        $itemsToAdd = 0;
+        foreach ($aggregatedIngredients as $ingredient) {
+            $ingredientName = strtolower($ingredient['name']);
+            $exists = $existingItems->contains(function ($item) use ($ingredientName) {
+                return strtolower($item->name) === $ingredientName;
+            });
+
+            if (! $exists) {
+                $itemsToAdd++;
+            }
+        }
+
+        // Count items that will be updated (unmodified generated items)
+        $itemsToUpdate = $unmodifiedGeneratedItems->count();
+
+        // Count items that will be removed (unmodified generated items no longer in meal plan)
+        $itemsToRemove = 0;
+        foreach ($unmodifiedGeneratedItems as $item) {
+            $ingredientName = strtolower($item->name);
+            $stillExists = collect($aggregatedIngredients)->contains(function ($ingredient) use ($ingredientName) {
+                return strtolower($ingredient['name']) === $ingredientName;
+            });
+
+            if (! $stillExists) {
+                $itemsToRemove++;
+            }
+        }
+
+        return [
+            'added' => $itemsToAdd,
+            'updated' => $itemsToUpdate,
+            'removed' => $itemsToRemove,
+            'preserved_manual' => $manualItems->count(),
+            'preserved_edited' => $editedGeneratedItems->count(),
+        ];
+    }
+
+    /**
+     * Helper method to collect ingredients from meal plan
+     */
+    private function collectIngredientsFromMealPlan($mealPlan)
+    {
+        $allIngredients = collect();
+
+        $mealAssignments = $mealPlan->mealAssignments()
+            ->with('recipe.recipeIngredients.ingredient')
+            ->get();
+
+        foreach ($mealAssignments as $assignment) {
+            $recipe = $assignment->recipe;
+            $servingMultiplier = $assignment->serving_multiplier ?? 1.0;
+
+            foreach ($recipe->recipeIngredients as $recipeIngredient) {
+                $allIngredients->push([
+                    'name' => $recipeIngredient->ingredient->name,
+                    'quantity' => $recipeIngredient->quantity * $servingMultiplier,
+                    'unit' => $recipeIngredient->unit,
+                    'category' => $recipeIngredient->ingredient->category,
+                ]);
+            }
+        }
+
+        return $allIngredients;
+    }
+
+    /**
+     * Regenerate the grocery list from meal plan (US4 - T090)
      */
     public function regenerate()
     {
@@ -229,6 +354,8 @@ class Show extends Component
 
         session()->flash('message', 'Grocery list regenerated successfully');
 
+        $this->showRegenerateConfirm = false;
+        $this->regenerateDiff = [];
         $this->groceryList->refresh();
     }
 
