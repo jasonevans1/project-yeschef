@@ -81,7 +81,7 @@ class Show extends Component
     /**
      * Show the add item form (US4)
      */
-    public function showAddItemForm()
+    public function openAddItemForm()
     {
         $this->authorize('update', $this->groceryList);
 

@@ -84,7 +84,7 @@
             <div class="flex items-center gap-2 ml-4">
                 @can('update', $groceryList)
                     <flux:button
-                        wire:click="showAddItemForm"
+                        wire:click="openAddItemForm"
                         variant="primary"
                         size="sm"
                         icon="plus"
@@ -213,7 +213,7 @@
                     @endif
                 </flux:text>
                 @can('update', $groceryList)
-                    <flux:button wire:click="showAddItemForm" variant="primary" class="mt-4">
+                    <flux:button wire:click="openAddItemForm" variant="primary" class="mt-4">
                         Add First Item
                     </flux:button>
                 @endcan
