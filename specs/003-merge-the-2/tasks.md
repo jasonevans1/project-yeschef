@@ -278,9 +278,9 @@
 
 - [X] T091 [P] [US4] Update show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/show.blade.php` adding: "Add Item" button opening inline form or modal, form fields for name (required), quantity (optional), unit (optional dropdown), category (dropdown with enum values), "Save Item" button, edit icon on each item opening edit form (similar to add), delete icon with confirmation, "Regenerate" button (if is_meal_plan_linked) with confirmation dialog
 
-- [ ] T092 [US4] Create item edit form partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/partials/item-form.blade.php` reusable for add and edit, includes all fields, validation error display, category dropdown with friendly labels
+- [X] T092 [US4] Create item edit form partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/partials/item-form.blade.php` reusable for add and edit, includes all fields, validation error display, category dropdown with friendly labels
 
-- [ ] T093 [US4] Update GroceryListGenerator service regenerate() method at `/Users/jasonevans/projects/project-tabletop/app/Services/GroceryListGenerator.php` implementing conflict resolution: preserve manual items (source_type='manual'), preserve edited generated items (original_values not null), skip soft-deleted generated items (deleted_at not null), update unmodified generated items, add new generated items, return updated GroceryList
+- [X] T093 [US4] Update GroceryListGenerator service regenerate() method at `/Users/jasonevans/projects/project-tabletop/app/Services/GroceryListGenerator.php` implementing conflict resolution: preserve manual items (source_type='manual'), preserve edited generated items (original_values not null), skip soft-deleted generated items (deleted_at not null), update unmodified generated items, add new generated items, return updated GroceryList
 
 **Checkpoint**: User Story 4 fully functional - users can add/edit/delete grocery items, manual items preserved during regeneration, edited items tracked. Run tests (php artisan test tests/Feature/GroceryLists/ && npx playwright test e2e/grocery-lists-manual.spec.ts) - all should pass. Test manually by adding items, editing quantities, deleting, then regenerating and verifying manual changes persist.
 
