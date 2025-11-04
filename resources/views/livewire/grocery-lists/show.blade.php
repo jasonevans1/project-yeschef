@@ -126,7 +126,7 @@
                     <input
                         type="text"
                         id="itemName"
-                        wire:model="itemName"
+                        wire:model.live="itemName"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., Milk, Bread, Chicken"
                     />
@@ -138,7 +138,7 @@
                     <input
                         type="number"
                         id="itemQuantity"
-                        wire:model="itemQuantity"
+                        wire:model.live="itemQuantity"
                         step="0.01"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., 2"
@@ -151,7 +151,7 @@
                     <input
                         type="text"
                         id="itemUnit"
-                        wire:model="itemUnit"
+                        wire:model.live="itemUnit"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., lbs, cups, whole"
                     />
@@ -162,7 +162,7 @@
                     <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
                     <select
                         id="itemCategory"
-                        wire:model="itemCategory"
+                        wire:model.live="itemCategory"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="">Select category...</option>
@@ -178,7 +178,7 @@
                     <input
                         type="text"
                         id="itemNotes"
-                        wire:model="itemNotes"
+                        wire:model.live="itemNotes"
                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Optional notes"
                     />

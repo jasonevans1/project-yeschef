@@ -56,7 +56,7 @@
                                 <div>
                                     <input
                                         type="text"
-                                        wire:model="itemName"
+                                        wire:model.live="itemName"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                         placeholder="Item name"
                                     />
@@ -65,20 +65,20 @@
                                 <div class="grid grid-cols-2 gap-2">
                                     <input
                                         type="number"
-                                        wire:model="itemQuantity"
+                                        wire:model.live="itemQuantity"
                                         step="0.01"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                         placeholder="Qty"
                                     />
                                     <input
                                         type="text"
-                                        wire:model="itemUnit"
+                                        wire:model.live="itemUnit"
                                         class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                         placeholder="Unit"
                                     />
                                 </div>
                                 <select
-                                    wire:model="itemCategory"
+                                    wire:model.live="itemCategory"
                                     class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                 >
                                     @foreach($categories as $cat)
