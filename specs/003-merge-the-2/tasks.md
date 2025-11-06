@@ -316,9 +316,9 @@
 
 - [X] T103 [P] [US5] Create Recipes\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Delete.php` with delete(Recipe $recipe) method checking authorization (delete policy), try-catch for foreign key constraint (recipe in meal plans), display error if cannot delete, otherwise delete and redirect to recipes index
 
-- [ ] T104 [US5] Update Recipes\Index view to show "My Recipe" badge on personal recipes (check if recipe->user_id === auth()->id()), add "Create New Recipe" button at top of page
+- [X] T104 [US5] Update Recipes\Index view to show "My Recipe" badge on personal recipes (check if recipe->user_id === auth()->id()), add "Create New Recipe" button at top of page
 
-- [ ] T105 [US5] Update Recipes\Show view to show "Edit" and "Delete" buttons only if user owns recipe (use @can blade directive with RecipePolicy), show "System Recipe" badge if user_id is null
+- [X] T105 [US5] Update Recipes\Show view to show "Edit" and "Delete" buttons only if user owns recipe (use @can blade directive with RecipePolicy), show "System Recipe" badge if user_id is null
 
 - [ ] T106 [US5] Create ingredient input partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/partials/ingredient-input.blade.php` reusable for create and edit, includes autocomplete for ingredient names (optional enhancement - can be simple text input for MVP), quantity/unit/notes fields, remove button
 

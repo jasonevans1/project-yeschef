@@ -1,5 +1,10 @@
 <div>
-    <flux:heading size="xl" class="mb-6">Browse Recipes</flux:heading>
+    <div class="flex items-center justify-between mb-6">
+        <flux:heading size="xl">Browse Recipes</flux:heading>
+        <flux:button href="{{ route('recipes.create') }}" variant="primary" icon="plus">
+            Create New Recipe
+        </flux:button>
+    </div>
 
     <div class="mb-6 space-y-4">
         {{-- Search Input --}}

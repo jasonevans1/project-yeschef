@@ -41,12 +41,23 @@
                     @endif
                 </div>
 
-                @can('update', $recipe)
-                    {{-- TODO: US5 - T101 - Uncomment when Edit component is created --}}
-                    {{-- <flux:button variant="primary" href="{{ route('recipes.edit', $recipe) }}" icon="pencil">
-                        Edit
-                    </flux:button> --}}
-                @endcan
+                <div class="flex gap-2">
+                    @can('update', $recipe)
+                        <flux:button variant="primary" href="{{ route('recipes.edit', $recipe) }}" icon="pencil">
+                            Edit
+                        </flux:button>
+                    @endcan
+
+                    @can('delete', $recipe)
+                        <form action="{{ route('recipes.destroy', $recipe) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this recipe?');">
+                            @csrf
+                            @method('DELETE')
+                            <flux:button type="submit" variant="danger" icon="trash">
+                                Delete
+                            </flux:button>
+                        </form>
+                    @endcan
+                </div>
             </div>
         </div>
 

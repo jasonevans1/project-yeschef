@@ -41,7 +41,7 @@
             @if ($recipe->user_id === null)
                 <flux:badge size="sm" color="blue" icon="star">System</flux:badge>
             @elseif ($recipe->user_id === auth()->id())
-                <flux:badge size="sm" color="green" icon="user">Mine</flux:badge>
+                <flux:badge size="sm" color="green" icon="user">My Recipe</flux:badge>
             @endif
         </div>
 
