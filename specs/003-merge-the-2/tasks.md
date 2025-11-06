@@ -302,7 +302,7 @@
 
 - [X] T097 [P] [US5] Feature test for recipe authorization at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/RecipeAuthorizationTest.php` covering: RecipePolicy view method allows system recipes, RecipePolicy view method allows owner to view personal recipe, RecipePolicy view method denies non-owner viewing personal recipe, update/delete policies enforce ownership
 
-- [ ] T098 [P] [US5] E2E test for recipe creation and management at `/Users/jasonevans/projects/project-tabletop/e2e/recipes-create.spec.ts` covering: user logs in, clicks "Create Recipe", fills form (name, description, prep/cook times, servings, meal type, cuisine, difficulty, dietary tags), adds ingredients (search or create new ingredient, set quantity/unit), adds instruction steps, clicks "Save Recipe", sees success message, recipe appears in list with "My Recipe" badge, user edits recipe, adds ingredient, saves, sees update, user assigns personal recipe to meal plan, user deletes recipe
+- [X] T098 [P] [US5] E2E test for recipe creation and management at `/Users/jasonevans/projects/project-tabletop/e2e/recipes-create.spec.ts` covering: user logs in, clicks "Create Recipe", fills form (name, description, prep/cook times, servings, meal type, cuisine, difficulty, dietary tags), adds ingredients (search or create new ingredient, set quantity/unit), adds instruction steps, clicks "Save Recipe", sees success message, recipe appears in list with "My Recipe" badge, user edits recipe, adds ingredient, saves, sees update, user assigns personal recipe to meal plan, user deletes recipe
 
 ### Implementation for User Story 5
 
