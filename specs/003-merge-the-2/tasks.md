@@ -296,7 +296,7 @@
 
 - [X] T094 [P] [US5] Feature test for creating recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/CreateRecipeTest.php` covering: user can create recipe with all fields, recipe saved with user_id, validation requires name/instructions/at-least-one-ingredient, ingredients saved to recipe_ingredients pivot with quantities/units, redirects to recipe show page, recipe appears in user's list, other users cannot see private recipe
 
-- [ ] T095 [P] [US5] Feature test for editing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/EditRecipeTest.php` covering: user can edit own recipe (all fields), user can add ingredients to recipe, user can remove ingredients from recipe, user can update ingredient quantities, user cannot edit system recipe (user_id=null), user cannot edit another user's recipe, changes persist correctly
+- [X] T095 [P] [US5] Feature test for editing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/EditRecipeTest.php` covering: user can edit own recipe (all fields), user can add ingredients to recipe, user can remove ingredients from recipe, user can update ingredient quantities, user cannot edit system recipe (user_id=null), user cannot edit another user's recipe, changes persist correctly
 
 - [ ] T096 [P] [US5] Feature test for deleting recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/DeleteRecipeTest.php` covering: user can delete own recipe, recipe and recipe_ingredients cascade delete, user cannot delete system recipe, user cannot delete another user's recipe, recipe preserved in existing meal plans (ON DELETE RESTRICT on meal_assignments)
 
@@ -310,9 +310,9 @@
 
 - [X] T100 [P] [US5] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/create.blade.php` using Flux form components: text input name, textarea description, number inputs prep_time/cook_time/servings, select meal_type (enum values), text input cuisine, select difficulty (enum values), multiselect dietary_tags (array input), textarea instructions, ingredients section with "Add Ingredient" button opening ingredient form, ingredient forms showing name/quantity/unit/notes with remove button, "Save Recipe" button
 
-- [ ] T101 [P] [US5] Create Recipes\Edit Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Edit.php` with mount(Recipe $recipe) checking authorization (update policy), similar properties/methods to Create but pre-populated, update() method saving changes to recipe and syncing ingredients (detach removed, attach new, update existing via RecipeIngredient), redirect to recipe show
+- [X] T101 [P] [US5] Create Recipes\Edit Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Edit.php` with mount(Recipe $recipe) checking authorization (update policy), similar properties/methods to Create but pre-populated, update() method saving changes to recipe and syncing ingredients (detach removed, attach new, update existing via RecipeIngredient), redirect to recipe show
 
-- [ ] T102 [P] [US5] Create edit view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/edit.blade.php` similar to create view but with existing values, "Update Recipe" button, "Cancel" returns to show page, existing ingredients loaded in form
+- [X] T102 [P] [US5] Create edit view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/edit.blade.php` similar to create view but with existing values, "Update Recipe" button, "Cancel" returns to show page, existing ingredients loaded in form
 
 - [ ] T103 [P] [US5] Create Recipes\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Delete.php` with delete(Recipe $recipe) method checking authorization (delete policy), try-catch for foreign key constraint (recipe in meal plans), display error if cannot delete, otherwise delete and redirect to recipes index
 
