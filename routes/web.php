@@ -35,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // US5 - T099, T100
     Route::get('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
     Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // US5 - T101, T102
+    Route::delete('recipes/{recipe}', [\App\Http\Controllers\RecipeController::class, 'destroy'])->name('recipes.destroy'); // US5 - T103
 
     // Meal Plan Routes
     Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index');

@@ -2,7 +2,6 @@
 
 namespace App\Livewire\MealPlans;
 
-use App\Models\MealPlan;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -37,6 +36,7 @@ class Create extends Component
 
         if ($start->diffInDays($end) > 28) {
             $this->addError('end_date', 'The meal plan duration cannot exceed 28 days.');
+
             return;
         }
 

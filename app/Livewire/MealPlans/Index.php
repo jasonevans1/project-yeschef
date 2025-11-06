@@ -18,9 +18,9 @@ class Index extends Component
             ->paginate(10);
 
         // Group meal plans by status
-        $activePlans = $mealPlans->filter(fn($plan) => $plan->is_active);
-        $futurePlans = $mealPlans->filter(fn($plan) => $plan->is_future);
-        $pastPlans = $mealPlans->filter(fn($plan) => $plan->is_past);
+        $activePlans = $mealPlans->filter(fn ($plan) => $plan->is_active);
+        $futurePlans = $mealPlans->filter(fn ($plan) => $plan->is_future);
+        $pastPlans = $mealPlans->filter(fn ($plan) => $plan->is_past);
 
         return view('livewire.meal-plans.index', [
             'mealPlans' => $mealPlans,

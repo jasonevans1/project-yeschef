@@ -293,7 +293,7 @@ test('regenerate throws exception for standalone grocery list', function () {
         'meal_plan_id' => null,
     ]);
 
-    expect(fn() => $generator->regenerate($groceryList))
+    expect(fn () => $generator->regenerate($groceryList))
         ->toThrow(InvalidArgumentException::class, 'Cannot regenerate a standalone grocery list');
 });
 

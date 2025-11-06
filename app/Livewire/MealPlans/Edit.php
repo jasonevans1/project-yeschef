@@ -46,6 +46,7 @@ class Edit extends Component
 
         if ($start->diffInDays($end) > 28) {
             $this->addError('end_date', 'The meal plan duration cannot exceed 28 days.');
+
             return;
         }
 

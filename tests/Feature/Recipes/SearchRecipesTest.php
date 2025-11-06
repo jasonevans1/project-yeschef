@@ -3,7 +3,6 @@
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
-use Livewire\Livewire;
 
 test('search by recipe name using full text search', function () {
     $user = User::factory()->create();

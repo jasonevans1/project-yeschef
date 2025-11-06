@@ -298,7 +298,7 @@
 
 - [X] T095 [P] [US5] Feature test for editing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/EditRecipeTest.php` covering: user can edit own recipe (all fields), user can add ingredients to recipe, user can remove ingredients from recipe, user can update ingredient quantities, user cannot edit system recipe (user_id=null), user cannot edit another user's recipe, changes persist correctly
 
-- [ ] T096 [P] [US5] Feature test for deleting recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/DeleteRecipeTest.php` covering: user can delete own recipe, recipe and recipe_ingredients cascade delete, user cannot delete system recipe, user cannot delete another user's recipe, recipe preserved in existing meal plans (ON DELETE RESTRICT on meal_assignments)
+- [X] T096 [P] [US5] Feature test for deleting recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/DeleteRecipeTest.php` covering: user can delete own recipe, recipe and recipe_ingredients cascade delete, user cannot delete system recipe, user cannot delete another user's recipe, recipe preserved in existing meal plans (ON DELETE RESTRICT on meal_assignments)
 
 - [ ] T097 [P] [US5] Feature test for recipe authorization at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/RecipeAuthorizationTest.php` covering: RecipePolicy view method allows system recipes, RecipePolicy view method allows owner to view personal recipe, RecipePolicy view method denies non-owner viewing personal recipe, update/delete policies enforce ownership
 
@@ -314,7 +314,7 @@
 
 - [X] T102 [P] [US5] Create edit view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/edit.blade.php` similar to create view but with existing values, "Update Recipe" button, "Cancel" returns to show page, existing ingredients loaded in form
 
-- [ ] T103 [P] [US5] Create Recipes\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Delete.php` with delete(Recipe $recipe) method checking authorization (delete policy), try-catch for foreign key constraint (recipe in meal plans), display error if cannot delete, otherwise delete and redirect to recipes index
+- [X] T103 [P] [US5] Create Recipes\Delete Livewire component (action) at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Delete.php` with delete(Recipe $recipe) method checking authorization (delete policy), try-catch for foreign key constraint (recipe in meal plans), display error if cannot delete, otherwise delete and redirect to recipes index
 
 - [ ] T104 [US5] Update Recipes\Index view to show "My Recipe" badge on personal recipes (check if recipe->user_id === auth()->id()), add "Create New Recipe" button at top of page
 

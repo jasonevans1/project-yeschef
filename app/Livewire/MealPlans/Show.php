@@ -14,9 +14,13 @@ class Show extends Component
     use AuthorizesRequests;
 
     public MealPlan $mealPlan;
+
     public ?string $selectedDate = null;
+
     public ?string $selectedMealType = null;
+
     public bool $showRecipeSelector = false;
+
     public string $recipeSearch = '';
 
     public function mount(MealPlan $mealPlan)
@@ -45,7 +49,7 @@ class Show extends Component
     {
         $this->authorize('update', $this->mealPlan);
 
-        if (!$this->selectedDate || !$this->selectedMealType) {
+        if (! $this->selectedDate || ! $this->selectedMealType) {
             return;
         }
 
@@ -53,6 +57,7 @@ class Show extends Component
         $date = \Carbon\Carbon::parse($this->selectedDate);
         if ($date->lt($this->mealPlan->start_date) || $date->gt($this->mealPlan->end_date)) {
             session()->flash('error', 'Selected date is outside the meal plan range.');
+
             return;
         }
 
@@ -109,13 +114,13 @@ class Show extends Component
         $query = Recipe::query()
             ->where(function ($q) {
                 $q->whereNull('user_id')
-                  ->orWhere('user_id', auth()->id());
+                    ->orWhere('user_id', auth()->id());
             });
 
         if ($this->recipeSearch) {
             $query->where(function ($q) {
-                $q->where('name', 'like', '%' . $this->recipeSearch . '%')
-                  ->orWhere('description', 'like', '%' . $this->recipeSearch . '%');
+                $q->where('name', 'like', '%'.$this->recipeSearch.'%')
+                    ->orWhere('description', 'like', '%'.$this->recipeSearch.'%');
             });
         }
 
@@ -136,7 +141,7 @@ class Show extends Component
 
         // Group assignments by date and meal type
         $assignments = $mealPlan->mealAssignments->groupBy(function ($assignment) {
-            return $assignment->date->format('Y-m-d') . '_' . $assignment->meal_type->value;
+            return $assignment->date->format('Y-m-d').'_'.$assignment->meal_type->value;
         });
 
         return view('livewire.meal-plans.show', [
