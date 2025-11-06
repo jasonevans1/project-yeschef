@@ -50,6 +50,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's personal recipes
+     */
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    /**
      * Get the user's meal plans
      */
     public function mealPlans(): HasMany

@@ -294,7 +294,7 @@
 
 ### Tests for User Story 5 (TDD - Write tests FIRST)
 
-- [ ] T094 [P] [US5] Feature test for creating recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/CreateRecipeTest.php` covering: user can create recipe with all fields, recipe saved with user_id, validation requires name/instructions/at-least-one-ingredient, ingredients saved to recipe_ingredients pivot with quantities/units, redirects to recipe show page, recipe appears in user's list, other users cannot see private recipe
+- [X] T094 [P] [US5] Feature test for creating recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/CreateRecipeTest.php` covering: user can create recipe with all fields, recipe saved with user_id, validation requires name/instructions/at-least-one-ingredient, ingredients saved to recipe_ingredients pivot with quantities/units, redirects to recipe show page, recipe appears in user's list, other users cannot see private recipe
 
 - [ ] T095 [P] [US5] Feature test for editing recipes at `/Users/jasonevans/projects/project-tabletop/tests/Feature/Recipes/EditRecipeTest.php` covering: user can edit own recipe (all fields), user can add ingredients to recipe, user can remove ingredients from recipe, user can update ingredient quantities, user cannot edit system recipe (user_id=null), user cannot edit another user's recipe, changes persist correctly
 
@@ -306,9 +306,9 @@
 
 ### Implementation for User Story 5
 
-- [ ] T099 [P] [US5] Create Recipes\Create Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Create.php` with #[Validate] properties for all recipe fields, ingredients array with sub-properties (ingredient_name, quantity, unit, notes), addIngredient() method adding to array, removeIngredient($index) method, save() method: create Recipe with auth()->user()->recipes()->create(), handle ingredients (find or create Ingredient by name, create RecipeIngredient pivots), redirect to recipe show
+- [X] T099 [P] [US5] Create Recipes\Create Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Create.php` with #[Validate] properties for all recipe fields, ingredients array with sub-properties (ingredient_name, quantity, unit, notes), addIngredient() method adding to array, removeIngredient($index) method, save() method: create Recipe with auth()->user()->recipes()->create(), handle ingredients (find or create Ingredient by name, create RecipeIngredient pivots), redirect to recipe show
 
-- [ ] T100 [P] [US5] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/create.blade.php` using Flux form components: text input name, textarea description, number inputs prep_time/cook_time/servings, select meal_type (enum values), text input cuisine, select difficulty (enum values), multiselect dietary_tags (array input), textarea instructions, ingredients section with "Add Ingredient" button opening ingredient form, ingredient forms showing name/quantity/unit/notes with remove button, "Save Recipe" button
+- [X] T100 [P] [US5] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/create.blade.php` using Flux form components: text input name, textarea description, number inputs prep_time/cook_time/servings, select meal_type (enum values), text input cuisine, select difficulty (enum values), multiselect dietary_tags (array input), textarea instructions, ingredients section with "Add Ingredient" button opening ingredient form, ingredient forms showing name/quantity/unit/notes with remove button, "Save Recipe" button
 
 - [ ] T101 [P] [US5] Create Recipes\Edit Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Recipes/Edit.php` with mount(Recipe $recipe) checking authorization (update policy), similar properties/methods to Create but pre-populated, update() method saving changes to recipe and syncing ingredients (detach removed, attach new, update existing via RecipeIngredient), redirect to recipe show
 

@@ -32,7 +32,7 @@ Route::view('dashboard', 'dashboard')
 Route::middleware(['auth'])->group(function () {
     // Recipe Routes
     Route::get('recipes', RecipesIndex::class)->name('recipes.index');
-    // Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // TODO: US5 - T099
+    Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // US5 - T099, T100
     Route::get('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
     // Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // TODO: US5 - T101
 
