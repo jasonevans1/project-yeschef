@@ -241,7 +241,8 @@ test('grocery list shows source meal plan if linked', function () {
     Livewire::actingAs($this->user)
         ->test(Show::class, ['groceryList' => $groceryList])
         ->assertSee('Weekly Meal Plan')
-        ->assertSee('Generated List');
+        ->assertSee('Generated List')
+        ->assertSee('Regenerate');
 
     expect($groceryList->is_meal_plan_linked)->toBeTrue()
         ->and($groceryList->meal_plan_id)->toBe($mealPlan->id);
@@ -255,7 +256,9 @@ test('grocery list shows standalone indicator if not linked to meal plan', funct
 
     Livewire::actingAs($this->user)
         ->test(Show::class, ['groceryList' => $groceryList])
-        ->assertSee('Standalone Shopping List');
+        ->assertSee('Standalone Shopping List')
+        ->assertSee('Standalone List')
+        ->assertDontSee('Regenerate');
 
     expect($groceryList->is_standalone)->toBeTrue()
         ->and($groceryList->meal_plan_id)->toBeNull();

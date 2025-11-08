@@ -338,7 +338,7 @@
 
 - [X] T108 [P] [US6] Feature test for standalone list operations at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/StandaloneListOperationsTest.php` covering: user can add manual items to standalone list, user can edit items, user can delete items, user can mark items purchased, standalone list has no "Regenerate" option (meal_plan_id null), user can delete standalone list
 
-- [ ] T109 [P] [US6] E2E test for standalone list creation at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-standalone.spec.ts` covering: user logs in, navigates to grocery lists, clicks "Create Standalone List", enters name, saves, sees empty list, adds 5 items manually with different categories, marks 2 as purchased, views completion progress, verifies no "Regenerate" button, exports list, deletes list
+- [X] T109 [P] [US6] E2E test for standalone list creation at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-standalone.spec.ts` covering: user logs in, navigates to grocery lists, clicks "Create Standalone List", enters name, saves, sees empty list, adds 5 items manually with different categories, marks 2 as purchased, views completion progress, verifies no "Regenerate" button, exports list, deletes list
 
 ### Implementation for User Story 6
 
@@ -348,7 +348,7 @@
 
 - [X] T112 [US6] Update GroceryLists\Index view to clearly show "Standalone Lists" section separate from "Meal Plan Lists", add "Create Standalone List" button prominently
 
-- [ ] T113 [US6] Update GroceryLists\Show view to hide "Regenerate" button when is_standalone is true (meal_plan_id null), show different header text for standalone vs meal-plan-linked lists, show "Source: Standalone" vs "Source: [Meal Plan Name]"
+- [X] T113 [US6] Update GroceryLists\Show view to hide "Regenerate" button when is_standalone is true (meal_plan_id null), show different header text for standalone vs meal-plan-linked lists, show "Source: Standalone" vs "Source: [Meal Plan Name]"
 
 **Checkpoint**: User Story 6 fully functional - users can create standalone grocery lists, add items manually, manage like any list. Run tests (php artisan test tests/Feature/GroceryLists/Standalone* && npx playwright test e2e/grocery-lists-standalone.spec.ts) - all should pass. Test manually by creating standalone list, adding items, verifying no regenerate option.
 
