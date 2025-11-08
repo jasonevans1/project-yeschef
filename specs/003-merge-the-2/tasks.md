@@ -362,9 +362,9 @@
 
 ### Tests for User Story 7 (TDD - Write tests FIRST)
 
-- [ ] T114 [P] [US7] Feature test for serving adjustment at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ServingAdjustmentTest.php` covering: user can set serving_multiplier when assigning recipe, default multiplier is 1.0, validation enforces range 0.25 to 10.0, meal assignment saves with multiplier, meal plan view shows adjusted serving count (original * multiplier), ServingSizeScaler service used in grocery list generation
+- [X] T114 [P] [US7] Feature test for serving adjustment at `/Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ServingAdjustmentTest.php` covering: user can set serving_multiplier when assigning recipe, default multiplier is 1.0, validation enforces range 0.25 to 10.0, meal assignment saves with multiplier, meal plan view shows adjusted serving count (original * multiplier), ServingSizeScaler service used in grocery list generation
 
-- [ ] T115 [P] [US7] Feature test for scaled grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ScaledQuantitiesTest.php` covering: grocery list items reflect serving multipliers (2 cups * 1.5 = 3 cups), multiple recipes with different multipliers aggregate correctly (2 cups * 1.5 + 1 cup * 2.0 = 5 cups total), fractional results handled correctly (display as fractions or decimals)
+- [X] T115 [P] [US7] Feature test for scaled grocery list at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ScaledQuantitiesTest.php` covering: grocery list items reflect serving multipliers (2 cups * 1.5 = 3 cups), multiple recipes with different multipliers aggregate correctly (2 cups * 1.5 + 1 cup * 2.0 = 5 cups total), fractional results handled correctly (display as fractions or decimals)
 
 - [ ] T116 [P] [US7] E2E test for serving adjustment at `/Users/jasonevans/projects/project-tabletop/e2e/meal-plans-serving-adjustment.spec.ts` covering: user assigns recipe to meal slot, sees "Servings" input field, changes from default 4 to 6, sees multiplier calculated (1.5x), saves assignment, views meal plan showing "6 servings", generates grocery list, verifies quantities scaled correctly in grocery list
 
