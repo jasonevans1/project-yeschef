@@ -346,7 +346,7 @@
 
 - [X] T111 [P] [US6] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/create.blade.php` using Flux form components: text input for name, description explaining "Create a shopping list not linked to any meal plan", "Create List" button, "Cancel" returns to index
 
-- [ ] T112 [US6] Update GroceryLists\Index view to clearly show "Standalone Lists" section separate from "Meal Plan Lists", add "Create Standalone List" button prominently
+- [X] T112 [US6] Update GroceryLists\Index view to clearly show "Standalone Lists" section separate from "Meal Plan Lists", add "Create Standalone List" button prominently
 
 - [ ] T113 [US6] Update GroceryLists\Show view to hide "Regenerate" button when is_standalone is true (meal_plan_id null), show different header text for standalone vs meal-plan-linked lists, show "Source: Standalone" vs "Source: [Meal Plan Name]"
 

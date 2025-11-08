@@ -55,7 +55,7 @@ Route::middleware(['auth'])->group(function () {
 
     // Grocery List Routes (authenticated)
     Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // US3 - T074
-    // Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // TODO: US6 - T110
+    Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // US6 - T110
     Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // US3 - T078
     Route::get('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
     // Route::get('grocery-lists/{groceryList}/export', GroceryListsExport::class)->name('grocery-lists.export'); // TODO: US8 - T126
