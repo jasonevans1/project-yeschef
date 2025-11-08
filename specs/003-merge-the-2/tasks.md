@@ -336,7 +336,7 @@
 
 - [X] T107 [P] [US6] Feature test for creating standalone lists at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/CreateStandaloneListTest.php` covering: user can create grocery list without meal_plan_id, validation requires name, list saved with meal_plan_id=null, list marked as standalone (is_standalone computed attribute true), user cannot create list for another user
 
-- [ ] T108 [P] [US6] Feature test for standalone list operations at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/StandaloneListOperationsTest.php` covering: user can add manual items to standalone list, user can edit items, user can delete items, user can mark items purchased, standalone list has no "Regenerate" option (meal_plan_id null), user can delete standalone list
+- [X] T108 [P] [US6] Feature test for standalone list operations at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/StandaloneListOperationsTest.php` covering: user can add manual items to standalone list, user can edit items, user can delete items, user can mark items purchased, standalone list has no "Regenerate" option (meal_plan_id null), user can delete standalone list
 
 - [ ] T109 [P] [US6] E2E test for standalone list creation at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-standalone.spec.ts` covering: user logs in, navigates to grocery lists, clicks "Create Standalone List", enters name, saves, sees empty list, adds 5 items manually with different categories, marks 2 as purchased, views completion progress, verifies no "Regenerate" button, exports list, deletes list
 
@@ -344,7 +344,7 @@
 
 - [X] T110 [P] [US6] Create GroceryLists\Create Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Create.php` with #[Validate] properties: name (required|min:3|max:255), save() method creating GroceryList with auth()->user()->groceryLists()->create(['meal_plan_id' => null]), redirect to grocery-lists.show
 
-- [ ] T111 [P] [US6] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/create.blade.php` using Flux form components: text input for name, description explaining "Create a shopping list not linked to any meal plan", "Create List" button, "Cancel" returns to index
+- [X] T111 [P] [US6] Create create view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/create.blade.php` using Flux form components: text input for name, description explaining "Create a shopping list not linked to any meal plan", "Create List" button, "Cancel" returns to index
 
 - [ ] T112 [US6] Update GroceryLists\Index view to clearly show "Standalone Lists" section separate from "Meal Plan Lists", add "Create Standalone List" button prominently
 
