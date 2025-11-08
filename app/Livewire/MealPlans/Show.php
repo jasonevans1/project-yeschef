@@ -7,6 +7,7 @@ use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class Show extends Component
@@ -23,6 +24,9 @@ class Show extends Component
 
     public string $recipeSearch = '';
 
+    #[Validate('required|numeric|min:0.25|max:10')]
+    public float $servingMultiplier = 1.0;
+
     public function mount(MealPlan $mealPlan)
     {
         $this->authorize('view', $mealPlan);
@@ -35,6 +39,7 @@ class Show extends Component
         $this->selectedMealType = $mealType;
         $this->showRecipeSelector = true;
         $this->recipeSearch = '';
+        $this->servingMultiplier = 1.0;
     }
 
     public function closeRecipeSelector()
@@ -43,11 +48,15 @@ class Show extends Component
         $this->selectedDate = null;
         $this->selectedMealType = null;
         $this->recipeSearch = '';
+        $this->servingMultiplier = 1.0;
     }
 
     public function assignRecipe(Recipe $recipe)
     {
         $this->authorize('update', $this->mealPlan);
+
+        // Validate serving multiplier
+        $this->validate();
 
         if (! $this->selectedDate || ! $this->selectedMealType) {
             return;
@@ -69,7 +78,10 @@ class Show extends Component
 
         if ($existing) {
             // Update existing assignment
-            $existing->update(['recipe_id' => $recipe->id]);
+            $existing->update([
+                'recipe_id' => $recipe->id,
+                'serving_multiplier' => $this->servingMultiplier,
+            ]);
             session()->flash('success', 'Recipe updated successfully!');
         } else {
             // Create new assignment
@@ -78,7 +90,7 @@ class Show extends Component
                 'recipe_id' => $recipe->id,
                 'date' => $this->selectedDate,
                 'meal_type' => $this->selectedMealType,
-                'serving_multiplier' => 1.00,
+                'serving_multiplier' => $this->servingMultiplier,
             ]);
             session()->flash('success', 'Recipe assigned successfully!');
         }
