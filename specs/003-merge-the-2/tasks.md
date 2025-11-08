@@ -372,7 +372,7 @@
 
 - [X] T117 [P] [US7] Update MealPlans\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php` adding servingMultiplier property to assignRecipe() method parameters (default 1.0), save multiplier to meal_assignment.serving_multiplier column, display adjusted servings in calendar view (recipe->servings * assignment->serving_multiplier)
 
-- [ ] T118 [P] [US7] Update show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php` adding "Servings" input to recipe assignment flow, show original servings, input for desired servings, calculate and display multiplier, show both original and adjusted servings in calendar cells
+- [X] T118 [P] [US7] Update show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php` adding "Servings" input to recipe assignment flow, show original servings, input for desired servings, calculate and display multiplier, show both original and adjusted servings in calendar cells
 
 - [ ] T119 [P] [US7] Update recipe selector modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/partials/recipe-selector.blade.php` adding serving adjustment UI: show recipe default servings, number input for desired servings with validation (1-100), calculated multiplier display (read-only), "Assign with [X] servings" button
 
