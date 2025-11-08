@@ -320,7 +320,7 @@
 
 - [X] T105 [US5] Update Recipes\Show view to show "Edit" and "Delete" buttons only if user owns recipe (use @can blade directive with RecipePolicy), show "System Recipe" badge if user_id is null
 
-- [ ] T106 [US5] Create ingredient input partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/recipes/partials/ingredient-input.blade.php` reusable for create and edit, includes autocomplete for ingredient names (optional enhancement - can be simple text input for MVP), quantity/unit/notes fields, remove button
+- [X] T106 [US5] Create ingredient input partial at `/Users/jasonevans/projects/project-tabletop/resources/views/components/ingredient-input.blade.php` reusable for create and edit, includes autocomplete for ingredient names (optional enhancement - can be simple text input for MVP), quantity/unit/notes fields, remove button
 
 **Checkpoint**: User Story 5 fully functional - users can create/edit/delete personal recipes, recipes available in meal planning, authorization enforced. Run tests (php artisan test tests/Feature/Recipes/Create* tests/Feature/Recipes/Edit* tests/Feature/Recipes/Delete* && npx playwright test e2e/recipes-create.spec.ts) - all should pass. Test manually by creating recipe, editing, using in meal plan, deleting.
 
