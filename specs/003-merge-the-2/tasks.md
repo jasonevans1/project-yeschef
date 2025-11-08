@@ -374,7 +374,7 @@
 
 - [X] T118 [P] [US7] Update show view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php` adding "Servings" input to recipe assignment flow, show original servings, input for desired servings, calculate and display multiplier, show both original and adjusted servings in calendar cells
 
-- [ ] T119 [P] [US7] Update recipe selector modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/partials/recipe-selector.blade.php` adding serving adjustment UI: show recipe default servings, number input for desired servings with validation (1-100), calculated multiplier display (read-only), "Assign with [X] servings" button
+- [X] T119 [P] [US7] Update recipe selector modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/partials/recipe-selector.blade.php` adding serving adjustment UI: show recipe default servings, number input for desired servings with validation (1-100), calculated multiplier display (read-only), "Assign with [X] servings" button
 
 - [ ] T120 [US7] Verify GroceryListGenerator service at `/Users/jasonevans/projects/project-tabletop/app/Services/GroceryListGenerator.php` correctly applies serving_multiplier from meal_assignments when generating list (should already use ServingSizeScaler from T030, verify integration)
 

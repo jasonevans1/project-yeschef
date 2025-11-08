@@ -19,6 +19,35 @@
         />
     </div>
 
+    {{-- Serving Size Adjustment --}}
+    <div class="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex-1">
+                <flux:field>
+                    <flux:label>Servings</flux:label>
+                    <flux:input
+                        wire:model.live="servingMultiplier"
+                        type="number"
+                        step="0.25"
+                        min="0.25"
+                        max="10"
+                        name="servings"
+                    />
+                    <flux:error name="servingMultiplier" />
+                    <flux:description>
+                        Adjust the serving multiplier to scale ingredient quantities (0.25x to 10x)
+                    </flux:description>
+                </flux:field>
+            </div>
+            <div class="text-center px-4">
+                <div class="text-xs text-gray-600 mb-1">Multiplier</div>
+                <div class="text-lg font-semibold text-gray-900">
+                    {{ number_format($servingMultiplier, 2) }}x
+                </div>
+            </div>
+        </div>
+    </div>
+
     {{-- Recipe List --}}
     <div class="max-h-96 overflow-y-auto space-y-2">
         @forelse($this->recipes as $recipe)
