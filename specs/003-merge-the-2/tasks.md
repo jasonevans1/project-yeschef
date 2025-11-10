@@ -378,7 +378,7 @@
 
 - [X] T120 [US7] Verify GroceryListGenerator service at `/Users/jasonevans/projects/project-tabletop/app/Services/GroceryListGenerator.php` correctly applies serving_multiplier from meal_assignments when generating list (should already use ServingSizeScaler from T030, verify integration)
 
-- [ ] T121 [US7] Update meal-calendar component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/meal-calendar.blade.php` to show adjusted servings badge on assigned recipes (e.g., "6 servings" or "1.5x" indicator)
+- [X] T121 [US7] Update meal-calendar component at `/Users/jasonevans/projects/project-tabletop/resources/views/components/meal-calendar.blade.php` to show adjusted servings badge on assigned recipes (e.g., "6 servings" or "1.5x" indicator)
 
 **Checkpoint**: User Story 7 fully functional - users can adjust serving sizes, quantities scale correctly, grocery lists reflect adjustments. Run tests (php artisan test tests/Feature/MealPlans/ServingAdjustment* && npx playwright test e2e/meal-plans-serving-adjustment.spec.ts) - all should pass. Test manually by creating meal plan with scaled servings, generating grocery list, verifying math.
 

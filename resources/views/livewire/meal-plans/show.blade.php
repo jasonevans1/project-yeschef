@@ -86,8 +86,17 @@
                                                 {{ $assignment->recipe->name }}
                                             </div>
                                             @if($assignment->serving_multiplier != 1.00)
-                                                <div class="text-xs text-blue-700">
-                                                    {{ $assignment->recipe->servings * $assignment->serving_multiplier }} servings
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-300">
+                                                        {{ $assignment->recipe->servings * $assignment->serving_multiplier }} servings
+                                                    </span>
+                                                    <span class="text-xs text-blue-600">
+                                                        ({{ $assignment->serving_multiplier }}x)
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <div class="text-xs text-gray-500 mt-1">
+                                                    {{ $assignment->recipe->servings }} servings
                                                 </div>
                                             @endif
                                             @if($assignment->notes)
