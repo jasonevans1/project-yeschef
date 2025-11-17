@@ -38,6 +38,9 @@ class Show extends Component
 
     public array $regenerateDiff = [];
 
+    // Properties for share dialog (US8 - T131)
+    public bool $showShareDialog = false;
+
     protected function rules()
     {
         return [
@@ -358,6 +361,29 @@ class Show extends Component
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
         $this->groceryList->refresh();
+    }
+
+    /**
+     * Open share dialog (US8 - T131)
+     */
+    public function openShareDialog()
+    {
+        $this->authorize('update', $this->groceryList);
+
+        // Generate share link if not already shared
+        if (! $this->groceryList->is_shared) {
+            $this->share();
+        }
+
+        $this->showShareDialog = true;
+    }
+
+    /**
+     * Close share dialog (US8 - T131)
+     */
+    public function closeShareDialog()
+    {
+        $this->showShareDialog = false;
     }
 
     /**

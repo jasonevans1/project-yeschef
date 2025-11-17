@@ -410,13 +410,13 @@
 
 - [X] T129 [P] [US8] Create shared view route and component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Shared.php` with mount($token) finding grocery list by share_token, checking expiration (abort 403 if expired), middleware auth required, render read-only view (no edit/delete buttons, no mark purchased)
 
-- [ ] T130 [P] [US8] Create shared view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/shared.blade.php` similar to show view but read-only, show "Shared by [Owner Name]" header, show expiration date, no action buttons (Add Item, Edit, Delete, Regenerate), display-only items
+- [X] T130 [P] [US8] Create shared view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/shared.blade.php` similar to show view but read-only, show "Shared by [Owner Name]" header, show expiration date, no action buttons (Add Item, Edit, Delete, Regenerate), display-only items
 
-- [ ] T131 [US8] Update GroceryLists\Show view to add export and share buttons: "Export" dropdown menu with "Download PDF" and "Download Text" options, "Share" button opening share dialog modal showing generated link with copy button and expiration date
+- [X] T131 [US8] Update GroceryLists\Show view to add export and share buttons: "Export" dropdown menu with "Download PDF" and "Download Text" options, "Share" button opening share dialog modal showing generated link with copy button and expiration date
 
-- [ ] T132 [US8] Create share dialog modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/partials/share-dialog.blade.php` with shareable URL display, copy-to-clipboard button (JavaScript), expiration date display, "Close" button
+- [X] T132 [US8] Create share dialog modal partial at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/partials/share-dialog.blade.php` with shareable URL display, copy-to-clipboard button (JavaScript), expiration date display, "Close" button
 
-- [ ] T133 [US8] Update GroceryListPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/GroceryListPolicy.php` adding viewShared(User $user, GroceryList $groceryList) method checking share_token is not null and share_expires_at > now()
+- [X] T133 [US8] Update GroceryListPolicy at `/Users/jasonevans/projects/project-tabletop/app/Policies/GroceryListPolicy.php` adding viewShared(User $user, GroceryList $groceryList) method checking share_token is not null and share_expires_at > now()
 
 **Checkpoint**: User Story 8 fully functional - users can export lists to PDF/text, share via authenticated links. Run tests (php artisan test tests/Feature/GroceryLists/Export* tests/Feature/GroceryLists/Share* && npx playwright test e2e/grocery-lists-export.spec.ts) - all should pass. Test manually by exporting PDF, exporting text, generating share link, accessing as another user.
 

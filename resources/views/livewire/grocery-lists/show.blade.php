@@ -82,6 +82,40 @@
 
             {{-- Action Buttons --}}
             <div class="flex items-center gap-2 ml-4">
+                {{-- Export Dropdown (US8 - T131) --}}
+                <flux:dropdown>
+                    <flux:button variant="ghost" size="sm" icon="arrow-down-tray">
+                        Export
+                    </flux:button>
+
+                    <flux:menu>
+                        <flux:menu.item href="{{ route('grocery-lists.export.pdf', $groceryList) }}">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                            Download PDF
+                        </flux:menu.item>
+                        <flux:menu.item href="{{ route('grocery-lists.export.text', $groceryList) }}">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Download Text
+                        </flux:menu.item>
+                    </flux:menu>
+                </flux:dropdown>
+
+                {{-- Share Button (US8 - T131) --}}
+                @can('update', $groceryList)
+                    <flux:button
+                        wire:click="openShareDialog"
+                        variant="ghost"
+                        size="sm"
+                        icon="share"
+                    >
+                        Share
+                    </flux:button>
+                @endcan
+
                 @can('update', $groceryList)
                     <flux:button
                         wire:click="openAddItemForm"
@@ -242,4 +276,9 @@
         </svg>
         <span class="text-sm font-medium">Processing...</span>
     </div>
+
+    {{-- Share Dialog Modal (US8 - T132) --}}
+    @if($showShareDialog)
+        @include('livewire.grocery-lists.partials.share-dialog')
+    @endif
 </div>
