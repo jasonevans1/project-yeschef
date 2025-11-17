@@ -394,7 +394,7 @@
 
 - [X] T122 [P] [US8] Feature test for PDF export at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ExportPdfTest.php` covering: user can export own grocery list as PDF, PDF response has correct headers (Content-Type: application/pdf, Content-Disposition: attachment), PDF contains grocery list name, PDF contains all items grouped by category, user cannot export another user's list
 
-- [ ] T123 [P] [US8] Feature test for text export at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ExportTextTest.php` covering: user can export own grocery list as plain text, text response has correct headers (Content-Type: text/plain), text format includes category headers and item checkboxes (markdown style), user cannot export another user's list
+- [X] T123 [P] [US8] Feature test for text export at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ExportTextTest.php` covering: user can export own grocery list as plain text, text response has correct headers (Content-Type: text/plain), text format includes category headers and item checkboxes (markdown style), user cannot export another user's list
 
 - [ ] T124 [P] [US8] Feature test for sharing at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ShareGroceryListTest.php` covering: user can generate shareable link (creates share_token UUID, sets share_expires_at), authenticated user can view shared list via token, shared view is read-only (no edit/delete buttons), expired share links denied (share_expires_at < now), unauthenticated user redirected to login, user cannot view invalid share token (404)
 
