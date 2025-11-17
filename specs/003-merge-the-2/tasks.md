@@ -402,9 +402,9 @@
 
 ### Implementation for User Story 8
 
-- [ ] T126 [P] [US8] Create GroceryLists\Export Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Export.php` with mount(GroceryList $groceryList) checking authorization, exportPdf() method using Barryvdh\DomPDF\Facade\Pdf::loadView('grocery-lists.pdf', [...]), return $pdf->download(), exportText() method generating plain text with category headers and item checkboxes, return response()->download()
+- [X] T126 [P] [US8] Create GroceryLists\Export Livewire component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Export.php` with mount(GroceryList $groceryList) checking authorization, exportPdf() method using Barryvdh\DomPDF\Facade\Pdf::loadView('grocery-lists.pdf', [...]), return $pdf->download(), exportText() method generating plain text with category headers and item checkboxes, return response()->download()
 
-- [ ] T127 [P] [US8] Create PDF template view at `/Users/jasonevans/projects/project-tabletop/resources/views/grocery-lists/pdf.blade.php` with print-friendly styling (black/white, clear fonts), grocery list header (name, date), items grouped by category with category headers, checkbox squares (☐) for each item, item name, quantity, unit on each line
+- [X] T127 [P] [US8] Create PDF template view at `/Users/jasonevans/projects/project-tabletop/resources/views/grocery-lists/pdf.blade.php` with print-friendly styling (black/white, clear fonts), grocery list header (name, date), items grouped by category with category headers, checkbox squares (☐) for each item, item name, quantity, unit on each line
 
 - [ ] T128 [P] [US8] Add share() method to GroceryLists\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Show.php` generating UUID for share_token (Str::uuid()), setting share_expires_at to now()->addDays(7), saving grocery list, returning shareable URL (route('grocery-lists.shared', $share_token))
 
