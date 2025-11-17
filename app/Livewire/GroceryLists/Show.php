@@ -8,6 +8,7 @@ use App\Models\GroceryList;
 use App\Services\GroceryListGenerator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
 class Show extends Component
@@ -357,6 +358,48 @@ class Show extends Component
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
         $this->groceryList->refresh();
+    }
+
+    /**
+     * Generate shareable link for grocery list (US8 - T128)
+     */
+    public function share()
+    {
+        $this->authorize('update', $this->groceryList);
+
+        // Generate UUID token
+        $this->groceryList->share_token = Str::uuid()->toString();
+
+        // Set expiration to 7 days from now
+        $this->groceryList->share_expires_at = now()->addDays(7);
+
+        // Save the grocery list
+        $this->groceryList->save();
+
+        // Refresh to get the updated values
+        $this->groceryList->refresh();
+
+        session()->flash('message', 'Shareable link generated successfully');
+    }
+
+    /**
+     * Revoke share access by clearing the token (US8 - Optional)
+     */
+    public function revokeShare()
+    {
+        $this->authorize('update', $this->groceryList);
+
+        // Clear the share token and expiration
+        $this->groceryList->share_token = null;
+        $this->groceryList->share_expires_at = null;
+
+        // Save the grocery list
+        $this->groceryList->save();
+
+        // Refresh to get the updated values
+        $this->groceryList->refresh();
+
+        session()->flash('message', 'Share access revoked successfully');
     }
 
     /**

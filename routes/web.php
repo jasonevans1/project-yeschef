@@ -63,6 +63,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('grocery-lists/{groceryList}/export/pdf', [\App\Http\Controllers\GroceryListController::class, 'exportPdf'])->name('grocery-lists.export.pdf');
     Route::get('grocery-lists/{groceryList}/export/text', [\App\Http\Controllers\GroceryListController::class, 'exportText'])->name('grocery-lists.export.text');
 
+    // Shared Grocery List Route (US8 - T129)
+    Route::get('grocery-lists/shared/{token}', GroceryListsShared::class)->name('grocery-lists.shared');
+
     // Grocery List Item Actions (POST/PUT/DELETE)
     Route::post('grocery-lists/{groceryList}/items', [\App\Http\Controllers\GroceryItemController::class, 'store'])->name('grocery-lists.items.store'); // US4 - T087
     Route::put('grocery-lists/{groceryList}/items/{item}', [\App\Http\Controllers\GroceryItemController::class, 'update'])->name('grocery-lists.items.update'); // US4 - T088
@@ -86,10 +89,5 @@ Route::middleware(['auth'])->group(function () {
         )
         ->name('two-factor.show');
 });
-
-// Shared Grocery List Route (requires authentication)
-// Route::get('grocery-lists/shared/{token}', GroceryListsShared::class)
-//     ->middleware(['auth'])
-//     ->name('grocery-lists.shared'); // TODO: US8 - T129
 
 require __DIR__.'/auth.php';

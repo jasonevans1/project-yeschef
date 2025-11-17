@@ -406,9 +406,9 @@
 
 - [X] T127 [P] [US8] Create PDF template view at `/Users/jasonevans/projects/project-tabletop/resources/views/grocery-lists/pdf.blade.php` with print-friendly styling (black/white, clear fonts), grocery list header (name, date), items grouped by category with category headers, checkbox squares (☐) for each item, item name, quantity, unit on each line
 
-- [ ] T128 [P] [US8] Add share() method to GroceryLists\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Show.php` generating UUID for share_token (Str::uuid()), setting share_expires_at to now()->addDays(7), saving grocery list, returning shareable URL (route('grocery-lists.shared', $share_token))
+- [X] T128 [P] [US8] Add share() method to GroceryLists\Show component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Show.php` generating UUID for share_token (Str::uuid()), setting share_expires_at to now()->addDays(7), saving grocery list, returning shareable URL (route('grocery-lists.shared', $share_token))
 
-- [ ] T129 [P] [US8] Create shared view route and component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Shared.php` with mount($token) finding grocery list by share_token, checking expiration (abort 403 if expired), middleware auth required, render read-only view (no edit/delete buttons, no mark purchased)
+- [X] T129 [P] [US8] Create shared view route and component at `/Users/jasonevans/projects/project-tabletop/app/Livewire/GroceryLists/Shared.php` with mount($token) finding grocery list by share_token, checking expiration (abort 403 if expired), middleware auth required, render read-only view (no edit/delete buttons, no mark purchased)
 
 - [ ] T130 [P] [US8] Create shared view at `/Users/jasonevans/projects/project-tabletop/resources/views/livewire/grocery-lists/shared.blade.php` similar to show view but read-only, show "Shared by [Owner Name]" header, show expiration date, no action buttons (Add Item, Edit, Delete, Regenerate), display-only items
 
