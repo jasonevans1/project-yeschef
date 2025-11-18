@@ -398,7 +398,7 @@
 
 - [X] T124 [P] [US8] Feature test for sharing at `/Users/jasonevans/projects/project-tabletop/tests/Feature/GroceryLists/ShareGroceryListTest.php` covering: user can generate shareable link (creates share_token UUID, sets share_expires_at), authenticated user can view shared list via token, shared view is read-only (no edit/delete buttons), expired share links denied (share_expires_at < now), unauthenticated user redirected to login, user cannot view invalid share token (404)
 
-- [ ] T125 [P] [US8] E2E test for export and sharing at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-export.spec.ts` covering: user opens grocery list, clicks "Export PDF", sees download dialog, clicks "Export Text", sees download dialog, clicks "Share", sees share dialog with generated link and expiration date, copies link, logs out, logs in as different user, pastes share link, sees grocery list in read-only mode (no edit buttons), verifies items visible
+- [X] T125 [P] [US8] E2E test for export and sharing at `/Users/jasonevans/projects/project-tabletop/e2e/grocery-lists-export.spec.ts` covering: user opens grocery list, clicks "Export PDF", sees download dialog, clicks "Export Text", sees download dialog, clicks "Share", sees share dialog with generated link and expiration date, copies link, logs out, logs in as different user, pastes share link, sees grocery list in read-only mode (no edit buttons), verifies items visible
 
 ### Implementation for User Story 8
 
