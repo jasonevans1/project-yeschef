@@ -3,6 +3,7 @@
 namespace App\Livewire\GroceryLists;
 
 use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Services\GroceryListGenerator;
@@ -46,7 +47,7 @@ class Show extends Component
         return [
             'itemName' => 'required|string|min:1|max:255',
             'itemQuantity' => 'nullable|numeric|min:0',
-            'itemUnit' => 'nullable|string',
+            'itemUnit' => 'nullable|string|in:'.implode(',', array_map(fn ($u) => $u->value, MeasurementUnit::cases())),
             'itemCategory' => 'nullable|string|in:'.implode(',', array_map(fn ($c) => $c->value, IngredientCategory::cases())),
             'itemNotes' => 'nullable|string|max:500',
         ];
@@ -464,6 +465,7 @@ class Show extends Component
         return view('livewire.grocery-lists.show', [
             'itemsByCategory' => $this->itemsByCategory,
             'categories' => IngredientCategory::cases(),
+            'units' => MeasurementUnit::cases(),
         ]);
     }
 }

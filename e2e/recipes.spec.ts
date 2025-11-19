@@ -47,8 +47,8 @@ test.describe('Recipe browsing journey', () => {
     await expect(page).toHaveURL(/search=Chicken/);
 
     // Step 5: Click on a recipe card to view details
-    // Find first recipe link/card and click it
-    const firstRecipe = page.locator('a[href*="/recipes/"]').first();
+    // Find first recipe link/card and click it (exclude /recipes/create)
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
     await firstRecipe.click();
 
     // Step 6: Verify we're on recipe details page

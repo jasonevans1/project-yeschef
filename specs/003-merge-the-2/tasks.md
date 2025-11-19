@@ -426,9 +426,9 @@
 
 **Purpose**: Improvements that affect multiple user stories, final validation
 
-- [ ] T134 [P] [POLISH] Run Laravel Pint on all PHP files: `vendor/bin/pint` to ensure consistent code formatting
+- [X] T134 [P] [POLISH] Run Laravel Pint on all PHP files: `vendor/bin/pint` to ensure consistent code formatting
 
-- [ ] T135 [P] [POLISH] Run full test suite and verify 100% pass rate: `php artisan test && npx playwright test`
+- [X] T135 [P] [POLISH] Run full test suite and verify 100% pass rate: `php artisan test && npx playwright test`
 
 - [ ] T136 [P] [POLISH] Create development data seeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/DevelopmentSeeder.php` creating: 5 test users, 100 system recipes, 10 personal recipes per user, 3 meal plans per user with assigned recipes, 5 grocery lists (3 from meal plans, 2 standalone) with items
 

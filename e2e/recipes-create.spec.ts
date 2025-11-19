@@ -216,11 +216,13 @@ test.describe('Recipe Creation and Management', () => {
     await page.fill('input[name="name"]', mealPlanName);
 
     const today = new Date();
-    const startDate = today.toISOString().split('T')[0];
-    const endDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000); // Tomorrow
+    const endDate = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+    const startDateStr = startDate.toISOString().split('T')[0];
+    const endDateStr = endDate.toISOString().split('T')[0];
 
-    await page.fill('input[name="start_date"]', startDate);
-    await page.fill('input[name="end_date"]', endDate);
+    await page.fill('input[name="start_date"]', startDateStr);
+    await page.fill('input[name="end_date"]', endDateStr);
 
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
@@ -229,22 +231,29 @@ test.describe('Recipe Creation and Management', () => {
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
 
-    // Wait for recipe selection modal/dropdown
-    await page.waitForTimeout(1000);
+    // Wait for recipe selection modal to appear
+    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
 
     // Search for our recipe in the modal
-    const modalSearchInput = page.locator('[data-recipe-card]').first();
+    const modalSearchInput = page.locator('input[placeholder*="Search recipes"]');
+    await expect(modalSearchInput).toBeVisible();
+    await modalSearchInput.fill(uniqueName);
+    await page.waitForTimeout(500); // Wait for debounced search
 
-    // Look for our recipe name in the modal and click it
-    const ourRecipeInModal = page.locator(`text=${uniqueName}`).first();
-    await ourRecipeInModal.click({ timeout: 5000 });
+    // Wait for recipe cards to load
+    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+
+    // Look for our recipe card in the modal and click it
+    const ourRecipeCard = page.locator(`[data-recipe-card]:has-text("${uniqueName}")`).first();
+    await ourRecipeCard.click({ timeout: 5000 });
 
     // Wait for assignment to complete
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
 
     // Verify recipe is assigned (it should appear in the meal plan grid)
-    await expect(page.getByText(uniqueName)).toBeVisible();
+    // Look for the recipe in the dinner slot specifically
+    await expect(firstDinnerSlot.getByText(uniqueName)).toBeVisible();
 
     // Step 25-27: Delete functionality testing
     // Note: Delete button will be visible in T105 after implementing show page updates

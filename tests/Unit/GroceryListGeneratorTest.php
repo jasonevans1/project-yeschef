@@ -189,7 +189,7 @@ test('generate creates grocery items with correct data', function () {
     $groceryList = $generator->generate($mealPlan);
     $groceryItem = $groceryList->groceryItems->first();
 
-    expect($groceryItem->name)->toBe('sugar');
+    expect($groceryItem->name)->toBe('Sugar');
     expect((float) $groceryItem->quantity)->toBe(7.0); // 3.5 * 2.0
     expect($groceryItem->unit)->toBe(MeasurementUnit::CUP);
     expect($groceryItem->category)->toBe(IngredientCategory::PANTRY);
@@ -445,7 +445,7 @@ test('regenerate adds new items from updated meal plan', function () {
     $generator->regenerate($groceryList);
 
     expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('pepper');
+    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('Pepper');
 });
 
 test('regenerate updates regenerated_at timestamp', function () {

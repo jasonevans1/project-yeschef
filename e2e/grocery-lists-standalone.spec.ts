@@ -52,7 +52,8 @@ test.describe('Standalone Grocery List Management', () => {
     await expect(page.locator('text=Create Standalone Grocery List')).toBeVisible();
 
     // Step 3: Enter name and save
-    const listName = 'Weekend Party Shopping';
+    const timestamp = Date.now();
+    const listName = `Weekend Party Shopping ${timestamp}`;
     await page.fill('input[name="name"]', listName);
 
     // Verify the info box explaining standalone lists is present
@@ -78,7 +79,7 @@ test.describe('Standalone Grocery List Management', () => {
     const itemsToAdd = [
       { name: 'Organic Apples', quantity: '6', unit: 'whole', category: 'produce' },
       { name: 'Whole Milk', quantity: '1', unit: 'gallon', category: 'dairy' },
-      { name: 'Paper Plates', quantity: '1', unit: 'pack', category: 'other' },
+      { name: 'Paper Plates', quantity: '20', unit: 'piece', category: 'other' },
     ];
 
     for (const item of itemsToAdd) {
@@ -93,7 +94,7 @@ test.describe('Standalone Grocery List Management', () => {
       // Fill in item details
       await page.fill('#itemName', item.name);
       await page.fill('#itemQuantity', item.quantity);
-      await page.fill('#itemUnit', item.unit);
+      await page.locator('#itemUnit').selectOption(item.unit);
       await page.locator('#itemCategory').selectOption(item.category);
       await page.waitForTimeout(500); // Allow Livewire to sync
 
@@ -151,7 +152,7 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Verify the completion percentage is shown (67%)
     const listRow = page.locator(`text=${listName}`).locator('xpath=ancestor::div[contains(@class, "p-4")]');
-    await expect(listRow.locator('text=/67%/i')).toBeVisible();
+    await expect(listRow.locator('text=/67%/i').first()).toBeVisible();
   });
 
   test('standalone list creation form has proper validation', async ({ page }) => {

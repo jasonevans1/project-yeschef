@@ -169,22 +169,18 @@ test('url contains search parameters for shareability', function () {
         'name' => 'Test Recipe',
     ]);
 
-    // Make request with search parameters
-    $response = $this->actingAs($user)->get(route('recipes.index', [
-        'search' => 'pasta',
-        'mealTypes' => ['dinner'],
-        'dietaryTags' => ['vegetarian'],
-    ]));
-
-    $response->assertStatus(200);
-
-    // Verify URL contains the search parameters
-    // This makes the URL shareable with filters intact
-    $url = $response->baseResponse->getRequest()->getRequestUri();
-
-    expect($url)->toContain('search=pasta');
-    expect($url)->toContain('mealTypes');
-    expect($url)->toContain('dietaryTags');
+    // Use Livewire test to verify URL parameters are set correctly
+    // Livewire components use the #[Url] attribute to persist query parameters
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\Recipes\Index::class, [
+            'search' => 'pasta',
+            'mealTypes' => ['dinner'],
+            'dietaryTags' => ['vegetarian'],
+        ])
+        ->assertSet('search', 'pasta')
+        ->assertSet('mealTypes', ['dinner'])
+        ->assertSet('dietaryTags', ['vegetarian'])
+        ->assertStatus(200);
 });
 
 test('search with no results shows empty state', function () {

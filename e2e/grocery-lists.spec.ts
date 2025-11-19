@@ -199,20 +199,33 @@ test.describe('Grocery List Generation', () => {
   });
 
   test('generated grocery list links to source meal plan', async ({ page }) => {
-    // Navigate to an existing grocery list (generated from meal plan)
-    await page.goto('/grocery-lists');
+    // Create a meal plan and generate grocery list
+    await page.goto('/meal-plans');
+    await page.click('text=Create New Meal Plan');
 
-    // Wait for page to load
+    await page.fill('input[name="name"]', 'Meal Plan Link Test');
+
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    await page.fill('input[name="start_date"]', startDate);
+    await page.fill('input[name="end_date"]', endDate);
+    await page.click('button:has-text("Create Meal Plan")');
+    await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
-    // The page should show "Meal Plan Lists" section with at least one list
-    await expect(page.locator('text=Meal Plan Lists')).toBeVisible();
+    // Assign a recipe
+    const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
+    await firstDinnerSlot.click({ timeout: 5000 });
+    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+    await page.locator('[data-recipe-card]').first().click();
+    await page.waitForLoadState('networkidle');
 
-    // Click on the first meal plan-linked grocery list's "View" button
-    const firstMealPlanList = page.locator('text=Meal Plan Lists').locator('..').locator('[href*="/grocery-lists/"]').first();
-    await firstMealPlanList.click();
-
-    // Wait for the grocery list show page to load
+    // Generate grocery list
+    await page.click('a:has-text("Generate Grocery List")');
+    await page.waitForURL(/\/grocery-lists\/generate\/\d+/);
+    await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
 
     // Should show source meal plan information
@@ -241,17 +254,33 @@ test.describe('Grocery List Generation', () => {
   // });
 
   test('grocery list displays items in category order', async ({ page }) => {
-    // Navigate to a grocery list with items
-    await page.goto('/grocery-lists');
+    // Create a meal plan and generate grocery list
+    await page.goto('/meal-plans');
+    await page.click('text=Create New Meal Plan');
 
-    // Wait for page to load
+    await page.fill('input[name="name"]', 'Category Order Test Plan');
+
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    await page.fill('input[name="start_date"]', startDate);
+    await page.fill('input[name="end_date"]', endDate);
+    await page.click('button:has-text("Create Meal Plan")');
+    await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
-    // Click on the first grocery list link (either from Meal Plan Lists or Standalone Lists)
-    const firstGroceryListLink = page.locator('[href*="/grocery-lists/"]').first();
-    await firstGroceryListLink.click();
+    // Assign a recipe
+    const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
+    await firstDinnerSlot.click({ timeout: 5000 });
+    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+    await page.locator('[data-recipe-card]').first().click();
+    await page.waitForLoadState('networkidle');
 
-    // Wait for the grocery list show page to load
+    // Generate grocery list
+    await page.click('a:has-text("Generate Grocery List")');
+    await page.waitForURL(/\/grocery-lists\/generate\/\d+/);
+    await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
 
     // Get all category sections (they have specific styling classes)

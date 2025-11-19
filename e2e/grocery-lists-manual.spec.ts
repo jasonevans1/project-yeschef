@@ -104,7 +104,7 @@ test.describe('Manual Grocery List Item Management', () => {
     // Step 5: Fill in the add item form
     await page.fill('#itemName', 'Paper Towels');
     await page.fill('#itemQuantity', '2');
-    await page.fill('#itemUnit', 'whole');
+    await page.locator('#itemUnit').selectOption('whole');
 
     // Select category (OTHER)
     const categorySelect = page.locator('#itemCategory');
@@ -184,7 +184,7 @@ test.describe('Manual Grocery List Item Management', () => {
 
     await page.fill('#itemName', 'Trash Bags');
     await page.fill('#itemQuantity', '1');
-    await page.fill('#itemUnit', 'whole');
+    await page.locator('#itemUnit').selectOption('whole');
     await page.locator('#itemCategory').selectOption('other');
     await page.waitForTimeout(500);
 
@@ -253,7 +253,7 @@ test.describe('Manual Grocery List Item Management', () => {
 
     await page.fill('#itemName', 'Organic Bananas');
     await page.fill('#itemQuantity', '6');
-    await page.fill('#itemUnit', 'whole');
+    await page.locator('#itemUnit').selectOption('whole');
     await page.locator('#itemCategory').selectOption('produce');
     await page.waitForTimeout(500);
 
@@ -340,14 +340,36 @@ test.describe('Manual Grocery List Item Management', () => {
   });
 
   test('cancel button closes add item form', async ({ page }) => {
-    // Navigate to an existing grocery list
-    await page.goto('/grocery-lists');
+    // Create a meal plan and generate grocery list
+    await page.goto('/meal-plans');
+    await page.click('text=Create New Meal Plan');
+
+    await page.fill('input[name="name"]', 'Cancel Test Plan');
+
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    await page.fill('input[name="start_date"]', startDate);
+    await page.fill('input[name="end_date"]', endDate);
+    await page.click('button:has-text("Create Meal Plan")');
+    await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
-    // Click on first grocery list
-    const firstGroceryListLink = page.locator('[href*="/grocery-lists/"]').first();
-    await firstGroceryListLink.click();
+    // Assign a recipe
+    const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
+    await firstDinnerSlot.click({ timeout: 5000 });
+    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+    await page.locator('[data-recipe-card]').first().click();
+    await page.waitForLoadState('networkidle');
+
+    // Generate grocery list
+    await page.click('a:has-text("Generate Grocery List")');
+    await page.waitForURL(/\/grocery-lists\/generate\/\d+/);
+    await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
+
+    await page.waitForSelector('.bg-white.rounded-lg.shadow', { timeout: 5000 });
 
     // Open add item form
     await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
@@ -366,13 +388,36 @@ test.describe('Manual Grocery List Item Management', () => {
   });
 
   test('validation prevents saving item without name', async ({ page }) => {
-    // Navigate to an existing grocery list
-    await page.goto('/grocery-lists');
+    // Create a meal plan and generate grocery list
+    await page.goto('/meal-plans');
+    await page.click('text=Create New Meal Plan');
+
+    await page.fill('input[name="name"]', 'Validation Test Plan');
+
+    const today = new Date();
+    const startDate = today.toISOString().split('T')[0];
+    const endDate = new Date(today.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+
+    await page.fill('input[name="start_date"]', startDate);
+    await page.fill('input[name="end_date"]', endDate);
+    await page.click('button:has-text("Create Meal Plan")');
+    await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
     await page.waitForLoadState('networkidle');
 
-    const firstGroceryListLink = page.locator('[href*="/grocery-lists/"]').first();
-    await firstGroceryListLink.click();
+    // Assign a recipe
+    const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
+    await firstDinnerSlot.click({ timeout: 5000 });
+    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+    await page.locator('[data-recipe-card]').first().click();
+    await page.waitForLoadState('networkidle');
+
+    // Generate grocery list
+    await page.click('a:has-text("Generate Grocery List")');
+    await page.waitForURL(/\/grocery-lists\/generate\/\d+/);
+    await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
+
+    await page.waitForSelector('.bg-white.rounded-lg.shadow', { timeout: 5000 });
 
     // Open add item form
     await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
