@@ -432,7 +432,7 @@
 
 - [x] T136 [P] [POLISH] Create development data seeder at `/Users/jasonevans/projects/project-tabletop/database/seeders/DevelopmentSeeder.php` creating: 5 test users, 100 system recipes, 10 personal recipes per user, 3 meal plans per user with assigned recipes, 5 grocery lists (3 from meal plans, 2 standalone) with items
 
-- [ ] T137 [P] [POLISH] Update navigation menu in main layout at `/Users/jasonevans/projects/project-tabletop/resources/views/components/layouts/app.blade.php` adding links to: Recipes, Meal Plans, Grocery Lists (all within auth check)
+- [x] T137 [P] [POLISH] Update navigation menu in main layout at `/Users/jasonevans/projects/project-tabletop/resources/views/components/layouts/app.blade.php` adding links to: Recipes, Meal Plans, Grocery Lists (all within auth check)
 
 - [ ] T138 [P] [POLISH] Create dashboard/home page at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Dashboard.php` showing: upcoming meal plans (next 7 days), recent grocery lists, quick actions (Create Meal Plan, Browse Recipes, Create Shopping List)
 
