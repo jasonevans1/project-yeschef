@@ -434,7 +434,7 @@
 
 - [x] T137 [P] [POLISH] Update navigation menu in main layout at `/Users/jasonevans/projects/project-tabletop/resources/views/components/layouts/app.blade.php` adding links to: Recipes, Meal Plans, Grocery Lists (all within auth check)
 
-- [ ] T138 [P] [POLISH] Create dashboard/home page at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Dashboard.php` showing: upcoming meal plans (next 7 days), recent grocery lists, quick actions (Create Meal Plan, Browse Recipes, Create Shopping List)
+- [x] T138 [P] [POLISH] Create dashboard/home page at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Dashboard.php` showing: upcoming meal plans (next 7 days), recent grocery lists, quick actions (Create Meal Plan, Browse Recipes, Create Shopping List)
 
 - [ ] T139 [P] [POLISH] Add helpful empty states to all index views: when no recipes/meal-plans/grocery-lists exist, show friendly message with call-to-action button
 

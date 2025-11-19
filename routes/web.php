@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Dashboard;
 use App\Livewire\GroceryLists\Create as GroceryListsCreate;
 use App\Livewire\GroceryLists\Generate as GroceryListsGenerate;
 use App\Livewire\GroceryLists\Index as GroceryListsIndex;
@@ -24,7 +25,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
