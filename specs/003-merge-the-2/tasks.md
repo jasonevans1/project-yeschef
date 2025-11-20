@@ -436,7 +436,7 @@
 
 - [x] T138 [P] [POLISH] Create dashboard/home page at `/Users/jasonevans/projects/project-tabletop/app/Livewire/Dashboard.php` showing: upcoming meal plans (next 7 days), recent grocery lists, quick actions (Create Meal Plan, Browse Recipes, Create Shopping List)
 
-- [ ] T139 [P] [POLISH] Add helpful empty states to all index views: when no recipes/meal-plans/grocery-lists exist, show friendly message with call-to-action button
+- [x] T139 [P] [POLISH] Add helpful empty states to all index views: when no recipes/meal-plans/grocery-lists exist, show friendly message with call-to-action button
 
 - [ ] T140 [P] [POLISH] Add loading states to all Livewire components using wire:loading directive for better UX during operations
 
