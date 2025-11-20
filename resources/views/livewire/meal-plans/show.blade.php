@@ -33,7 +33,8 @@
                     icon="trash"
                     class="text-red-600 hover:text-red-700"
                 >
-                    Delete
+                    <span wire:loading.remove wire:target="delete">Delete</span>
+                    <span wire:loading wire:target="delete">Deleting...</span>
                 </flux:button>
             </div>
         </div>
@@ -179,9 +180,12 @@
                 @forelse($this->recipes as $recipe)
                     <button
                         wire:click="assignRecipe({{ $recipe->id }})"
-                        class="w-full p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition text-left"
+                        class="w-full p-4 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition text-left relative"
                         data-recipe-card
                     >
+                        <div wire:loading wire:target="assignRecipe" class="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                            <span class="text-sm text-gray-600">Assigning...</span>
+                        </div>
                         <div class="font-semibold text-gray-900">{{ $recipe->name }}</div>
                         @if($recipe->description)
                             <div class="text-sm text-gray-600 mt-1">{{ Str::limit($recipe->description, 100) }}</div>

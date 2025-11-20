@@ -64,7 +64,8 @@
                         type="submit"
                         variant="primary"
                     >
-                        Update Meal Plan
+                        <span wire:loading.remove wire:target="update">Update Meal Plan</span>
+                        <span wire:loading wire:target="update">Updating...</span>
                     </flux:button>
                 </div>
             </form>

@@ -64,7 +64,8 @@
                         type="submit"
                         variant="primary"
                     >
-                        Create Meal Plan
+                        <span wire:loading.remove wire:target="save">Create Meal Plan</span>
+                        <span wire:loading wire:target="save">Creating...</span>
                     </flux:button>
                 </div>
             </form>

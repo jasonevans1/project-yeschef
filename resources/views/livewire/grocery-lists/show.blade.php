@@ -134,7 +134,8 @@
                             size="sm"
                             icon="arrow-path"
                         >
-                            Regenerate
+                            <span wire:loading.remove wire:target="regenerate">Regenerate</span>
+                            <span wire:loading wire:target="regenerate">Regenerating...</span>
                         </flux:button>
                     @endif
                 @endcan

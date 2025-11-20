@@ -438,7 +438,7 @@
 
 - [x] T139 [P] [POLISH] Add helpful empty states to all index views: when no recipes/meal-plans/grocery-lists exist, show friendly message with call-to-action button
 
-- [ ] T140 [P] [POLISH] Add loading states to all Livewire components using wire:loading directive for better UX during operations
+- [x] T140 [P] [POLISH] Add loading states to all Livewire components using wire:loading directive for better UX during operations
 
 - [ ] T141 [P] [POLISH] Add success/error toast notifications to all form submissions using Livewire flash messages and Flux notification components
 
