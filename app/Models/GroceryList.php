@@ -72,11 +72,21 @@ class GroceryList extends Model
 
     public function getTotalItemsAttribute(): int
     {
+        // Use eager loaded count if available to prevent N+1 queries
+        if (isset($this->attributes['total_items'])) {
+            return $this->attributes['total_items'];
+        }
+
         return $this->groceryItems()->count();
     }
 
     public function getCompletedItemsAttribute(): int
     {
+        // Use eager loaded count if available to prevent N+1 queries
+        if (isset($this->attributes['completed_items'])) {
+            return $this->attributes['completed_items'];
+        }
+
         return $this->groceryItems()->where('purchased', true)->count();
     }
 

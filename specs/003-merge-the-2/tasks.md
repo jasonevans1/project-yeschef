@@ -444,9 +444,9 @@
 
 - [x] T142 [P] [POLISH] Verify mobile responsiveness of all views using Tailwind breakpoints (test on mobile viewport in browser dev tools)
 
-- [ ] T143 [P] [POLISH] Add database indexes review: verify all foreign keys indexed, all commonly queried columns indexed (user_id, dates, meal_type, category)
+- [x] T143 [P] [POLISH] Add database indexes review: verify all foreign keys indexed, all commonly queried columns indexed (user_id, dates, meal_type, category)
 
-- [ ] T144 [P] [POLISH] Verify N+1 query prevention: review all Livewire components for proper eager loading (with() clauses on all relationship queries)
+- [x] T144 [P] [POLISH] Verify N+1 query prevention: review all Livewire components for proper eager loading (with() clauses on all relationship queries)
 
 - [ ] T145 [POLISH] Create quickstart documentation at `/Users/jasonevans/projects/project-tabletop/specs/003-merge-the-2/quickstart.md` with: local setup instructions (ddev start, composer install, npm install, migrate, seed), common workflows (create recipe, create meal plan, generate grocery list), troubleshooting tips
 

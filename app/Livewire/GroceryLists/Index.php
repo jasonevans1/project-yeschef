@@ -14,6 +14,12 @@ class Index extends Component
         $groceryLists = auth()->user()
             ->groceryLists()
             ->with('mealPlan')
+            ->withCount([
+                'groceryItems as total_items',
+                'groceryItems as completed_items' => function ($query) {
+                    $query->where('purchased', true);
+                },
+            ])
             ->latest()
             ->paginate(15);
 

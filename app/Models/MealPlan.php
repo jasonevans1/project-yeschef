@@ -76,6 +76,7 @@ class MealPlan extends Model
 
     public function getAssignmentCountAttribute(): int
     {
-        return $this->mealAssignments()->count();
+        // Use eager loaded count if available to prevent N+1 queries
+        return $this->meal_assignments_count ?? $this->mealAssignments()->count();
     }
 }

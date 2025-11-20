@@ -33,6 +33,7 @@ class Dashboard extends Component
                             ->where('end_date', '>=', $today);
                     });
             })
+            ->withCount('mealAssignments')
             ->orderBy('start_date')
             ->limit(5)
             ->get();
@@ -46,6 +47,12 @@ class Dashboard extends Component
     {
         return GroceryList::query()
             ->where('user_id', auth()->id())
+            ->withCount([
+                'groceryItems as total_items',
+                'groceryItems as completed_items' => function ($query) {
+                    $query->where('purchased', true);
+                },
+            ])
             ->orderBy('updated_at', 'desc')
             ->limit(5)
             ->get();
