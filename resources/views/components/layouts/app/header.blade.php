@@ -137,6 +137,9 @@
 
         {{ $slot }}
 
+        {{-- Flash Messages Toast Notifications --}}
+        <x-flash-messages />
+
         @fluxScripts
     </body>
 </html>

@@ -440,7 +440,7 @@
 
 - [x] T140 [P] [POLISH] Add loading states to all Livewire components using wire:loading directive for better UX during operations
 
-- [ ] T141 [P] [POLISH] Add success/error toast notifications to all form submissions using Livewire flash messages and Flux notification components
+- [x] T141 [P] [POLISH] Add success/error toast notifications to all form submissions using Livewire flash messages and Flux notification components
 
 - [ ] T142 [P] [POLISH] Verify mobile responsiveness of all views using Tailwind breakpoints (test on mobile viewport in browser dev tools)
 
