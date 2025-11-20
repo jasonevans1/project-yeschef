@@ -1,12 +1,12 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <div class="flex items-start justify-between mb-4">
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-4">
             <div class="flex-1">
                 <flux:heading size="xl" level="1" class="mb-2">{{ $groceryList->name }}</flux:heading>
 
                 {{-- Source Information --}}
-                <div class="flex items-center gap-2 text-sm text-gray-600">
+                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
                     @if($groceryList->is_meal_plan_linked && $groceryList->mealPlan)
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -58,7 +58,7 @@
             </div>
 
             {{-- Action Buttons --}}
-            <div class="flex items-center gap-2 ml-4">
+            <div class="flex flex-wrap items-center gap-2 lg:ml-4">
                 {{-- Export Dropdown (US8 - T131) --}}
                 <flux:dropdown>
                     <flux:button variant="ghost" size="sm" icon="arrow-down-tray">

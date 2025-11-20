@@ -442,7 +442,7 @@
 
 - [x] T141 [P] [POLISH] Add success/error toast notifications to all form submissions using Livewire flash messages and Flux notification components
 
-- [ ] T142 [P] [POLISH] Verify mobile responsiveness of all views using Tailwind breakpoints (test on mobile viewport in browser dev tools)
+- [x] T142 [P] [POLISH] Verify mobile responsiveness of all views using Tailwind breakpoints (test on mobile viewport in browser dev tools)
 
 - [ ] T143 [P] [POLISH] Add database indexes review: verify all foreign keys indexed, all commonly queried columns indexed (user_id, dates, meal_type, category)
 

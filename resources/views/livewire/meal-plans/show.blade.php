@@ -1,7 +1,7 @@
 <div>
     {{-- Header --}}
     <div class="mb-6">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 mb-4">
             <div>
                 <flux:heading size="xl" level="1">{{ $mealPlan->name }}</flux:heading>
                 <flux:text class="text-gray-600">
@@ -9,20 +9,23 @@
                     ({{ $mealPlan->duration_days }} {{ Str::plural('day', $mealPlan->duration_days) }})
                 </flux:text>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-2 lg:gap-3">
                 @if($mealPlan->mealAssignments->isNotEmpty() && Route::has('grocery-lists.generate'))
                     <flux:button
                         href="{{ route('grocery-lists.generate', $mealPlan) }}"
                         variant="primary"
                         icon="shopping-cart"
+                        class="flex-1 sm:flex-none"
                     >
-                        Generate Grocery List
+                        <span class="hidden sm:inline">Generate Grocery List</span>
+                        <span class="sm:hidden">Grocery List</span>
                     </flux:button>
                 @endif
                 <flux:button
                     href="{{ route('meal-plans.edit', $mealPlan) }}"
                     variant="ghost"
                     icon="pencil"
+                    class="flex-1 sm:flex-none"
                 >
                     Edit
                 </flux:button>
@@ -31,7 +34,7 @@
                     wire:confirm="Are you sure you want to delete this meal plan? This action cannot be undone."
                     variant="ghost"
                     icon="trash"
-                    class="text-red-600 hover:text-red-700"
+                    class="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
                 >
                     <span wire:loading.remove wire:target="delete">Delete</span>
                     <span wire:loading wire:target="delete">Deleting...</span>

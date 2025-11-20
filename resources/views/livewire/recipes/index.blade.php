@@ -1,7 +1,7 @@
 <div>
-    <div class="flex items-center justify-between mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <flux:heading size="xl">Browse Recipes</flux:heading>
-        <flux:button href="{{ route('recipes.create') }}" variant="primary" icon="plus">
+        <flux:button href="{{ route('recipes.create') }}" variant="primary" icon="plus" class="w-full sm:w-auto">
             Create New Recipe
         </flux:button>
     </div>
@@ -62,7 +62,7 @@
         </div>
 
         {{-- Recipe Grid --}}
-        <div class="grid grid-cols-2 gap-6 mb-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             @forelse ($recipes as $recipe)
                 <x-recipe-card :recipe="$recipe" />
             @empty
