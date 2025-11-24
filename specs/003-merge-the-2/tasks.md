@@ -448,13 +448,13 @@
 
 - [x] T144 [P] [POLISH] Verify N+1 query prevention: review all Livewire components for proper eager loading (with() clauses on all relationship queries)
 
-- [ ] T145 [POLISH] Create quickstart documentation at `/Users/jasonevans/projects/project-tabletop/specs/003-merge-the-2/quickstart.md` with: local setup instructions (ddev start, composer install, npm install, migrate, seed), common workflows (create recipe, create meal plan, generate grocery list), troubleshooting tips
+- [skipped] T145 [POLISH] Create quickstart documentation at `/Users/jasonevans/projects/project-tabletop/specs/003-merge-the-2/quickstart.md` with: local setup instructions (ddev start, composer install, npm install, migrate, seed), common workflows (create recipe, create meal plan, generate grocery list), troubleshooting tips
 
-- [ ] T146 [POLISH] Run manual acceptance testing for all 8 user stories following test scenarios from spec.md acceptance scenarios
+- [skipped] T146 [POLISH] Run manual acceptance testing for all 8 user stories following test scenarios from spec.md acceptance scenarios
 
-- [ ] T147 [POLISH] Run performance testing: generate meal plan with 20 recipes (80+ ingredients), generate grocery list, verify <10 seconds generation time, verify page loads <200ms
+- [skipped] T147 [POLISH] Run performance testing: generate meal plan with 20 recipes (80+ ingredients), generate grocery list, verify <10 seconds generation time, verify page loads <200ms
 
-- [ ] T148 [POLISH] Review security: verify all routes require authentication, verify policies applied to all resource operations, verify CSRF protection active, verify mass assignment protection on all models
+- [x] T148 [POLISH] Review security: verify all routes require authentication, verify policies applied to all resource operations, verify CSRF protection active, verify mass assignment protection on all models
 
 **Checkpoint**: Application polished, fully tested, documented, ready for demo or deployment. All user stories independently functional and integrated correctly.
 
