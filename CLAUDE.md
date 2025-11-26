@@ -770,3 +770,10 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
 </laravel-boost-guidelines>
+
+## Active Technologies
+- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x (004-rebrand-header)
+- N/A (view-only changes) (004-rebrand-header)
+
+## Recent Changes
+- 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
