@@ -774,6 +774,8 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 ## Active Technologies
 - PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x (004-rebrand-header)
 - N/A (view-only changes) (004-rebrand-header)
+- PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Laravel Fortify (authentication) (005-delete-grocery-list)
+- MariaDB (production via DDEV), SQLite (development/testing) (005-delete-grocery-list)
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
