@@ -37,6 +37,7 @@ class GroceryItem extends Model
         'purchased' => 'boolean',
         'purchased_at' => 'datetime',
         'sort_order' => 'integer',
+        'deleted_at' => 'datetime',
     ];
 
     // Relationships

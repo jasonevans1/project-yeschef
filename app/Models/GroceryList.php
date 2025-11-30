@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroceryList extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -25,7 +26,16 @@ class GroceryList extends Model
         'generated_at' => 'datetime',
         'regenerated_at' => 'datetime',
         'share_expires_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        // Cascade soft delete to grocery items
+        static::deleting(function (GroceryList $groceryList) {
+            $groceryList->groceryItems()->delete();
+        });
+    }
 
     // Relationships
 

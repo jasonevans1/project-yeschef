@@ -93,6 +93,17 @@
                     </flux:button>
                 @endcan
 
+                @can('delete', $groceryList)
+                    <flux:button
+                        wire:click="confirmDelete"
+                        variant="ghost"
+                        size="sm"
+                        icon="trash"
+                    >
+                        Delete
+                    </flux:button>
+                @endcan
+
                 @can('update', $groceryList)
                     <flux:button
                         wire:click="openAddItemForm"
@@ -262,4 +273,25 @@
     @if($showShareDialog)
         @include('livewire.grocery-lists.partials.share-dialog')
     @endif
+
+    {{-- Delete Confirmation Modal (US1) --}}
+    <flux:modal wire:model="showDeleteConfirm">
+        <flux:heading size="lg" class="mb-4">Delete Grocery List?</flux:heading>
+
+        <flux:text class="mb-6">
+            Are you sure you want to delete "{{ $groceryList->name }}"?
+            This will also delete all {{ $groceryList->total_items }} item(s) in this list.
+            This action cannot be undone.
+        </flux:text>
+
+        <div class="flex items-center justify-end gap-3">
+            <flux:button wire:click="cancelDelete" variant="ghost">
+                Cancel
+            </flux:button>
+            <flux:button wire:click="delete" variant="danger">
+                <span wire:loading.remove wire:target="delete">Delete List</span>
+                <span wire:loading wire:target="delete">Deleting...</span>
+            </flux:button>
+        </div>
+    </flux:modal>
 </div>

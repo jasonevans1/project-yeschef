@@ -20,11 +20,13 @@ return new class extends Migration
             $table->timestamp('regenerated_at')->nullable();
             $table->char('share_token', 36)->nullable();
             $table->timestamp('share_expires_at')->nullable();
+            $table->softDeletes();
             $table->timestamps();
 
             // Indexes
             $table->index('share_token');
             $table->index(['user_id', 'created_at']);
+            $table->index('deleted_at');
         });
     }
 

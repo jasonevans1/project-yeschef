@@ -42,6 +42,9 @@ class Show extends Component
     // Properties for share dialog (US8 - T131)
     public bool $showShareDialog = false;
 
+    // Properties for delete confirmation (US1)
+    public bool $showDeleteConfirm = false;
+
     protected function rules()
     {
         return [
@@ -427,6 +430,39 @@ class Show extends Component
         $this->groceryList->refresh();
 
         session()->flash('message', 'Share access revoked successfully');
+    }
+
+    /**
+     * Show delete confirmation modal (US1)
+     */
+    public function confirmDelete()
+    {
+        $this->authorize('delete', $this->groceryList);
+
+        $this->showDeleteConfirm = true;
+    }
+
+    /**
+     * Cancel delete operation (US2)
+     */
+    public function cancelDelete()
+    {
+        $this->showDeleteConfirm = false;
+    }
+
+    /**
+     * Delete the grocery list (US1)
+     */
+    public function delete()
+    {
+        $this->authorize('delete', $this->groceryList);
+
+        // Soft delete the grocery list (cascades to items via model event)
+        $this->groceryList->delete();
+
+        session()->flash('success', 'Grocery list deleted successfully');
+
+        return redirect()->route('grocery-lists.index');
     }
 
     /**
