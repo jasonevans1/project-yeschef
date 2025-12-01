@@ -26,6 +26,7 @@ class Recipe extends Model
         'dietary_tags',
         'instructions',
         'image_url',
+        'source_url',
     ];
 
     protected $casts = [
@@ -59,6 +60,18 @@ class Recipe extends Model
     public function mealAssignments(): HasMany
     {
         return $this->hasMany(MealAssignment::class);
+    }
+
+    // Scopes
+
+    public function scopeImported($query)
+    {
+        return $query->whereNotNull('source_url');
+    }
+
+    public function scopeManual($query)
+    {
+        return $query->whereNull('source_url');
     }
 
     // Computed Attributes
