@@ -54,23 +54,23 @@ This document provides a dependency-ordered task list for implementing the recip
 
 ### Tasks
 
-- [ ] T007 Create unit test file tests/Unit/RecipeImporter/RecipeFetcherTest.php with `php artisan make:test RecipeImporter/RecipeFetcherTest --unit --pest`
-- [ ] T008 Write failing tests for RecipeFetcher (successful fetch, timeout, invalid URL, network errors) using Http::fake()
-- [ ] T009 Create RecipeFetcher service class with `php artisan make:class Services/RecipeImporter/RecipeFetcher`
-- [ ] T010 Implement RecipeFetcher using Laravel HTTP facade with 30s timeout in app/Services/RecipeImporter/RecipeFetcher.php
-- [ ] T011 Run RecipeFetcher tests with `php artisan test --filter=RecipeFetcherTest` - all must pass
+- [X] T007 Create unit test file tests/Unit/RecipeImporter/RecipeFetcherTest.php with `php artisan make:test RecipeImporter/RecipeFetcherTest --unit --pest`
+- [X] T008 Write failing tests for RecipeFetcher (successful fetch, timeout, invalid URL, network errors) using Http::fake()
+- [X] T009 Create RecipeFetcher service class with `php artisan make:class Services/RecipeImporter/RecipeFetcher`
+- [X] T010 Implement RecipeFetcher using Laravel HTTP facade with 30s timeout in app/Services/RecipeImporter/RecipeFetcher.php
+- [X] T011 Run RecipeFetcher tests with `php artisan test --filter=RecipeFetcherTest` - all must pass
 
-- [ ] T012 Create unit test file tests/Unit/RecipeImporter/MicrodataParserTest.php with `php artisan make:test RecipeImporter/MicrodataParserTest --unit --pest`
-- [ ] T013 Write failing tests for MicrodataParser (JSON-LD parsing, missing data, malformed JSON, @graph handling)
-- [ ] T014 Create MicrodataParser service class with `php artisan make:class Services/RecipeImporter/MicrodataParser`
-- [ ] T015 Implement MicrodataParser using native PHP DOMDocument for JSON-LD extraction in app/Services/RecipeImporter/MicrodataParser.php
-- [ ] T016 Run MicrodataParser tests with `php artisan test --filter=MicrodataParserTest` - all must pass
+- [X] T012 Create unit test file tests/Unit/RecipeImporter/MicrodataParserTest.php with `php artisan make:test RecipeImporter/MicrodataParserTest --unit --pest`
+- [X] T013 Write failing tests for MicrodataParser (JSON-LD parsing, missing data, malformed JSON, @graph handling)
+- [X] T014 Create MicrodataParser service class with `php artisan make:class Services/RecipeImporter/MicrodataParser`
+- [X] T015 Implement MicrodataParser using native PHP DOMDocument for JSON-LD extraction in app/Services/RecipeImporter/MicrodataParser.php
+- [X] T016 Run MicrodataParser tests with `php artisan test --filter=MicrodataParserTest` - all must pass
 
-- [ ] T017 Create unit test file tests/Unit/RecipeImporter/RecipeSanitizerTest.php with `php artisan make:test RecipeImporter/RecipeSanitizerTest --unit --pest`
-- [ ] T018 Write failing tests for RecipeSanitizer (HTML stripping, URL validation, XSS prevention)
-- [ ] T019 Create RecipeSanitizer service class with `php artisan make:class Services/RecipeImporter/RecipeSanitizer`
-- [ ] T020 Implement RecipeSanitizer with strip_tags() and URL validation in app/Services/RecipeImporter/RecipeSanitizer.php
-- [ ] T021 Run RecipeSanitizer tests with `php artisan test --filter=RecipeSanitizerTest` - all must pass
+- [X] T017 Create unit test file tests/Unit/RecipeImporter/RecipeSanitizerTest.php with `php artisan make:test RecipeImporter/RecipeSanitizerTest --unit --pest`
+- [X] T018 Write failing tests for RecipeSanitizer (HTML stripping, URL validation, XSS prevention)
+- [X] T019 Create RecipeSanitizer service class with `php artisan make:class Services/RecipeImporter/RecipeSanitizer`
+- [X] T020 Implement RecipeSanitizer with strip_tags() and URL validation in app/Services/RecipeImporter/RecipeSanitizer.php
+- [X] T021 Run RecipeSanitizer tests with `php artisan test --filter=RecipeSanitizerTest` - all must pass
 
 **Completion Criteria**:
 - All 3 service tests pass (RecipeFetcher, MicrodataParser, RecipeSanitizer)
