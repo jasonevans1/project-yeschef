@@ -11,7 +11,7 @@ class RecipeFetcher
      * Fetch HTML content from a URL.
      *
      * @param  string  $url  The URL to fetch
-     * @return string The HTML content
+     * @return string The HTML content (returns body for all HTTP status codes)
      *
      * @throws ConnectionException If timeout or network error occurs
      */

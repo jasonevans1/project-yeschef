@@ -81,8 +81,8 @@ class Edit extends Component
             ->get()
             ->map(fn ($ri) => [
                 'ingredient_name' => $ri->ingredient->name,
-                'quantity' => (float) $ri->quantity,
-                'unit' => $ri->unit->value,
+                'quantity' => $ri->quantity ? (float) $ri->quantity : null,
+                'unit' => $ri->unit?->value,
                 'notes' => $ri->notes,
             ])
             ->toArray();

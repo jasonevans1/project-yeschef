@@ -43,6 +43,18 @@ class MicrodataParser
                 continue;
             }
 
+            // Handle top-level array (e.g., [{"@type": "Recipe", ...}])
+            if (is_array($data) && isset($data[0]) && is_array($data[0])) {
+                foreach ($data as $item) {
+                    $recipe = $this->findRecipe($item);
+                    if ($recipe !== null) {
+                        return $this->normalizeRecipe($recipe);
+                    }
+                }
+
+                continue;
+            }
+
             // Check if this is a Recipe
             $recipe = $this->findRecipe($data);
 
@@ -55,6 +67,25 @@ class MicrodataParser
     }
 
     /**
+     * Check if the @type value contains "Recipe".
+     *
+     * @param  mixed  $type  The @type value (string or array)
+     * @return bool True if the type is or contains "Recipe"
+     */
+    private function isRecipeType(mixed $type): bool
+    {
+        if (is_string($type)) {
+            return $type === 'Recipe';
+        }
+
+        if (is_array($type)) {
+            return in_array('Recipe', $type, true);
+        }
+
+        return false;
+    }
+
+    /**
      * Find a Recipe object in the JSON-LD data.
      *
      * @param  array<string, mixed>  $data  The decoded JSON-LD data
@@ -63,14 +94,14 @@ class MicrodataParser
     private function findRecipe(array $data): ?array
     {
         // Direct Recipe object
-        if (isset($data['@type']) && $data['@type'] === 'Recipe') {
+        if (isset($data['@type']) && $this->isRecipeType($data['@type'])) {
             return $data;
         }
 
         // Recipe in @graph array
         if (isset($data['@graph']) && is_array($data['@graph'])) {
             foreach ($data['@graph'] as $item) {
-                if (is_array($item) && isset($item['@type']) && $item['@type'] === 'Recipe') {
+                if (is_array($item) && isset($item['@type']) && $this->isRecipeType($item['@type'])) {
                     return $item;
                 }
             }

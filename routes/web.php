@@ -12,6 +12,8 @@ use App\Livewire\MealPlans\Index as MealPlansIndex;
 use App\Livewire\MealPlans\Show as MealPlansShow;
 use App\Livewire\Recipes\Create as RecipesCreate;
 use App\Livewire\Recipes\Edit as RecipesEdit;
+use App\Livewire\Recipes\Import as RecipesImport;
+use App\Livewire\Recipes\ImportPreview as RecipesImportPreview;
 use App\Livewire\Recipes\Index as RecipesIndex;
 use App\Livewire\Recipes\Show as RecipesShow;
 use App\Livewire\Settings\Appearance;
@@ -33,6 +35,8 @@ Route::middleware(['auth'])->group(function () {
     // Recipe Routes
     Route::get('recipes', RecipesIndex::class)->name('recipes.index');
     Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // US5 - T099, T100
+    Route::get('recipes/import', RecipesImport::class)->name('recipes.import'); // US1 - T036
+    Route::get('recipes/import/preview', RecipesImportPreview::class)->name('recipes.import.preview'); // US3 - T036
     Route::get('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
     Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // US5 - T101, T102
     Route::delete('recipes/{recipe}', [\App\Http\Controllers\RecipeController::class, 'destroy'])->name('recipes.destroy'); // US5 - T103

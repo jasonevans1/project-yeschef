@@ -272,3 +272,54 @@ test('handles HTML with only whitespace', function () {
 
     expect($result)->toBeNull();
 });
+
+test('handles top-level array with Recipe object', function () {
+    $html = <<<'HTML'
+<html>
+<head>
+    <script type="application/ld+json">
+    [
+        {
+            "@context": "https://schema.org",
+            "@type": ["Recipe"],
+            "name": "Array Recipe",
+            "recipeIngredient": ["flour", "sugar"],
+            "recipeInstructions": "Mix and bake."
+        }
+    ]
+    </script>
+</head>
+<body>Content</body>
+</html>
+HTML;
+
+    $result = $this->parser->parse($html);
+
+    expect($result)->not->toBeNull()
+        ->and($result['name'])->toBe('Array Recipe')
+        ->and($result['recipeIngredient'])->toHaveCount(2);
+});
+
+test('handles Recipe with @type as array', function () {
+    $html = <<<'HTML'
+<html>
+<head>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": ["Recipe", "Article"],
+        "name": "Multi-type Recipe",
+        "recipeIngredient": ["flour"],
+        "recipeInstructions": "Cook"
+    }
+    </script>
+</head>
+<body>Content</body>
+</html>
+HTML;
+
+    $result = $this->parser->parse($html);
+
+    expect($result)->not->toBeNull()
+        ->and($result['name'])->toBe('Multi-type Recipe');
+});
