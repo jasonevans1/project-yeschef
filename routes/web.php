@@ -95,3 +95,45 @@ Route::middleware(['auth'])->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Test-only routes for E2E testing (only available when APP_ENV=local or testing)
+if (app()->environment(['local', 'testing'])) {
+    Route::get('/test/recipe-valid', function () {
+        return response(<<<'HTML'
+<html>
+<head>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Recipe",
+    "name": "Test Chocolate Chip Cookies",
+    "description": "Delicious test cookies for E2E testing",
+    "prepTime": "PT15M",
+    "cookTime": "PT12M",
+    "recipeYield": "24 cookies",
+    "recipeIngredient": [
+      "2 cups all-purpose flour",
+      "1 cup white sugar",
+      "1/2 cup butter, softened",
+      "2 eggs",
+      "1 tsp vanilla extract",
+      "1 tsp baking soda",
+      "1/2 tsp salt",
+      "2 cups chocolate chips"
+    ],
+    "recipeInstructions": "Preheat oven to 350°F. Mix butter and sugar. Add eggs and vanilla. Combine dry ingredients. Fold in chocolate chips. Drop by spoonfuls onto baking sheet. Bake 10-12 minutes.",
+    "image": "https://example.com/cookies.jpg",
+    "recipeCuisine": "American",
+    "recipeCategory": "Dessert"
+  }
+  </script>
+</head>
+<body>Test Recipe Content</body>
+</html>
+HTML, 200, ['Content-Type' => 'text/html']);
+    })->name('test.recipe.valid');
+
+    Route::get('/test/recipe-invalid', function () {
+        return response('<html><body>Just a regular page with no recipe data</body></html>', 200, ['Content-Type' => 'text/html']);
+    })->name('test.recipe.invalid');
+}

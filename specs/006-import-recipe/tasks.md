@@ -124,10 +124,10 @@ This document provides a dependency-ordered task list for implementing the recip
 
 #### End-to-End Testing
 
-- [ ] T045 [P] [US1] [US3] Create E2E test file e2e/recipe-import.spec.ts
-- [ ] T046 [US1] [US3] Write E2E test for complete happy path (login → import page → enter URL → preview → confirm → recipe page)
-- [ ] T047 [US1] [US3] Write E2E test for cancel flow (preview → cancel → back to import)
-- [ ] T048 [US1] [US3] Run E2E tests with `npx playwright test recipe-import`
+- [X] T045 [P] [US1] [US3] Create E2E test file e2e/recipe-import.spec.ts
+- [X] T046 [US1] [US3] Write E2E test for complete happy path (login → import page → enter URL → preview → confirm → recipe page)
+- [X] T047 [US1] [US3] Write E2E test for cancel flow (preview → cancel → back to import)
+- [X] T048 [US1] [US3] Run E2E tests with `npx playwright test recipe-import`
 
 #### Quality Gates
 
