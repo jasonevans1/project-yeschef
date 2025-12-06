@@ -5,7 +5,12 @@ declare(strict_types=1);
 namespace App\Livewire\Recipes;
 
 use App\Exceptions\CloudflareBlockedException;
+use App\Exceptions\InvalidHTTPStatusException;
+use App\Exceptions\MalformedRecipeDataException;
+use App\Exceptions\MissingRecipeDataException;
+use App\Exceptions\NetworkTimeoutException;
 use App\Services\RecipeImporter\RecipeImportService;
+use Exception;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -22,21 +27,38 @@ class Import extends Component
         try {
             $recipeData = $importService->fetchAndParse($this->url);
 
-            if (! $recipeData) {
-                $this->addError('url', 'No recipe data found on this page. Please make sure the page contains a recipe with schema.org markup.');
+            // Store in session with source URL
+            $recipeData['source_url'] = $this->url;
+            session()->put('recipe_import_preview', $recipeData);
+            session()->save();
+
+            $this->redirect(route('recipes.import.preview'), navigate: true);
+        } catch (NetworkTimeoutException $e) {
+            $this->addError('url', $e->getMessage());
+        } catch (InvalidHTTPStatusException $e) {
+            $this->addError('url', $e->getMessage());
+        } catch (CloudflareBlockedException $e) {
+            $this->addError('url', $e->getMessage());
+        } catch (MissingRecipeDataException $e) {
+            $this->addError('url', $e->getMessage());
+        } catch (MalformedRecipeDataException $e) {
+            $this->addError('url', $e->getMessage());
+        } catch (Exception $e) {
+            // Check if this is a known error message from RecipeFetcher
+            if (str_contains($e->getMessage(), 'Could not connect')) {
+                $this->addError('url', $e->getMessage());
 
                 return;
             }
 
-            // Store in session with source URL
-            $recipeData['source_url'] = $this->url;
-            session()->put('recipe_import_preview', $recipeData);
+            // Log unexpected errors for debugging
+            logger()->error('Unexpected import error', [
+                'url' => $this->url,
+                'exception' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
 
-            $this->redirect(route('recipes.import.preview'), navigate: true);
-        } catch (CloudflareBlockedException $e) {
-            $this->addError('url', $e->getMessage());
-        } catch (\Exception $e) {
-            $this->addError('url', 'Could not access the page. Please check the URL and try again.');
+            $this->addError('url', 'An unexpected error occurred. Please try again or contact support.');
         }
     }
 

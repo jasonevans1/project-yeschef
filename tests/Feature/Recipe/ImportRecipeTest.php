@@ -267,3 +267,147 @@ test('import shows helpful error for Cloudflare-protected sites', function () {
         ->toContain('Cloudflare')
         ->toContain('cannot be imported automatically');
 });
+
+// T053-T054: Phase 4 Error Handling Tests
+
+test('shows error when URL has no recipe data', function () {
+    $user = User::factory()->create();
+
+    Http::fake([
+        'example.com/*' => Http::response('<html><body>Just a regular page</body></html>', 200),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/no-recipe')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('No recipe data found');
+});
+
+test('shows error when request times out', function () {
+    $user = User::factory()->create();
+
+    Http::fake(function () {
+        throw new \Illuminate\Http\Client\ConnectionException('cURL error 28: Operation timed out after 30000 milliseconds');
+    });
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://slow-site.com/recipe')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('timed out');
+});
+
+test('shows error when page returns 404', function () {
+    $user = User::factory()->create();
+
+    Http::fake([
+        'example.com/*' => Http::response('Not Found', 404),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/missing-page')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('not found')->toContain('404');
+});
+
+test('shows error when page returns 403', function () {
+    $user = User::factory()->create();
+
+    Http::fake([
+        'example.com/*' => Http::response('Forbidden', 403),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/forbidden')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('forbidden')->toContain('403');
+});
+
+test('shows error when page returns server error', function () {
+    $user = User::factory()->create();
+
+    Http::fake([
+        'example.com/*' => Http::response('Server Error', 500),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/error-page')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('server error')->toContain('500');
+});
+
+test('shows error when JSON-LD is malformed', function () {
+    $user = User::factory()->create();
+
+    $html = '<script type="application/ld+json">{invalid json}</script>';
+
+    Http::fake([
+        'example.com/*' => Http::response($html, 200),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/bad-json')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('malformed');
+});
+
+test('shows error when recipe data is incomplete', function () {
+    $user = User::factory()->create();
+
+    $html = '<script type="application/ld+json">
+        {"@type": "Recipe", "name": "Test Recipe"}
+    </script>';
+
+    Http::fake([
+        'example.com/*' => Http::response($html, 200),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/incomplete')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('Missing required fields');
+});
+
+test('shows error when connection fails', function () {
+    $user = User::factory()->create();
+
+    Http::fake(function () {
+        throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
+    });
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://unreachable.com/recipe')
+        ->call('import')
+        ->assertHasErrors(['url']);
+
+    $errorMessage = $component->instance()->getErrorBag()->first('url');
+    expect($errorMessage)->toContain('Could not connect');
+});

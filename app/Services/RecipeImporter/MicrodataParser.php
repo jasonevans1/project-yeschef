@@ -3,7 +3,10 @@
 namespace App\Services\RecipeImporter;
 
 use App\Exceptions\CloudflareBlockedException;
+use App\Exceptions\MalformedRecipeDataException;
+use App\Exceptions\MissingRecipeDataException;
 use DOMDocument;
+use JsonException;
 
 class MicrodataParser
 {
@@ -11,14 +14,16 @@ class MicrodataParser
      * Parse HTML to extract Recipe microdata from JSON-LD.
      *
      * @param  string  $html  The HTML content to parse
-     * @return array<string, mixed>|null The Recipe data or null if not found
+     * @return array<string, mixed> The Recipe data
      *
      * @throws CloudflareBlockedException If Cloudflare challenge page detected
+     * @throws MissingRecipeDataException If no recipe data found
+     * @throws MalformedRecipeDataException If JSON-LD is malformed
      */
-    public function parse(string $html): ?array
+    public function parse(string $html): array
     {
         if (empty(trim($html))) {
-            return null;
+            throw new MissingRecipeDataException;
         }
 
         // Detect Cloudflare challenge pages
@@ -30,12 +35,14 @@ class MicrodataParser
         @$dom->loadHTML($html, LIBXML_NOERROR | LIBXML_NOWARNING);
 
         $scriptTags = $dom->getElementsByTagName('script');
+        $foundJsonLd = false;
 
         foreach ($scriptTags as $script) {
             if ($script->getAttribute('type') !== 'application/ld+json') {
                 continue;
             }
 
+            $foundJsonLd = true;
             $jsonContent = $script->textContent;
 
             // Remove comments (/* ... */)
@@ -44,11 +51,11 @@ class MicrodataParser
             // Remove newlines that can break JSON parsing
             $jsonContent = preg_replace("/\r|\n/", ' ', trim($jsonContent));
 
-            // Decode JSON
-            $data = json_decode($jsonContent, true);
-
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                continue;
+            // Decode JSON with error handling
+            try {
+                $data = json_decode($jsonContent, true, 512, JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new MalformedRecipeDataException('Invalid JSON-LD format.');
             }
 
             // Handle top-level array (e.g., [{"@type": "Recipe", ...}])
@@ -71,7 +78,8 @@ class MicrodataParser
             }
         }
 
-        return null;
+        // No recipe found
+        throw new MissingRecipeDataException;
     }
 
     /**

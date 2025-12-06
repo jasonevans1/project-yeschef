@@ -47,7 +47,7 @@ HTML;
         ->and($result['image'])->toBe('https://example.com/cookies.jpg');
 });
 
-test('returns null when no Recipe found in HTML', function () {
+test('throws exception when no Recipe found in HTML', function () {
     $html = <<<'HTML'
 <html>
 <head>
@@ -63,20 +63,18 @@ test('returns null when no Recipe found in HTML', function () {
 </html>
 HTML;
 
-    $result = $this->parser->parse($html);
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
 });
 
-test('returns null when HTML has no JSON-LD script tags', function () {
+test('throws exception when HTML has no JSON-LD script tags', function () {
     $html = '<html><body>Plain HTML with no structured data</body></html>';
 
-    $result = $this->parser->parse($html);
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
 });
 
-test('handles malformed JSON gracefully', function () {
+test('throws exception for malformed JSON', function () {
     $html = <<<'HTML'
 <html>
 <head>
@@ -92,9 +90,8 @@ test('handles malformed JSON gracefully', function () {
 </html>
 HTML;
 
-    $result = $this->parser->parse($html);
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
 });
 
 test('parses Recipe from @graph array', function () {
@@ -262,16 +259,14 @@ HTML;
         ->and($result['image'])->toHaveCount(2);
 });
 
-test('handles empty HTML', function () {
-    $result = $this->parser->parse('');
-
-    expect($result)->toBeNull();
+test('throws exception for empty HTML', function () {
+    expect(fn () => $this->parser->parse(''))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
 });
 
-test('handles HTML with only whitespace', function () {
-    $result = $this->parser->parse('   ');
-
-    expect($result)->toBeNull();
+test('throws exception for HTML with only whitespace', function () {
+    expect(fn () => $this->parser->parse('   '))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
 });
 
 test('handles top-level array with Recipe object', function () {

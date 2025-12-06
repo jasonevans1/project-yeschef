@@ -161,12 +161,12 @@ This document provides a dependency-ordered task list for implementing the recip
 
 ### Tasks
 
-- [ ] T053 [US2] Write failing tests for "no recipe data found" error message in tests/Feature/Recipe/ImportRecipeTest.php
-- [ ] T054 [US2] Write failing tests for network/timeout errors in tests/Feature/Recipe/ImportRecipeTest.php
-- [ ] T055 [US2] Update Import component to handle parse failures and display error via addError() in app/Livewire/Recipe/Import.php
-- [ ] T056 [US2] Update Import view to display error messages with @error directive in resources/views/livewire/recipe/import.blade.php
-- [ ] T057 [US2] Add E2E test for error flow (invalid URL → error message displayed) in e2e/recipe-import.spec.ts
-- [ ] T058 [US2] Run tests with `php artisan test --filter=ImportRecipeTest` and `npx playwright test` - all must pass
+- [X] T053 [US2] Write failing tests for "no recipe data found" error message in tests/Feature/Recipe/ImportRecipeTest.php
+- [X] T054 [US2] Write failing tests for network/timeout errors in tests/Feature/Recipe/ImportRecipeTest.php
+- [X] T055 [US2] Update Import component to handle parse failures and display error via addError() in app/Livewire/Recipes/Import.php
+- [X] T056 [US2] Update Import view to display error messages with @error directive in resources/views/livewire/recipes/import.blade.php
+- [X] T057 [US2] Add E2E test for error flow (invalid URL → error message displayed) in e2e/recipe-import.spec.ts
+- [X] T058 [US2] Run tests with `php artisan test --filter=ImportRecipeTest` and `npx playwright test` - all must pass
 
 **Completion Criteria for Phase 4**:
 - ✅ Invalid URLs show "Please enter a valid URL" error

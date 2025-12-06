@@ -52,36 +52,33 @@ HTML;
         ->and($result['recipeIngredient'])->toHaveCount(2);
 });
 
-test('returns null when URL returns 404', function () {
+test('throws exception when URL returns 404', function () {
     Http::fake([
         'example.com/*' => Http::response('Not Found', 404),
     ]);
 
-    $result = $this->service->fetchAndParse('https://example.com/recipe');
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
+        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
 });
 
-test('returns null when no recipe found in HTML', function () {
+test('throws exception when no recipe found in HTML', function () {
     $html = '<html><body>Just a blog post</body></html>';
 
     Http::fake([
         'example.com/*' => Http::response($html, 200),
     ]);
 
-    $result = $this->service->fetchAndParse('https://example.com/article');
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->service->fetchAndParse('https://example.com/article'))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
 });
 
-test('handles network timeout gracefully', function () {
+test('throws exception on network timeout', function () {
     Http::fake(function () {
         throw new \Illuminate\Http\Client\ConnectionException('Connection timed out');
     });
 
-    $result = $this->service->fetchAndParse('https://example.com/recipe');
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
+        ->toThrow(\App\Exceptions\NetworkTimeoutException::class);
 });
 
 test('parses ISO 8601 durations to minutes', function () {
@@ -386,7 +383,7 @@ HTML;
     expect($result['image_url'])->toBe('https://example.com/image1.jpg');
 });
 
-test('handles malformed JSON gracefully', function () {
+test('throws exception for malformed JSON', function () {
     $recipeHtml = <<<'HTML'
 <html>
 <head>
@@ -404,9 +401,8 @@ HTML;
         'example.com/*' => Http::response($recipeHtml, 200),
     ]);
 
-    $result = $this->service->fetchAndParse('https://example.com/recipe');
-
-    expect($result)->toBeNull();
+    expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
 });
 
 test('preserves original ingredient array for later processing', function () {

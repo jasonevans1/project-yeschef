@@ -2,7 +2,7 @@
 
 namespace App\Services\RecipeImporter;
 
-use Illuminate\Http\Client\ConnectionException;
+use App\Exceptions\MalformedRecipeDataException;
 
 class RecipeImportService
 {
@@ -14,30 +14,30 @@ class RecipeImportService
     /**
      * Fetch HTML from URL, parse recipe microdata, and transform to normalized array.
      *
-     * @return array<string, mixed>|null The transformed recipe data or null on failure
+     * @return array<string, mixed> The transformed recipe data
+     *
+     * @throws \App\Exceptions\NetworkTimeoutException If request times out
+     * @throws \App\Exceptions\InvalidHTTPStatusException If HTTP status is not 2xx
+     * @throws \App\Exceptions\CloudflareBlockedException If Cloudflare challenge detected
+     * @throws \App\Exceptions\MissingRecipeDataException If no recipe data found
+     * @throws \App\Exceptions\MalformedRecipeDataException If recipe data is invalid or incomplete
+     * @throws \Exception If connection fails
      */
-    public function fetchAndParse(string $url): ?array
+    public function fetchAndParse(string $url): array
     {
-        try {
-            // Fetch HTML
-            $html = $this->fetcher->fetch($url);
+        // Fetch HTML (throws exceptions on failure)
+        $html = $this->fetcher->fetch($url);
 
-            if ($html === null) {
-                return null;
-            }
+        // Parse microdata (throws exceptions on failure)
+        $recipeData = $this->parser->parse($html);
 
-            // Parse microdata
-            $recipeData = $this->parser->parse($html);
+        // Transform to application schema
+        $transformed = $this->transform($recipeData);
 
-            if ($recipeData === null) {
-                return null;
-            }
+        // Validate required fields
+        $this->validateRequiredFields($transformed);
 
-            // Transform to application schema
-            return $this->transform($recipeData);
-        } catch (ConnectionException $e) {
-            return null;
-        }
+        return $transformed;
     }
 
     /**
@@ -221,5 +221,30 @@ class RecipeImportService
         }
 
         return null;
+    }
+
+    /**
+     * Validate that required fields are present and not empty.
+     *
+     * @param  array<string, mixed>  $recipeData
+     *
+     * @throws MalformedRecipeDataException If required fields are missing or empty
+     */
+    protected function validateRequiredFields(array $recipeData): void
+    {
+        $required = ['name', 'instructions', 'recipeIngredient'];
+        $missing = [];
+
+        foreach ($required as $field) {
+            if (empty($recipeData[$field])) {
+                $missing[] = $field;
+            }
+        }
+
+        if (! empty($missing)) {
+            throw new MalformedRecipeDataException(
+                'Missing required fields: '.implode(', ', $missing)
+            );
+        }
     }
 }

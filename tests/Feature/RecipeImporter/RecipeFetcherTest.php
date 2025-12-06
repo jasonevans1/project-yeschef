@@ -27,7 +27,7 @@ test('throws exception on network timeout', function () {
     });
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(ConnectionException::class);
+        ->toThrow(\App\Exceptions\NetworkTimeoutException::class);
 });
 
 test('throws exception on connection error', function () {
@@ -36,7 +36,7 @@ test('throws exception on connection error', function () {
     });
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(ConnectionException::class);
+        ->toThrow(\Exception::class);
 });
 
 test('handles HTTP 404 error', function () {
@@ -44,9 +44,8 @@ test('handles HTTP 404 error', function () {
         'example.com/*' => Http::response('Not Found', 404),
     ]);
 
-    $html = $this->fetcher->fetch('https://example.com/recipe');
-
-    expect($html)->toBe('Not Found');
+    expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
+        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
 });
 
 test('handles HTTP 500 server error', function () {
@@ -54,9 +53,8 @@ test('handles HTTP 500 server error', function () {
         'example.com/*' => Http::response('Server Error', 500),
     ]);
 
-    $html = $this->fetcher->fetch('https://example.com/recipe');
-
-    expect($html)->toBe('Server Error');
+    expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
+        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
 });
 
 test('follows redirects automatically', function () {
