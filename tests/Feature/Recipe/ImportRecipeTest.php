@@ -235,3 +235,35 @@ test('cancel clears session without creating recipe', function () {
     // Verify session was cleared
     expect(session()->has('recipe_import_preview'))->toBeFalse();
 });
+
+test('import shows helpful error for Cloudflare-protected sites', function () {
+    $user = User::factory()->create();
+
+    // Fake HTTP response with Cloudflare challenge page
+    Http::fake([
+        'example.com/*' => Http::response('
+            <!DOCTYPE html>
+            <html>
+            <head><title>Just a moment...</title></head>
+            <body>
+                <h1>Checking your browser</h1>
+                <div id="cf-browser-verification"></div>
+            </body>
+            </html>
+        ', 200),
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(Import::class)
+        ->set('url', 'https://example.com/recipe')
+        ->call('import')
+        ->assertHasErrors('url');
+
+    // Verify the error message mentions Cloudflare
+    $errorBag = $component->instance()->getErrorBag();
+    $errorMessage = $errorBag->first('url');
+
+    expect($errorMessage)
+        ->toContain('Cloudflare')
+        ->toContain('cannot be imported automatically');
+});

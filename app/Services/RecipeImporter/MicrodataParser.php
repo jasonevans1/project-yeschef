@@ -2,6 +2,7 @@
 
 namespace App\Services\RecipeImporter;
 
+use App\Exceptions\CloudflareBlockedException;
 use DOMDocument;
 
 class MicrodataParser
@@ -11,11 +12,18 @@ class MicrodataParser
      *
      * @param  string  $html  The HTML content to parse
      * @return array<string, mixed>|null The Recipe data or null if not found
+     *
+     * @throws CloudflareBlockedException If Cloudflare challenge page detected
      */
     public function parse(string $html): ?array
     {
         if (empty(trim($html))) {
             return null;
+        }
+
+        // Detect Cloudflare challenge pages
+        if ($this->isCloudflareChallenge($html)) {
+            throw new CloudflareBlockedException;
         }
 
         $dom = new DOMDocument;
@@ -133,5 +141,28 @@ class MicrodataParser
         }
 
         return $recipe;
+    }
+
+    /**
+     * Detect if the HTML is a Cloudflare challenge page.
+     */
+    private function isCloudflareChallenge(string $html): bool
+    {
+        // Check for common Cloudflare challenge indicators
+        $indicators = [
+            'Just a moment...',
+            'Checking your browser',
+            'cf-browser-verification',
+            'cf_chl_opt',
+            'challenge-platform',
+        ];
+
+        foreach ($indicators as $indicator) {
+            if (str_contains($html, $indicator)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

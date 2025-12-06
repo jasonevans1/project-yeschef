@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\CloudflareBlockedException;
 use App\Services\RecipeImporter\MicrodataParser;
 
 beforeEach(function () {
@@ -322,4 +323,77 @@ HTML;
 
     expect($result)->not->toBeNull()
         ->and($result['name'])->toBe('Multi-type Recipe');
+});
+
+test('throws CloudflareBlockedException when "Just a moment..." detected', function () {
+    $html = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Just a moment...</title>
+</head>
+<body>
+    <h1>Checking your browser</h1>
+</body>
+</html>
+HTML;
+
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(CloudflareBlockedException::class);
+});
+
+test('throws CloudflareBlockedException when cf-browser-verification detected', function () {
+    $html = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Security Check</title>
+</head>
+<body>
+    <div id="cf-browser-verification"></div>
+</body>
+</html>
+HTML;
+
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(CloudflareBlockedException::class);
+});
+
+test('throws CloudflareBlockedException when challenge-platform detected', function () {
+    $html = <<<'HTML'
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify you are human</title>
+</head>
+<body>
+    <div class="challenge-platform"></div>
+</body>
+</html>
+HTML;
+
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(CloudflareBlockedException::class);
+});
+
+test('does not throw exception for normal recipe page', function () {
+    $html = <<<'HTML'
+<html>
+<head>
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Recipe",
+        "name": "Normal Recipe"
+    }
+    </script>
+</head>
+<body>Just a delicious recipe...</body>
+</html>
+HTML;
+
+    $result = $this->parser->parse($html);
+
+    expect($result)->not->toBeNull()
+        ->and($result['name'])->toBe('Normal Recipe');
 });

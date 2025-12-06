@@ -109,3 +109,19 @@ test('handles large HTML responses', function () {
 
     expect($html)->toBe($largeHtml);
 });
+
+test('sends browser-like headers to avoid bot detection', function () {
+    Http::fake([
+        'example.com/*' => Http::response('<html>Success</html>', 200),
+    ]);
+
+    $this->fetcher->fetch('https://example.com/recipe');
+
+    Http::assertSent(function ($request) {
+        return $request->hasHeader('User-Agent')
+            && str_contains($request->header('User-Agent')[0], 'Mozilla')
+            && $request->hasHeader('Accept')
+            && $request->hasHeader('Accept-Language')
+            && $request->hasHeader('Sec-Fetch-Dest');
+    });
+});

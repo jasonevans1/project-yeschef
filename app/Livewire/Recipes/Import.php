@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Recipes;
 
+use App\Exceptions\CloudflareBlockedException;
 use App\Services\RecipeImporter\RecipeImportService;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
@@ -32,6 +33,8 @@ class Import extends Component
             session()->put('recipe_import_preview', $recipeData);
 
             $this->redirect(route('recipes.import.preview'), navigate: true);
+        } catch (CloudflareBlockedException $e) {
+            $this->addError('url', $e->getMessage());
         } catch (\Exception $e) {
             $this->addError('url', 'Could not access the page. Please check the URL and try again.');
         }

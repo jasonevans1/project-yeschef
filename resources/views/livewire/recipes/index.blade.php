@@ -1,9 +1,14 @@
 <div>
     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
         <flux:heading size="xl">Browse Recipes</flux:heading>
-        <flux:button href="{{ route('recipes.create') }}" variant="primary" icon="plus" class="w-full sm:w-auto">
-            Create New Recipe
-        </flux:button>
+        <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <flux:button href="{{ route('recipes.import') }}" variant="outline" icon="arrow-down-tray" class="w-full sm:w-auto">
+                Import Recipe
+            </flux:button>
+            <flux:button href="{{ route('recipes.create') }}" variant="primary" icon="plus" class="w-full sm:w-auto">
+                Create New Recipe
+            </flux:button>
+        </div>
     </div>
 
     @php
