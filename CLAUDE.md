@@ -777,6 +777,8 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Laravel Fortify (authentication) (005-delete-grocery-list)
 - MariaDB (production via DDEV), SQLite (development/testing) (005-delete-grocery-list)
 - MariaDB (production via DDEV), SQLite (dev/test) - Recipe model with source_url field (006-import-recipe)
+- PHP 8.3 (Laravel 12) + Laravel Framework 12, Livewire 3, Livewire Flux (UI components) (007-format-ingredient-quantities)
+- RecipeIngredient model with decimal(8,3) quantity field, MeasurementUnit enum (007-format-ingredient-quantities)
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x

@@ -26,6 +26,30 @@ class RecipeIngredient extends Model
         'sort_order' => 'integer',
     ];
 
+    // Accessors
+
+    /**
+     * Format quantity for display without trailing zeros.
+     *
+     * Examples:
+     * - 2.000 → "2"
+     * - 1.500 → "1.5"
+     * - 0.333 → "0.333"
+     * - null → null
+     */
+    public function getDisplayQuantityAttribute(): ?string
+    {
+        if ($this->quantity === null) {
+            return null;
+        }
+
+        $formatted = number_format((float) $this->quantity, 3, '.', '');
+        $formatted = rtrim($formatted, '0');
+        $formatted = rtrim($formatted, '.');
+
+        return $formatted;
+    }
+
     // Relationships
 
     public function recipe(): BelongsTo

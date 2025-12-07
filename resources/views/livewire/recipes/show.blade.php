@@ -111,16 +111,18 @@
                         <li class="flex items-start">
                             <span class="mr-2 text-gray-400">•</span>
                             <div class="flex-1">
-                                @if ($recipeIngredient->quantity && $recipeIngredient->unit)
+                                @if ($recipeIngredient->quantity)
                                     <span class="font-medium">
-                                        {{ $recipeIngredient->quantity }}
-                                        {{ $recipeIngredient->unit->value }}
+                                        {{ $recipeIngredient->display_quantity }}
+                                        @if ($recipeIngredient->unit)
+                                            {{ $recipeIngredient->unit->value }}
+                                        @endif
                                     </span>
                                     <span class="ml-1">{{ $recipeIngredient->ingredient->name }}</span>
                                 @else
                                     <span>{{ $recipeIngredient->notes ?? $recipeIngredient->ingredient->name }}</span>
                                 @endif
-                                @if ($recipeIngredient->notes && $recipeIngredient->quantity && $recipeIngredient->unit)
+                                @if ($recipeIngredient->notes && $recipeIngredient->quantity)
                                     <span class="text-gray-500 text-sm ml-1">({{ $recipeIngredient->notes }})</span>
                                 @endif
                             </div>
