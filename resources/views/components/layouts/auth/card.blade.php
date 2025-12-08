@@ -21,6 +21,6 @@
                 </div>
             </div>
         </div>
-        @livewireScriptConfig
+        @fluxScripts
     </body>
 </html>

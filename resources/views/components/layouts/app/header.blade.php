@@ -106,6 +106,6 @@
         {{-- Flash Messages Toast Notifications --}}
         <x-flash-messages />
 
-        @livewireScriptConfig
+        @fluxScripts
     </body>
 </html>
