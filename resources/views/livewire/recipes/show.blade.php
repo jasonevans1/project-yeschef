@@ -105,30 +105,43 @@
         {{-- Ingredients --}}
         <div class="mb-8">
             <flux:heading size="lg" class="mb-4">Ingredients</flux:heading>
-            <div class="bg-gray-50 rounded-lg p-6">
-                <ul class="space-y-2">
-                    @foreach ($recipe->recipeIngredients->sortBy('sort_order') as $recipeIngredient)
-                        <li class="flex items-start">
-                            <span class="mr-2 text-gray-400">•</span>
-                            <div class="flex-1">
-                                @if ($recipeIngredient->quantity)
-                                    <span class="font-medium">
-                                        {{ $recipeIngredient->display_quantity }}
-                                        @if ($recipeIngredient->unit)
-                                            {{ $recipeIngredient->unit->value }}
-                                        @endif
-                                    </span>
-                                    <span class="ml-1">{{ $recipeIngredient->ingredient->name }}</span>
-                                @else
-                                    <span>{{ $recipeIngredient->notes ?? $recipeIngredient->ingredient->name }}</span>
-                                @endif
-                                @if ($recipeIngredient->notes && $recipeIngredient->quantity)
-                                    <span class="text-gray-500 text-sm ml-1">({{ $recipeIngredient->notes }})</span>
-                                @endif
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
+            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+                <div x-data="ingredientCheckboxes()">
+                    <ul class="space-y-3">
+                        @foreach ($recipe->recipeIngredients->sortBy('sort_order') as $recipeIngredient)
+                            <li class="flex items-start gap-3">
+                                <div class="flex-shrink-0 pt-0.5">
+                                    <input
+                                        type="checkbox"
+                                        x-model="checkedIngredients"
+                                        value="{{ $recipeIngredient->id }}"
+                                        :aria-label="'Mark {{ $recipeIngredient->ingredient->name }} as used'"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                    />
+                                </div>
+                                <div
+                                    class="flex-1 transition-all duration-150"
+                                    :class="isChecked({{ $recipeIngredient->id }}) ? 'line-through opacity-50' : ''"
+                                >
+                                    @if ($recipeIngredient->quantity)
+                                        <span class="font-medium">
+                                            {{ $recipeIngredient->display_quantity }}
+                                            @if ($recipeIngredient->unit)
+                                                {{ $recipeIngredient->unit->value }}
+                                            @endif
+                                        </span>
+                                        <span class="ml-1">{{ $recipeIngredient->ingredient->name }}</span>
+                                    @else
+                                        <span>{{ $recipeIngredient->notes ?? $recipeIngredient->ingredient->name }}</span>
+                                    @endif
+                                    @if ($recipeIngredient->notes && $recipeIngredient->quantity)
+                                        <span class="text-gray-500 dark:text-gray-400 text-sm ml-1">({{ $recipeIngredient->notes }})</span>
+                                    @endif
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
             </div>
         </div>
 
