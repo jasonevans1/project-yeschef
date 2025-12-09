@@ -129,8 +129,13 @@ class IngredientAggregator
     /**
      * Determine the unit type for grouping compatible units
      */
-    private function getUnitType(MeasurementUnit $unit): string
+    private function getUnitType(?MeasurementUnit $unit): string
     {
+        // Handle null units (ingredients without a specified unit)
+        if ($unit === null) {
+            return 'no_unit';
+        }
+
         $value = $unit->value;
 
         // Volume units
