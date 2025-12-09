@@ -13,9 +13,9 @@
     </div>
 
     @if($groceryLists->isEmpty())
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="text-center py-12">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 <flux:heading size="lg" class="mt-4">No grocery lists yet</flux:heading>
@@ -33,24 +33,24 @@
     @else
         {{-- Standalone Lists Section --}}
         @if($standaloneLists->isNotEmpty())
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
                 <div class="flex items-center gap-3 mb-4">
-                    <flux:icon.clipboard-document-list class="size-6 text-blue-600" />
+                    <flux:icon.clipboard-document-list class="size-6 text-blue-600 dark:text-blue-400" />
                     <div>
                         <flux:heading size="lg">Standalone Lists</flux:heading>
-                        <flux:text class="text-sm text-gray-600">Shopping lists not linked to meal plans</flux:text>
+                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">Shopping lists not linked to meal plans</flux:text>
                     </div>
                 </div>
                 <div class="space-y-4">
                     @foreach($standaloneLists as $list)
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <div class="flex-1">
                                 <flux:heading size="md">
-                                    <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600">
+                                    <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600 dark:hover:text-blue-400">
                                         {{ $list->name }}
                                     </a>
                                 </flux:heading>
-                                <flux:text class="text-sm text-gray-600">
+                                <flux:text class="text-sm text-gray-600 dark:text-gray-400">
                                     Created {{ $list->created_at->diffForHumans() }}
                                     @if($list->total_items > 0)
                                         · {{ $list->total_items }} {{ Str::plural('item', $list->total_items) }}
@@ -78,27 +78,27 @@
 
         {{-- Meal Plan Linked Lists --}}
         @if($mealPlanLists->isNotEmpty())
-            <div class="bg-white rounded-lg shadow p-6 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
                 <div class="flex items-center gap-3 mb-4">
-                    <flux:icon.calendar class="size-6 text-green-600" />
+                    <flux:icon.calendar class="size-6 text-green-600 dark:text-green-400" />
                     <div>
                         <flux:heading size="lg">Meal Plan Lists</flux:heading>
-                        <flux:text class="text-sm text-gray-600">Lists generated from your meal plans</flux:text>
+                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">Lists generated from your meal plans</flux:text>
                     </div>
                 </div>
                 <div class="space-y-4">
                     @foreach($mealPlanLists as $list)
-                        <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                             <div class="flex-1">
                                 <flux:heading size="md">
-                                    <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600">
+                                    <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600 dark:hover:text-blue-400">
                                         {{ $list->name }}
                                     </a>
                                 </flux:heading>
-                                <flux:text class="text-sm text-gray-600">
+                                <flux:text class="text-sm text-gray-600 dark:text-gray-400">
                                     Generated {{ $list->generated_at->diffForHumans() }}
                                     @if($list->mealPlan)
-                                        · From <a href="{{ route('meal-plans.show', $list->mealPlan) }}" class="text-blue-600 hover:underline">{{ $list->mealPlan->name }}</a>
+                                        · From <a href="{{ route('meal-plans.show', $list->mealPlan) }}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ $list->mealPlan->name }}</a>
                                     @endif
                                     @if($list->total_items > 0)
                                         · {{ $list->total_items }} {{ Str::plural('item', $list->total_items) }}

@@ -2,7 +2,7 @@
     <div class="max-w-4xl mx-auto">
         <flux:heading size="xl" level="1" class="mb-6">Edit Recipe</flux:heading>
 
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <form wire:submit="update" class="space-y-6">
                 {{-- Basic Information --}}
                 <div>
@@ -178,7 +178,7 @@
                 </flux:field>
 
                 {{-- Action Buttons --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-gray-700">
                     <flux:button
                         href="{{ route('recipes.show', $recipe) }}"
                         variant="ghost"

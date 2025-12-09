@@ -1,6 +1,6 @@
 @props(['index', 'ingredient', 'showRemove' => true])
 
-<div class="flex gap-2 items-start p-3 bg-gray-50 rounded-lg" wire:key="ingredient-{{ $index }}">
+<div class="flex gap-2 items-start p-3 bg-gray-50 dark:bg-gray-700 rounded-lg" wire:key="ingredient-{{ $index }}">
     <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
         {{-- Ingredient Name --}}
         <div class="md:col-span-2">

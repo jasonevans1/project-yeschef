@@ -37,7 +37,7 @@
                     </div>
 
                     @if ($recipe->description)
-                        <flux:text class="text-gray-600 mb-4">{{ $recipe->description }}</flux:text>
+                        <flux:text class="text-gray-600 dark:text-gray-400 mb-4">{{ $recipe->description }}</flux:text>
                     @endif
                 </div>
 
@@ -64,29 +64,29 @@
         {{-- Recipe Info --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             @if ($recipe->prep_time)
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 mb-1">Prep Time</flux:heading>
-                    <flux:text class="text-xl font-semibold">{{ $recipe->prep_time }} min</flux:text>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Prep Time</flux:heading>
+                    <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->prep_time }} min</flux:text>
                 </div>
             @endif
 
             @if ($recipe->cook_time)
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 mb-1">Cook Time</flux:heading>
-                    <flux:text class="text-xl font-semibold">{{ $recipe->cook_time }} min</flux:text>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Cook Time</flux:heading>
+                    <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->cook_time }} min</flux:text>
                 </div>
             @endif
 
             @if ($this->totalTime)
-                <div class="text-center p-4 bg-gray-50 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 mb-1">Total Time</flux:heading>
-                    <flux:text class="text-xl font-semibold">{{ $this->totalTime }} min</flux:text>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Total Time</flux:heading>
+                    <flux:text class="text-xl font-semibold dark:text-white">{{ $this->totalTime }} min</flux:text>
                 </div>
             @endif
 
-            <div class="text-center p-4 bg-gray-50 rounded-lg">
-                <flux:heading size="sm" class="text-gray-500 mb-1">Servings</flux:heading>
-                <flux:text class="text-xl font-semibold">{{ $recipe->servings }}</flux:text>
+            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Servings</flux:heading>
+                <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->servings }}</flux:text>
             </div>
         </div>
 

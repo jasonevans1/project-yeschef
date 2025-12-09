@@ -6,13 +6,13 @@
                 <flux:heading size="xl" level="1" class="mb-2">{{ $groceryList->name }}</flux:heading>
 
                 {{-- Source Information --}}
-                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                     @if($groceryList->is_meal_plan_linked && $groceryList->mealPlan)
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
                         <span>From
-                            <a href="{{ route('meal-plans.show', $groceryList->mealPlan) }}" class="text-blue-600 hover:underline font-medium">
+                            <a href="{{ route('meal-plans.show', $groceryList->mealPlan) }}" class="text-blue-600 dark:text-blue-400 hover:underline font-medium">
                                 {{ $groceryList->mealPlan->name }}
                             </a>
                         </span>
@@ -23,7 +23,7 @@
                         <span class="font-medium">Standalone List</span>
                     @endif
 
-                    <span class="text-gray-400">•</span>
+                    <span class="text-gray-400 dark:text-gray-500">•</span>
 
                     @if($groceryList->generated_at)
                         <span>Generated {{ $groceryList->generated_at->diffForHumans() }}</span>
@@ -32,7 +32,7 @@
                     @endif
 
                     @if($groceryList->regenerated_at)
-                        <span class="text-gray-400">•</span>
+                        <span class="text-gray-400 dark:text-gray-500">•</span>
                         <span>Last updated {{ $groceryList->regenerated_at->diffForHumans() }}</span>
                     @endif
                 </div>
@@ -41,14 +41,14 @@
                 @if($groceryList->total_items > 0)
                     <div class="mt-4">
                         <div class="flex items-center justify-between mb-2">
-                            <flux:text class="text-sm font-medium text-gray-700">
+                            <flux:text class="text-sm font-medium text-gray-700 dark:text-gray-300">
                                 {{ $groceryList->completed_items }} of {{ $groceryList->total_items }} items completed
                             </flux:text>
-                            <flux:text class="text-sm font-semibold text-gray-900">
+                            <flux:text class="text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ round($groceryList->completion_percentage) }}%
                             </flux:text>
                         </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
                             <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
                                  style="width: {{ $groceryList->completion_percentage }}%">
                             </div>
@@ -128,7 +128,7 @@
                     @endif
                 @endcan
 
-                <a href="{{ route('grocery-lists.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                <a href="{{ route('grocery-lists.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -140,41 +140,41 @@
 
     {{-- Add Item Form --}}
     @if($showAddItemForm)
-        <div class="bg-white rounded-lg shadow p-6 mb-6 border-2 border-blue-200">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 border-2 border-blue-200 dark:border-blue-800">
             <flux:heading size="lg" class="mb-4">Add New Item</flux:heading>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="md:col-span-2">
-                    <label for="itemName" class="block text-sm font-medium text-gray-700 mb-1">Item Name *</label>
+                    <label for="itemName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Name *</label>
                     <input
                         type="text"
                         id="itemName"
                         wire:model.live="itemName"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., Milk, Bread, Chicken"
                     />
                     @error('itemName') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="itemQuantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                    <label for="itemQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
                     <input
                         type="number"
                         id="itemQuantity"
                         wire:model.live="itemQuantity"
                         step="0.01"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="e.g., 2"
                     />
                     @error('itemQuantity') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="itemUnit" class="block text-sm font-medium text-gray-700 mb-1">Unit</label>
+                    <label for="itemUnit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
                     <select
                         id="itemUnit"
                         wire:model.live="itemUnit"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="">Select unit...</option>
                         @foreach($units as $unit)
@@ -185,11 +185,11 @@
                 </div>
 
                 <div>
-                    <label for="itemCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                    <label for="itemCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
                     <select
                         id="itemCategory"
                         wire:model.live="itemCategory"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
                         <option value="">Select category...</option>
                         @foreach($categories as $category)
@@ -200,19 +200,19 @@
                 </div>
 
                 <div>
-                    <label for="itemNotes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                    <label for="itemNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
                     <input
                         type="text"
                         id="itemNotes"
                         wire:model.live="itemNotes"
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Optional notes"
                     />
                     @error('itemNotes') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <flux:button wire:click="cancelItemForm" variant="ghost">
                     Cancel
                 </flux:button>
@@ -225,7 +225,7 @@
 
     {{-- Empty State --}}
     @if($groceryList->total_items === 0)
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
             <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
