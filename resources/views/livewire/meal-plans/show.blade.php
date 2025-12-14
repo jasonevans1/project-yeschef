@@ -287,7 +287,7 @@
                                                 {{ $this->selectedAssignment->recipe->name }}
                                             </h2>
                                             <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                                                {{ \Carbon\Carbon::parse($this->selectedAssignment->date)->format('l, F j') }} - {{ ucfirst($this->selectedAssignment->meal_type->value) }}
+                                                {{ \Carbon\Carbon::parse($this->selectedAssignment->date)->format('l, F j') }}@if($this->selectedAssignment->meal_type) - {{ ucfirst($this->selectedAssignment->meal_type->value) }}@endif
                                             </div>
                                         </div>
                                         <div class="ml-3 flex h-7 items-center">
