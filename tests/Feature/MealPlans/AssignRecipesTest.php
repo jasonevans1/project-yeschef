@@ -58,7 +58,7 @@ it('saves meal assignment with all required fields', function () {
     expect($assignment->meal_type)->toBe(MealType::BREAKFAST);
 });
 
-it('prevents duplicate assignments to same meal slot', function () {
+it('allows multiple recipes in same meal slot', function () {
     $user = User::factory()->create();
     $mealPlan = MealPlan::factory()->for($user)->create([
         'start_date' => '2025-10-14',
@@ -74,46 +74,26 @@ it('prevents duplicate assignments to same meal slot', function () {
         'meal_type' => MealType::DINNER->value,
     ]);
 
-    // Second assignment to same slot should fail
+    // Second assignment to same slot should also succeed
     $response = $this->actingAs($user)->post(route('meal-plans.assignments.store', $mealPlan), [
         'recipe_id' => $recipe2->id,
         'date' => '2025-10-15',
         'meal_type' => MealType::DINNER->value,
     ]);
 
-    $response->assertSessionHasErrors();
-
-    // Only first assignment should exist
-    expect(MealAssignment::count())->toBe(1);
-    expect(MealAssignment::first()->recipe_id)->toBe($recipe1->id);
-});
-
-it('allows reassigning different recipe to same slot by replacing', function () {
-    $user = User::factory()->create();
-    $mealPlan = MealPlan::factory()->for($user)->create([
-        'start_date' => '2025-10-14',
-        'end_date' => '2025-10-20',
-    ]);
-    $recipe1 = Recipe::factory()->create();
-    $recipe2 = Recipe::factory()->create();
-
-    // Create initial assignment
-    $assignment = MealAssignment::create([
-        'meal_plan_id' => $mealPlan->id,
-        'recipe_id' => $recipe1->id,
-        'date' => '2025-10-15',
-        'meal_type' => MealType::DINNER,
-    ]);
-
-    // Update assignment to new recipe
-    $response = $this->actingAs($user)->put(route('meal-plans.assignments.update', [$mealPlan, $assignment]), [
-        'recipe_id' => $recipe2->id,
-    ]);
-
     $response->assertRedirect();
+    $response->assertSessionHasNoErrors();
 
-    $assignment->refresh();
-    expect($assignment->recipe_id)->toBe($recipe2->id);
+    // Both assignments should exist
+    expect(MealAssignment::count())->toBe(2);
+
+    $assignments = MealAssignment::where('meal_plan_id', $mealPlan->id)
+        ->whereDate('date', '2025-10-15')
+        ->where('meal_type', MealType::DINNER->value)
+        ->get();
+
+    expect($assignments)->toHaveCount(2);
+    expect($assignments->pluck('recipe_id')->toArray())->toContain($recipe1->id, $recipe2->id);
 });
 
 it('prevents assignment to date outside meal plan range', function () {

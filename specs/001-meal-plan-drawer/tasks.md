@@ -27,10 +27,10 @@
 
 **Purpose**: Enable database to support multiple recipes per meal slot
 
-- [ ] T001 Create migration file using `php artisan make:migration remove_unique_constraint_from_meal_assignments`
-- [ ] T002 Implement migration up() method to drop unique constraint on meal_assignments(meal_plan_id, date, meal_type) in database/migrations/YYYY_MM_DD_HHMMSS_remove_unique_constraint_from_meal_assignments.php
-- [ ] T003 Implement migration down() method to restore unique constraint for rollback in database/migrations/YYYY_MM_DD_HHMMSS_remove_unique_constraint_from_meal_assignments.php
-- [ ] T004 Run migration using `php artisan migrate` to remove database constraint
+- [X] T001 Create migration file using `php artisan make:migration remove_unique_constraint_from_meal_assignments`
+- [X] T002 Implement migration up() method to drop unique constraint on meal_assignments(meal_plan_id, date, meal_type) in database/migrations/YYYY_MM_DD_HHMMSS_remove_unique_constraint_from_meal_assignments.php
+- [X] T003 Implement migration down() method to restore unique constraint for rollback in database/migrations/YYYY_MM_DD_HHMMSS_remove_unique_constraint_from_meal_assignments.php
+- [X] T004 Run migration using `php artisan migrate` to remove database constraint
 
 ---
 
@@ -44,21 +44,21 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T005 [US1] Update test "prevents duplicate assignments" to "allows multiple recipes in same meal slot" in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php (lines 61-89)
-- [ ] T006 [US1] Remove test "reassigns recipe" from /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php (lines 91-117)
-- [ ] T007 [P] [US1] Add test "displays multiple recipes in same meal slot" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T008 [P] [US1] Add test "displays recipes in chronological order by creation time" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T009 [US1] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation
+- [X] T005 [US1] Update test "prevents duplicate assignments" to "allows multiple recipes in same meal slot" in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php (lines 61-89)
+- [X] T006 [US1] Remove test "reassigns recipe" from /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/AssignRecipesTest.php (lines 91-117)
+- [X] T007 [P] [US1] Add test "displays multiple recipes in same meal slot" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T008 [P] [US1] Add test "displays recipes in chronological order by creation time" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T009 [US1] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Modify assignRecipe() method in /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php to remove "update existing" logic (lines 74-86), always create new assignment
-- [ ] T011 [US1] Update render() method grouping logic in /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php to use `groupBy()->map(fn($group) => $group->sortBy('created_at'))` pattern (lines 155-157)
-- [ ] T012 [US1] Update meal slot cell rendering in /Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php to change from single assignment to collection loop using @forelse (lines 74-130)
-- [ ] T013 [US1] Update recipe card structure in show.blade.php to display recipe name, servings multiplier, and notes as clickable cards
-- [ ] T014 [US1] Update "Add Recipe" button logic in show.blade.php to show "Add Another" when slot has recipes, "Add Recipe" when empty
-- [ ] T015 [US1] Run tests with `php artisan test --filter=MealPlans` to verify User Story 1 tests now PASS
-- [ ] T016 [US1] Format code using `vendor/bin/pint`
+- [X] T010 [US1] Modify assignRecipe() method in /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php to remove "update existing" logic (lines 74-86), always create new assignment
+- [X] T011 [US1] Update render() method grouping logic in /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php to use `groupBy()->map(fn($group) => $group->sortBy('created_at'))` pattern (lines 155-157)
+- [X] T012 [US1] Update meal slot cell rendering in /Users/jasonevans/projects/project-tabletop/resources/views/livewire/meal-plans/show.blade.php to change from single assignment to collection loop using @forelse (lines 74-130)
+- [X] T013 [US1] Update recipe card structure in show.blade.php to display recipe name, servings multiplier, and notes as clickable cards
+- [X] T014 [US1] Update "Add Recipe" button logic in show.blade.php to show "Add Another" when slot has recipes, "Add Recipe" when empty
+- [X] T015 [US1] Run tests with `php artisan test --filter=MealPlans` to verify User Story 1 tests now PASS
+- [X] T016 [US1] Format code using `vendor/bin/pint`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can assign multiple recipes to same meal slot and see them displayed in chronological order
 

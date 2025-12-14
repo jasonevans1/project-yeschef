@@ -36,22 +36,14 @@ class MealAssignmentController extends Controller
         // Ensure date is stored in Y-m-d format
         $validated['date'] = $date->format('Y-m-d');
 
-        // Create the assignment (database constraint will prevent duplicates)
-        try {
-            $assignment = $mealPlan->mealAssignments()->create([
-                'recipe_id' => $validated['recipe_id'],
-                'date' => $validated['date'],
-                'meal_type' => $validated['meal_type'],
-                'serving_multiplier' => $validated['serving_multiplier'] ?? 1.0,
-                'notes' => $validated['notes'] ?? null,
-            ]);
-        } catch (\Illuminate\Database\QueryException $e) {
-            // Check if it's a duplicate entry error
-            if ($e->getCode() === '23000' || str_contains($e->getMessage(), 'UNIQUE constraint')) {
-                return back()->withErrors(['meal_type' => 'A recipe is already assigned to this meal slot.']);
-            }
-            throw $e;
-        }
+        // Create the assignment (supports multiple recipes per slot)
+        $assignment = $mealPlan->mealAssignments()->create([
+            'recipe_id' => $validated['recipe_id'],
+            'date' => $validated['date'],
+            'meal_type' => $validated['meal_type'],
+            'serving_multiplier' => $validated['serving_multiplier'] ?? 1.0,
+            'notes' => $validated['notes'] ?? null,
+        ]);
 
         session()->flash('success', 'Recipe assigned successfully!');
 

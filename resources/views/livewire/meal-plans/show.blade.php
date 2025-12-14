@@ -73,59 +73,71 @@
                             @foreach($mealTypes as $mealType)
                                 @php
                                     $key = $date->format('Y-m-d') . '_' . $mealType->value;
-                                    $assignment = $assignments->get($key)?->first();
+                                    $assignmentCollection = $assignments->get($key) ?? collect();
                                 @endphp
                                 <td
                                     class="p-2 text-center align-top border-l border-gray-100 dark:border-gray-700"
                                     data-date="{{ $date->format('Y-m-d') }}"
                                     data-meal-type="{{ $mealType->value }}"
                                 >
-                                    @if($assignment)
-                                        <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-left relative group cursor-pointer hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
-                                             wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')"
-                                             role="button"
-                                             tabindex="0"
-                                             title="Click to change recipe">
-                                            <div class="font-medium text-sm text-blue-900 dark:text-blue-100 mb-1">
-                                                {{ $assignment->recipe->name }}
+                                    <div class="flex flex-col gap-2">
+                                        @forelse($assignmentCollection as $assignment)
+                                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-left relative group transition-colors"
+                                                 role="button"
+                                                 tabindex="0">
+                                                <div class="font-medium text-sm text-blue-900 dark:text-blue-100 mb-1">
+                                                    {{ $assignment->recipe->name }}
+                                                </div>
+                                                @if($assignment->serving_multiplier != 1.00)
+                                                    <div class="flex items-center gap-2 mt-1">
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                                                            {{ $assignment->recipe->servings * $assignment->serving_multiplier }} servings
+                                                        </span>
+                                                        <span class="text-xs text-blue-600 dark:text-blue-400">
+                                                            ({{ $assignment->serving_multiplier }}x)
+                                                        </span>
+                                                    </div>
+                                                @else
+                                                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                                        {{ $assignment->recipe->servings }} servings
+                                                    </div>
+                                                @endif
+                                                @if($assignment->notes)
+                                                    <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                                        {{ Str::limit($assignment->notes, 50) }}
+                                                    </div>
+                                                @endif
+                                                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <flux:button
+                                                        wire:click.stop="removeAssignment({{ $assignment->id }})"
+                                                        wire:confirm="Remove this recipe from the meal slot?"
+                                                        variant="ghost"
+                                                        size="xs"
+                                                        icon="x-mark"
+                                                        class="text-red-600"
+                                                    />
+                                                </div>
                                             </div>
-                                            @if($assignment->serving_multiplier != 1.00)
-                                                <div class="flex items-center gap-2 mt-1">
-                                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
-                                                        {{ $assignment->recipe->servings * $assignment->serving_multiplier }} servings
-                                                    </span>
-                                                    <span class="text-xs text-blue-600 dark:text-blue-400">
-                                                        ({{ $assignment->serving_multiplier }}x)
-                                                    </span>
-                                                </div>
-                                            @else
-                                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                                                    {{ $assignment->recipe->servings }} servings
-                                                </div>
-                                            @endif
-                                            @if($assignment->notes)
-                                                <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                                                    {{ Str::limit($assignment->notes, 50) }}
-                                                </div>
-                                            @endif
-                                            <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <flux:button
-                                                    wire:click.stop="removeAssignment({{ $assignment->id }})"
-                                                    variant="ghost"
-                                                    size="xs"
-                                                    icon="x-mark"
-                                                    class="text-red-600"
-                                                />
-                                            </div>
-                                        </div>
-                                    @else
-                                        <flux:button
-                                            wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')"
-                                            variant="ghost"
-                                            icon="plus"
-                                            class="w-full h-full min-h-[60px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                                        />
-                                    @endif
+                                        @empty
+                                            <flux:button
+                                                wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')"
+                                                variant="ghost"
+                                                icon="plus"
+                                                class="w-full h-full min-h-[60px] border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                            />
+                                        @endforelse
+
+                                        @if($assignmentCollection->isNotEmpty())
+                                            <flux:button
+                                                wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')"
+                                                variant="ghost"
+                                                icon="plus"
+                                                class="w-full border border-dashed border-gray-300 dark:border-gray-600 rounded-lg hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-xs py-1"
+                                            >
+                                                Add Another
+                                            </flux:button>
+                                        @endif
+                                    </div>
                                 </td>
                             @endforeach
                         </tr>

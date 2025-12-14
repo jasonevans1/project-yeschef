@@ -70,30 +70,15 @@ class Show extends Component
             return;
         }
 
-        // Check if assignment already exists for this slot
-        $existing = $this->mealPlan->mealAssignments()
-            ->where('date', $this->selectedDate)
-            ->where('meal_type', $this->selectedMealType)
-            ->first();
-
-        if ($existing) {
-            // Update existing assignment
-            $existing->update([
-                'recipe_id' => $recipe->id,
-                'serving_multiplier' => $this->servingMultiplier,
-            ]);
-            session()->flash('success', 'Recipe updated successfully!');
-        } else {
-            // Create new assignment
-            MealAssignment::create([
-                'meal_plan_id' => $this->mealPlan->id,
-                'recipe_id' => $recipe->id,
-                'date' => $this->selectedDate,
-                'meal_type' => $this->selectedMealType,
-                'serving_multiplier' => $this->servingMultiplier,
-            ]);
-            session()->flash('success', 'Recipe assigned successfully!');
-        }
+        // Always create new assignment (supports multiple recipes per slot)
+        MealAssignment::create([
+            'meal_plan_id' => $this->mealPlan->id,
+            'recipe_id' => $recipe->id,
+            'date' => $this->selectedDate,
+            'meal_type' => $this->selectedMealType,
+            'serving_multiplier' => $this->servingMultiplier,
+        ]);
+        session()->flash('success', 'Recipe assigned successfully!');
 
         $this->closeRecipeSelector();
         $this->mealPlan->refresh();
@@ -151,10 +136,12 @@ class Show extends Component
             $current->addDay();
         }
 
-        // Group assignments by date and meal type
-        $assignments = $mealPlan->mealAssignments->groupBy(function ($assignment) {
-            return $assignment->date->format('Y-m-d').'_'.$assignment->meal_type->value;
-        });
+        // Group assignments by date and meal type, sort by creation time
+        $assignments = $mealPlan->mealAssignments
+            ->groupBy(function ($assignment) {
+                return $assignment->date->format('Y-m-d').'_'.$assignment->meal_type->value;
+            })
+            ->map(fn ($group) => $group->sortBy('created_at'));
 
         return view('livewire.meal-plans.show', [
             'dates' => $dates,

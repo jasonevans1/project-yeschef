@@ -128,3 +128,91 @@ it('loads meal plan with eager loaded assignments and recipes', function () {
 
     $response->assertOk();
 });
+
+it('displays multiple recipes in same meal slot', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe1 = Recipe::factory()->create(['name' => 'Chicken Salad']);
+    $recipe2 = Recipe::factory()->create(['name' => 'Tomato Soup']);
+    $recipe3 = Recipe::factory()->create(['name' => 'Garlic Bread']);
+
+    // Assign all three recipes to the same meal slot
+    MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe1->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe2->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe3->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('meal-plans.show', $mealPlan));
+
+    $response->assertOk();
+    // All three recipes should be visible in the same meal slot
+    $response->assertSee('Chicken Salad');
+    $response->assertSee('Tomato Soup');
+    $response->assertSee('Garlic Bread');
+});
+
+it('displays recipes in chronological order by creation time', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe1 = Recipe::factory()->create(['name' => 'First Recipe']);
+    $recipe2 = Recipe::factory()->create(['name' => 'Second Recipe']);
+    $recipe3 = Recipe::factory()->create(['name' => 'Third Recipe']);
+
+    // Create assignments with explicit timestamps to ensure ordering
+    $firstAssignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe1->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+    ]);
+    $firstAssignment->created_at = now()->subMinutes(10);
+    $firstAssignment->save();
+
+    $secondAssignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe2->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+    ]);
+    $secondAssignment->created_at = now()->subMinutes(5);
+    $secondAssignment->save();
+
+    $thirdAssignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe3->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+    ]);
+    $thirdAssignment->created_at = now();
+    $thirdAssignment->save();
+
+    $response = $this->actingAs($user)->get(route('meal-plans.show', $mealPlan));
+
+    $response->assertOk();
+    // Recipes should appear in chronological order (oldest first)
+    $response->assertSeeInOrder(['First Recipe', 'Second Recipe', 'Third Recipe']);
+});
