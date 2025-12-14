@@ -173,7 +173,7 @@ class Show extends Component
 
             return [
                 'quantity' => $formattedQuantity,
-                'unit' => $recipeIngredient->unit->value,
+                'unit' => $recipeIngredient->unit?->value ?? '',
                 'name' => $recipeIngredient->ingredient->name,
             ];
         })->toArray();
