@@ -432,3 +432,23 @@ test('grocery list shows regeneration timestamp if applicable', function () {
         ->test(Show::class, ['groceryList' => $groceryList])
         ->assertSee('Last updated'); // The view shows "Last updated X ago"
 });
+
+test('inline edit form displays select box for unit field', function () {
+    $groceryList = GroceryList::factory()->for($this->user)->create();
+
+    $item = GroceryItem::factory()->for($groceryList)->create([
+        'name' => 'Test Item',
+        'quantity' => 2.0,
+        'unit' => MeasurementUnit::CUP,
+        'category' => IngredientCategory::PANTRY,
+    ]);
+
+    $component = Livewire::actingAs($this->user)
+        ->test(Show::class, ['groceryList' => $groceryList])
+        ->call('startEditing', $item);
+
+    // Verify units are passed to the view
+    $component->assertViewHas('units', function ($units) {
+        return is_array($units) && count($units) > 0;
+    });
+});

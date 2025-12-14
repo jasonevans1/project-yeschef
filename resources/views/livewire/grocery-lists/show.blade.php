@@ -255,6 +255,7 @@
                     :groceryList="$groceryList"
                     :editingItemId="$editingItemId"
                     :categories="$categories"
+                    :units="$units"
                 />
             @endforeach
         </div>

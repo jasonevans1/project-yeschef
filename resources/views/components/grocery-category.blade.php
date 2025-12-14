@@ -1,4 +1,4 @@
-@props(['category', 'items', 'groceryList', 'editingItemId' => null, 'categories' => []])
+@props(['category', 'items', 'groceryList', 'editingItemId' => null, 'categories' => [], 'units' => []])
 
 @php
     use App\Enums\IngredientCategory;
@@ -70,12 +70,15 @@
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                         placeholder="Qty"
                                     />
-                                    <input
-                                        type="text"
+                                    <select
                                         wire:model.live="itemUnit"
                                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
-                                        placeholder="Unit"
-                                    />
+                                    >
+                                        <option value="">Select unit...</option>
+                                        @foreach($units as $unit)
+                                            <option value="{{ $unit->value }}">{{ ucfirst(str_replace('_', ' ', $unit->value)) }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                                 <select
                                     wire:model.live="itemCategory"
