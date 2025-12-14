@@ -74,17 +74,17 @@
 
 ### Tests for User Story 5 (Test-First) ⚠️
 
-- [ ] T017 [US5] Add test to verify remove button is visible on hover for recipe cards in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T018 [US5] Add test to verify removing one recipe from slot with 2 recipes leaves the other intact in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T019 [US5] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation
+- [X] T017 [US5] Add test to verify remove button is visible on hover for recipe cards in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T018 [US5] Add test to verify removing one recipe from slot with 2 recipes leaves the other intact in /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T019 [US5] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation (tests PASSED - functionality already implemented in Phase 2)
 
 ### Implementation for User Story 5
 
-- [ ] T020 [US5] Add remove button to recipe card in show.blade.php with hover state (opacity-0 group-hover:opacity-100) and confirmation dialog using wire:confirm
-- [ ] T021 [US5] Add Flux icon for remove button (flux:icon.x-mark) in show.blade.php
-- [ ] T022 [US5] Verify existing removeAssignment() method in Show.php works with multi-recipe slots (no changes needed)
-- [ ] T023 [US5] Run tests with `php artisan test --filter=MealPlans` to verify User Story 5 tests now PASS
-- [ ] T024 [US5] Format code using `vendor/bin/pint`
+- [X] T020 [US5] Add remove button to recipe card in show.blade.php with hover state (opacity-0 group-hover:opacity-100) and confirmation dialog using wire:confirm (already implemented in Phase 2)
+- [X] T021 [US5] Add Flux icon for remove button (flux:icon.x-mark) in show.blade.php (already implemented in Phase 2)
+- [X] T022 [US5] Verify existing removeAssignment() method in Show.php works with multi-recipe slots (no changes needed)
+- [X] T023 [US5] Run tests with `php artisan test --filter=MealPlans` to verify User Story 5 tests now PASS
+- [X] T024 [US5] Format code using `vendor/bin/pint`
 
 **Checkpoint**: At this point, User Stories 1 AND 5 should both work independently - users can add multiple recipes and remove individual ones
 
@@ -98,37 +98,37 @@
 
 ### Tests for User Story 2 (Test-First) ⚠️
 
-- [ ] T025 [P] [US2] Add test "can open recipe drawer with correct state" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T026 [P] [US2] Add test "can close recipe drawer" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T027 [P] [US2] Add test "calculates scaled ingredient quantities correctly" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T028 [P] [US2] Add test "formats scaled quantities without trailing zeros" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
-- [ ] T029 [US2] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation
+- [X] T025 [P] [US2] Add test "can open recipe drawer with correct state" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T026 [P] [US2] Add test "can close recipe drawer" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T027 [P] [US2] Add test "calculates scaled ingredient quantities correctly" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T028 [P] [US2] Add test "formats scaled quantities without trailing zeros" to /Users/jasonevans/projects/project-tabletop/tests/Feature/MealPlans/ViewMealPlanTest.php
+- [X] T029 [US2] Run tests with `php artisan test --filter=MealPlans` to verify they FAIL before implementation
 
 ### Implementation for User Story 2
 
-- [ ] T030 [P] [US2] Add new properties selectedAssignmentId and showRecipeDrawer to /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php
-- [ ] T031 [P] [US2] Implement openRecipeDrawer(MealAssignment $assignment) method in Show.php with authorization check and eager loading
-- [ ] T032 [P] [US2] Implement closeRecipeDrawer() method in Show.php to reset drawer state
-- [ ] T033 [US2] Implement getSelectedAssignmentProperty() computed property in Show.php with eager loading of recipe.recipeIngredients.ingredient
-- [ ] T034 [US2] Implement getScaledIngredientsProperty() computed property in Show.php with quantity formatting (3 decimals max, no trailing zeros)
-- [ ] T035 [US2] Add wire:click="openRecipeDrawer({{ $assignment->id }})" to recipe cards in show.blade.php
-- [ ] T036 [US2] Add keyboard event handlers @keydown.enter and @keydown.space.prevent to recipe cards in show.blade.php for accessibility
-- [ ] T037 [US2] Create drawer component structure with Alpine.js x-data and @entangle('showRecipeDrawer') in show.blade.php after line 226
-- [ ] T038 [US2] Implement drawer backdrop with click-to-close and transition effects (300ms enter, 200ms leave) in show.blade.php
-- [ ] T039 [US2] Implement drawer panel with slide-from-right transition (translate-x-full to translate-x-0) in show.blade.php
-- [ ] T040 [US2] Add ARIA attributes (role="dialog", aria-modal="true", aria-labelledby) to drawer panel in show.blade.php
-- [ ] T041 [US2] Add Alpine x-trap="show" for focus management in drawer component in show.blade.php
-- [ ] T042 [US2] Add @keydown.escape.window="$wire.closeRecipeDrawer()" to drawer for Escape key handling in show.blade.php
-- [ ] T043 [US2] Create sticky drawer header with recipe name, date, meal type, and close button in show.blade.php
-- [ ] T044 [P] [US2] Create servings information section in drawer scrollable content in show.blade.php
-- [ ] T045 [P] [US2] Create time information grid (prep/cook time) in drawer scrollable content in show.blade.php
-- [ ] T046 [US2] Create scaled ingredients list section in drawer using $this->scaledIngredients computed property in show.blade.php
-- [ ] T047 [P] [US2] Create instructions section in drawer (hidden if no instructions) in show.blade.php
-- [ ] T048 [P] [US2] Create notes section in drawer (hidden if no notes) in show.blade.php
-- [ ] T049 [US2] Add responsive drawer sizing (full width on mobile < 640px, max-w-md sm:max-w-lg on desktop) in show.blade.php
-- [ ] T050 [US2] Add dark mode classes (dark:bg-gray-900, dark:text-white, etc.) to all drawer components in show.blade.php
-- [ ] T051 [US2] Run tests with `php artisan test --filter=MealPlans` to verify User Story 2 tests now PASS
-- [ ] T052 [US2] Format code using `vendor/bin/pint`
+- [X] T030 [P] [US2] Add new properties selectedAssignmentId and showRecipeDrawer to /Users/jasonevans/projects/project-tabletop/app/Livewire/MealPlans/Show.php
+- [X] T031 [P] [US2] Implement openRecipeDrawer(MealAssignment $assignment) method in Show.php with authorization check and eager loading
+- [X] T032 [P] [US2] Implement closeRecipeDrawer() method in Show.php to reset drawer state
+- [X] T033 [US2] Implement getSelectedAssignmentProperty() computed property in Show.php with eager loading of recipe.recipeIngredients.ingredient
+- [X] T034 [US2] Implement getScaledIngredientsProperty() computed property in Show.php with quantity formatting (3 decimals max, no trailing zeros)
+- [X] T035 [US2] Add wire:click="openRecipeDrawer({{ $assignment->id }})" to recipe cards in show.blade.php
+- [X] T036 [US2] Add keyboard event handlers @keydown.enter and @keydown.space.prevent to recipe cards in show.blade.php for accessibility
+- [X] T037 [US2] Create drawer component structure with Alpine.js x-data and @entangle('showRecipeDrawer') in show.blade.php after line 226
+- [X] T038 [US2] Implement drawer backdrop with click-to-close and transition effects (300ms enter, 200ms leave) in show.blade.php
+- [X] T039 [US2] Implement drawer panel with slide-from-right transition (translate-x-full to translate-x-0) in show.blade.php
+- [X] T040 [US2] Add ARIA attributes (role="dialog", aria-modal="true", aria-labelledby) to drawer panel in show.blade.php
+- [X] T041 [US2] Add Alpine x-trap="show" for focus management in drawer component in show.blade.php
+- [X] T042 [US2] Add @keydown.escape.window="$wire.closeRecipeDrawer()" to drawer for Escape key handling in show.blade.php
+- [X] T043 [US2] Create sticky drawer header with recipe name, date, meal type, and close button in show.blade.php
+- [X] T044 [P] [US2] Create servings information section in drawer scrollable content in show.blade.php
+- [X] T045 [P] [US2] Create time information grid (prep/cook time) in drawer scrollable content in show.blade.php
+- [X] T046 [US2] Create scaled ingredients list section in drawer using $this->scaledIngredients computed property in show.blade.php
+- [X] T047 [P] [US2] Create instructions section in drawer (hidden if no instructions) in show.blade.php
+- [X] T048 [P] [US2] Create notes section in drawer (hidden if no notes) in show.blade.php
+- [X] T049 [US2] Add responsive drawer sizing (full width on mobile < 640px, max-w-md sm:max-w-lg on desktop) in show.blade.php
+- [X] T050 [US2] Add dark mode classes (dark:bg-gray-900, dark:text-white, etc.) to all drawer components in show.blade.php
+- [X] T051 [US2] Run tests with `php artisan test --filter=MealPlans` to verify User Story 2 tests now PASS
+- [X] T052 [US2] Format code using `vendor/bin/pint`
 
 **Checkpoint**: At this point, User Stories 1, 2, and 5 should all work independently - users can add multiple recipes, view details in drawer, and remove recipes
 
@@ -144,11 +144,11 @@
 
 > **NOTE**: Navigation testing is straightforward, no new tests required beyond verifying URL/route structure
 
-- [ ] T053 [US3] Create sticky drawer footer with flex gap-3 layout in show.blade.php
-- [ ] T054 [US3] Add "View Full Recipe" Flux button with href to route('recipes.show', recipe) in drawer footer in show.blade.php
-- [ ] T055 [US3] Add flux:icon.arrow-top-right-on-square to "View Full Recipe" button in show.blade.php
-- [ ] T056 [US3] Add "Close" Flux button with variant="ghost" in drawer footer in show.blade.php
-- [ ] T057 [US3] Format code using `vendor/bin/pint`
+- [X] T053 [US3] Create sticky drawer footer with flex gap-3 layout in show.blade.php
+- [X] T054 [US3] Add "View Full Recipe" Flux button with href to route('recipes.show', recipe) in drawer footer in show.blade.php
+- [X] T055 [US3] Add flux:icon.arrow-top-right-on-square to "View Full Recipe" button in show.blade.php
+- [X] T056 [US3] Add "Close" Flux button with variant="ghost" in drawer footer in show.blade.php
+- [X] T057 [US3] Format code using `vendor/bin/pint`
 
 **Checkpoint**: All user stories should now be independently functional - complete drawer experience with navigation
 
@@ -164,8 +164,8 @@
 
 ### Validation for User Story 4
 
-- [ ] T058 [US4] Verify render() method grouping includes `->map(fn($group) => $group->sortBy('created_at'))` in Show.php
-- [ ] T059 [US4] Verify test "displays recipes in chronological order by creation time" passes with `php artisan test --filter=MealPlans`
+- [X] T058 [US4] Verify render() method grouping includes `->map(fn($group) => $group->sortBy('created_at'))` in Show.php
+- [X] T059 [US4] Verify test "displays recipes in chronological order by creation time" passes with `php artisan test --filter=MealPlans`
 
 **Checkpoint**: Chronological ordering confirmed working from User Story 1 implementation
 

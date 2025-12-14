@@ -27,6 +27,10 @@ class Show extends Component
     #[Validate('required|numeric|min:0.25|max:10')]
     public float $servingMultiplier = 1.0;
 
+    public ?int $selectedAssignmentId = null;
+
+    public bool $showRecipeDrawer = false;
+
     public function mount(MealPlan $mealPlan)
     {
         $this->authorize('view', $mealPlan);
@@ -95,6 +99,23 @@ class Show extends Component
         $this->mealPlan->refresh();
     }
 
+    public function openRecipeDrawer(MealAssignment $assignment)
+    {
+        $this->authorize('view', $this->mealPlan);
+
+        // Eager load recipe and ingredients
+        $assignment->load('recipe.recipeIngredients.ingredient');
+
+        $this->selectedAssignmentId = $assignment->id;
+        $this->showRecipeDrawer = true;
+    }
+
+    public function closeRecipeDrawer()
+    {
+        $this->showRecipeDrawer = false;
+        $this->selectedAssignmentId = null;
+    }
+
     public function delete()
     {
         $this->authorize('delete', $this->mealPlan);
@@ -122,6 +143,40 @@ class Show extends Component
         }
 
         return $query->limit(20)->get();
+    }
+
+    public function getSelectedAssignmentProperty()
+    {
+        if (! $this->selectedAssignmentId) {
+            return null;
+        }
+
+        return MealAssignment::with('recipe.recipeIngredients.ingredient')
+            ->find($this->selectedAssignmentId);
+    }
+
+    public function getScaledIngredientsProperty()
+    {
+        $assignment = $this->selectedAssignment;
+
+        if (! $assignment || ! $assignment->recipe) {
+            return [];
+        }
+
+        $multiplier = $assignment->serving_multiplier;
+
+        return $assignment->recipe->recipeIngredients->map(function ($recipeIngredient) use ($multiplier) {
+            $scaledQuantity = $recipeIngredient->quantity * $multiplier;
+
+            // Format quantity: max 3 decimals, remove trailing zeros
+            $formattedQuantity = rtrim(rtrim(number_format($scaledQuantity, 3, '.', ''), '0'), '.');
+
+            return [
+                'quantity' => $formattedQuantity,
+                'unit' => $recipeIngredient->unit->value,
+                'name' => $recipeIngredient->ingredient->name,
+            ];
+        })->toArray();
     }
 
     public function render()

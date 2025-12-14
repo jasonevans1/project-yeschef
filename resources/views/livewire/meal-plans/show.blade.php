@@ -82,9 +82,12 @@
                                 >
                                     <div class="flex flex-col gap-2">
                                         @forelse($assignmentCollection as $assignment)
-                                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-left relative group transition-colors"
+                                            <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 text-left relative group transition-colors cursor-pointer"
                                                  role="button"
-                                                 tabindex="0">
+                                                 tabindex="0"
+                                                 wire:click="openRecipeDrawer({{ $assignment }})"
+                                                 @keydown.enter="$wire.openRecipeDrawer({{ $assignment }})"
+                                                 @keydown.space.prevent="$wire.openRecipeDrawer({{ $assignment }})">
                                                 <div class="font-medium text-sm text-blue-900 dark:text-blue-100 mb-1">
                                                     {{ $assignment->recipe->name }}
                                                 </div>
@@ -235,5 +238,177 @@
                 </flux:button>
             </div>
         </flux:modal>
+    @endif
+
+    {{-- Recipe Drawer --}}
+    @if($showRecipeDrawer && $this->selectedAssignment)
+        <div
+            x-data="{ show: @entangle('showRecipeDrawer') }"
+            @keydown.escape.window="$wire.closeRecipeDrawer()"
+            class="relative z-50"
+        >
+            {{-- Backdrop --}}
+            <div
+                x-show="show"
+                x-transition:enter="transition-opacity ease-linear duration-300"
+                x-transition:enter-start="opacity-0"
+                x-transition:enter-end="opacity-100"
+                x-transition:leave="transition-opacity ease-linear duration-200"
+                x-transition:leave-start="opacity-100"
+                x-transition:leave-end="opacity-0"
+                @click="$wire.closeRecipeDrawer()"
+                class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-gray-900 dark:bg-opacity-75"
+            ></div>
+
+            {{-- Drawer Panel --}}
+            <div class="fixed inset-0 overflow-hidden">
+                <div class="absolute inset-0 overflow-hidden">
+                    <div class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10">
+                        <div
+                            x-show="show"
+                            x-transition:enter="transform transition ease-in-out duration-300"
+                            x-transition:enter-start="translate-x-full"
+                            x-transition:enter-end="translate-x-0"
+                            x-transition:leave="transform transition ease-in-out duration-200"
+                            x-transition:leave-start="translate-x-0"
+                            x-transition:leave-end="translate-x-full"
+                            x-trap="show"
+                            role="dialog"
+                            aria-modal="true"
+                            aria-labelledby="drawer-title"
+                            class="pointer-events-auto w-screen max-w-full sm:max-w-md lg:max-w-lg"
+                        >
+                            <div class="flex h-full flex-col overflow-y-scroll bg-white dark:bg-gray-800 shadow-xl">
+                                {{-- Sticky Header --}}
+                                <div class="sticky top-0 z-10 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-6 sm:px-6">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex-1">
+                                            <h2 id="drawer-title" class="text-lg font-semibold text-gray-900 dark:text-white">
+                                                {{ $this->selectedAssignment->recipe->name }}
+                                            </h2>
+                                            <div class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                                                {{ \Carbon\Carbon::parse($this->selectedAssignment->date)->format('l, F j') }} - {{ ucfirst($this->selectedAssignment->meal_type->value) }}
+                                            </div>
+                                        </div>
+                                        <div class="ml-3 flex h-7 items-center">
+                                            <flux:button
+                                                wire:click="closeRecipeDrawer"
+                                                variant="ghost"
+                                                size="sm"
+                                                icon="x-mark"
+                                                class="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Scrollable Content --}}
+                                <div class="relative flex-1 px-4 py-6 sm:px-6">
+                                    <div class="space-y-6">
+                                        {{-- Servings Information --}}
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Servings</h3>
+                                            @if($this->selectedAssignment->serving_multiplier != 1.00)
+                                                <div class="flex items-center gap-2">
+                                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 dark:bg-blue-800/50 text-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                                                        {{ $this->selectedAssignment->recipe->servings * $this->selectedAssignment->serving_multiplier }} servings
+                                                    </span>
+                                                    <span class="text-sm text-blue-600 dark:text-blue-400">
+                                                        ({{ $this->selectedAssignment->serving_multiplier }}x multiplier)
+                                                    </span>
+                                                </div>
+                                            @else
+                                                <p class="text-sm text-gray-700 dark:text-gray-300">{{ $this->selectedAssignment->recipe->servings }} servings</p>
+                                            @endif
+                                        </div>
+
+                                        {{-- Time Information --}}
+                                        @if($this->selectedAssignment->recipe->prep_time || $this->selectedAssignment->recipe->cook_time)
+                                            <div>
+                                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Time</h3>
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    @if($this->selectedAssignment->recipe->prep_time)
+                                                        <div class="text-sm">
+                                                            <span class="text-gray-500 dark:text-gray-400">Prep:</span>
+                                                            <span class="font-medium text-gray-900 dark:text-white ml-1">{{ $this->selectedAssignment->recipe->prep_time }} min</span>
+                                                        </div>
+                                                    @endif
+                                                    @if($this->selectedAssignment->recipe->cook_time)
+                                                        <div class="text-sm">
+                                                            <span class="text-gray-500 dark:text-gray-400">Cook:</span>
+                                                            <span class="font-medium text-gray-900 dark:text-white ml-1">{{ $this->selectedAssignment->recipe->cook_time }} min</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- Scaled Ingredients --}}
+                                        <div>
+                                            <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Ingredients</h3>
+                                            @if(count($this->scaledIngredients) > 0)
+                                                <ul class="space-y-2">
+                                                    @foreach($this->scaledIngredients as $ingredient)
+                                                        <li class="text-sm text-gray-700 dark:text-gray-300 flex items-start">
+                                                            <span class="mr-2 text-gray-400 dark:text-gray-500">•</span>
+                                                            <span>
+                                                                <span class="font-medium">{{ $ingredient['quantity'] }} {{ $ingredient['unit'] }}</span>
+                                                                <span class="ml-1">{{ $ingredient['name'] }}</span>
+                                                            </span>
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            @else
+                                                <p class="text-sm text-gray-500 dark:text-gray-400 italic">No ingredients listed</p>
+                                            @endif
+                                        </div>
+
+                                        {{-- Instructions --}}
+                                        @if($this->selectedAssignment->recipe->instructions)
+                                            <div>
+                                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Instructions</h3>
+                                                <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                                                    {{ $this->selectedAssignment->recipe->instructions }}
+                                                </div>
+                                            </div>
+                                        @endif
+
+                                        {{-- Notes --}}
+                                        @if($this->selectedAssignment->notes)
+                                            <div>
+                                                <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Notes</h3>
+                                                <div class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-wrap bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                                                    {{ $this->selectedAssignment->notes }}
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+
+                                {{-- Sticky Footer --}}
+                                <div class="sticky bottom-0 z-10 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 px-4 py-4 sm:px-6">
+                                    <div class="flex gap-3">
+                                        <flux:button
+                                            href="{{ route('recipes.show', $this->selectedAssignment->recipe) }}"
+                                            variant="primary"
+                                            icon="arrow-top-right-on-square"
+                                            class="flex-1"
+                                        >
+                                            View Full Recipe
+                                        </flux:button>
+                                        <flux:button
+                                            wire:click="closeRecipeDrawer"
+                                            variant="ghost"
+                                        >
+                                            Close
+                                        </flux:button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     @endif
 </div>

@@ -216,3 +216,218 @@ it('displays recipes in chronological order by creation time', function () {
     // Recipes should appear in chronological order (oldest first)
     $response->assertSeeInOrder(['First Recipe', 'Second Recipe', 'Third Recipe']);
 });
+
+it('displays remove button for recipe cards', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create(['name' => 'Test Recipe']);
+
+    MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('meal-plans.show', $mealPlan));
+
+    $response->assertOk();
+    // Verify recipe is displayed
+    $response->assertSee('Test Recipe');
+    // Verify remove button wire directive exists (Livewire will render wire:click attribute)
+    $response->assertSee('wire:click.stop');
+});
+
+it('can remove one recipe from slot with multiple recipes while keeping others', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe1 = Recipe::factory()->create(['name' => 'Chicken Salad']);
+    $recipe2 = Recipe::factory()->create(['name' => 'Tomato Soup']);
+
+    // Create two assignments in the same meal slot
+    $assignment1 = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe1->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    $assignment2 = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe2->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::LUNCH,
+    ]);
+
+    // Verify both assignments exist
+    expect(MealAssignment::count())->toBe(2);
+
+    // Use Livewire to test the removeAssignment method
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->call('removeAssignment', $assignment1->id)
+        ->assertOk();
+
+    // Verify only one assignment remains
+    expect(MealAssignment::count())->toBe(1);
+
+    // Verify the correct assignment was removed
+    expect(MealAssignment::find($assignment1->id))->toBeNull();
+    expect(MealAssignment::find($assignment2->id))->not->toBeNull();
+
+    // Verify the remaining assignment is the second one
+    $remaining = MealAssignment::first();
+    expect($remaining->recipe_id)->toBe($recipe2->id);
+});
+
+it('can open recipe drawer with correct state', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create(['name' => 'Test Recipe']);
+
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+        'serving_multiplier' => 1.5,
+    ]);
+
+    // Use Livewire to test opening the drawer
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment)
+        ->assertSet('showRecipeDrawer', true)
+        ->assertSet('selectedAssignmentId', $assignment->id);
+});
+
+it('can close recipe drawer', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create();
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+    ]);
+
+    // Open drawer then close it
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment)
+        ->assertSet('showRecipeDrawer', true)
+        ->call('closeRecipeDrawer')
+        ->assertSet('showRecipeDrawer', false)
+        ->assertSet('selectedAssignmentId', null);
+});
+
+it('calculates scaled ingredient quantities correctly', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create(['servings' => 4]);
+    $ingredient = \App\Models\Ingredient::factory()->create(['name' => 'Chicken']);
+
+    // Create recipe ingredient with quantity 2.0
+    \App\Models\RecipeIngredient::create([
+        'recipe_id' => $recipe->id,
+        'ingredient_id' => $ingredient->id,
+        'quantity' => 2.0,
+        'unit' => \App\Enums\MeasurementUnit::LB,
+    ]);
+
+    // Create assignment with 2x multiplier
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+        'serving_multiplier' => 2.0,
+    ]);
+
+    // Test that scaled ingredients are calculated correctly (2.0 * 2.0 = 4.0)
+    $component = Livewire::actingAs($user)
+        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment);
+
+    $scaledIngredients = $component->get('scaledIngredients');
+
+    expect($scaledIngredients)->toHaveCount(1);
+    expect($scaledIngredients[0]['quantity'])->toBe('4');
+    expect($scaledIngredients[0]['unit'])->toBe('lb');
+    expect($scaledIngredients[0]['name'])->toBe('Chicken');
+});
+
+it('formats scaled quantities without trailing zeros', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create();
+    $ingredient1 = \App\Models\Ingredient::factory()->create(['name' => 'Flour']);
+    $ingredient2 = \App\Models\Ingredient::factory()->create(['name' => 'Sugar']);
+    $ingredient3 = \App\Models\Ingredient::factory()->create(['name' => 'Salt']);
+
+    // Create ingredients with different decimal scenarios
+    \App\Models\RecipeIngredient::create([
+        'recipe_id' => $recipe->id,
+        'ingredient_id' => $ingredient1->id,
+        'quantity' => 2.5,  // Should stay 2.5
+        'unit' => \App\Enums\MeasurementUnit::CUP,
+    ]);
+
+    \App\Models\RecipeIngredient::create([
+        'recipe_id' => $recipe->id,
+        'ingredient_id' => $ingredient2->id,
+        'quantity' => 1.0,  // Should become 1 (no trailing zeros)
+        'unit' => \App\Enums\MeasurementUnit::CUP,
+    ]);
+
+    \App\Models\RecipeIngredient::create([
+        'recipe_id' => $recipe->id,
+        'ingredient_id' => $ingredient3->id,
+        'quantity' => 0.333,  // Should stay 0.333 (3 decimal places max)
+        'unit' => \App\Enums\MeasurementUnit::TSP,
+    ]);
+
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+        'serving_multiplier' => 1.0,
+    ]);
+
+    $component = Livewire::actingAs($user)
+        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment);
+
+    $scaledIngredients = $component->get('scaledIngredients');
+
+    expect($scaledIngredients)->toHaveCount(3);
+    expect($scaledIngredients[0]['quantity'])->toBe('2.5');  // Keeps decimal
+    expect($scaledIngredients[1]['quantity'])->toBe('1');    // No trailing zeros
+    expect($scaledIngredients[2]['quantity'])->toBe('0.333'); // 3 decimals max
+});
