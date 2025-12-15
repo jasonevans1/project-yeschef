@@ -779,6 +779,8 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - MariaDB (production via DDEV), SQLite (dev/test) - Recipe model with source_url field (006-import-recipe)
 - PHP 8.3 (Laravel 12) + Laravel Framework 12, Livewire 3, Livewire Flux (UI components) (007-format-ingredient-quantities)
 - RecipeIngredient model with decimal(8,3) quantity field, MeasurementUnit enum (007-format-ingredient-quantities)
+- PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Alpine.js (included with Livewire), Tailwind CSS 4.x (009-recipe-servings-multiplier)
+- N/A (client-side state only, no database changes) (009-recipe-servings-multiplier)
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
