@@ -31,98 +31,61 @@
             </div>
         </div>
     @else
-        {{-- Standalone Lists Section --}}
-        @if($standaloneLists->isNotEmpty())
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <flux:icon.clipboard-document-list class="size-6 text-blue-600 dark:text-blue-400" />
-                    <div>
-                        <flux:heading size="lg">Standalone Lists</flux:heading>
-                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">Shopping lists not linked to meal plans</flux:text>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    @foreach($standaloneLists as $list)
-                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <div class="flex-1">
+        {{-- All Grocery Lists --}}
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+            <div class="space-y-4">
+                @foreach($groceryLists as $list)
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
                                 <flux:heading size="md">
                                     <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600 dark:hover:text-blue-400">
                                         {{ $list->name }}
                                     </a>
                                 </flux:heading>
-                                <flux:text class="text-sm text-gray-600 dark:text-gray-400">
-                                    Created {{ $list->created_at->diffForHumans() }}
-                                    @if($list->total_items > 0)
-                                        · {{ $list->total_items }} {{ Str::plural('item', $list->total_items) }}
-                                        · {{ $list->completion_percentage }}% complete
-                                    @endif
-                                </flux:text>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                @if($list->completion_percentage === 100)
-                                    <flux:badge variant="success">Complete</flux:badge>
-                                @elseif($list->completion_percentage > 0)
-                                    <flux:badge variant="primary">{{ round($list->completion_percentage) }}%</flux:badge>
+                                @if($list->meal_plan_id)
+                                    <flux:badge class="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                                        <flux:icon.calendar class="size-3 mr-1" />
+                                        Meal Plan
+                                    </flux:badge>
                                 @else
-                                    <flux:badge variant="ghost">Empty</flux:badge>
+                                    <flux:badge class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                                        <flux:icon.clipboard-document-list class="size-3 mr-1" />
+                                        Standalone
+                                    </flux:badge>
                                 @endif
-                                <flux:button href="{{ route('grocery-lists.show', $list) }}" variant="ghost" size="sm">
-                                    View
-                                </flux:button>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        {{-- Meal Plan Linked Lists --}}
-        @if($mealPlanLists->isNotEmpty())
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <flux:icon.calendar class="size-6 text-green-600 dark:text-green-400" />
-                    <div>
-                        <flux:heading size="lg">Meal Plan Lists</flux:heading>
-                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">Lists generated from your meal plans</flux:text>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    @foreach($mealPlanLists as $list)
-                        <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                            <div class="flex-1">
-                                <flux:heading size="md">
-                                    <a href="{{ route('grocery-lists.show', $list) }}" class="hover:text-blue-600 dark:hover:text-blue-400">
-                                        {{ $list->name }}
-                                    </a>
-                                </flux:heading>
-                                <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                            <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                                @if($list->meal_plan_id)
                                     Generated {{ $list->generated_at->diffForHumans() }}
                                     @if($list->mealPlan)
                                         · From <a href="{{ route('meal-plans.show', $list->mealPlan) }}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ $list->mealPlan->name }}</a>
                                     @endif
-                                    @if($list->total_items > 0)
-                                        · {{ $list->total_items }} {{ Str::plural('item', $list->total_items) }}
-                                        · {{ $list->completion_percentage }}% complete
-                                    @endif
-                                </flux:text>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                @if($list->completion_percentage === 100)
-                                    <flux:badge variant="success">Complete</flux:badge>
-                                @elseif($list->completion_percentage > 0)
-                                    <flux:badge variant="primary">{{ round($list->completion_percentage) }}%</flux:badge>
                                 @else
-                                    <flux:badge variant="ghost">Not Started</flux:badge>
+                                    Created {{ $list->created_at->diffForHumans() }}
                                 @endif
-                                <flux:button href="{{ route('grocery-lists.show', $list) }}" variant="ghost" size="sm">
-                                    View
-                                </flux:button>
-                            </div>
+                                @if($list->total_items > 0)
+                                    · {{ $list->total_items }} {{ Str::plural('item', $list->total_items) }}
+                                    · {{ $list->completion_percentage }}% complete
+                                @endif
+                            </flux:text>
                         </div>
-                    @endforeach
-                </div>
+                        <div class="flex items-center gap-2">
+                            @if($list->completion_percentage === 100)
+                                <flux:badge variant="success">Complete</flux:badge>
+                            @elseif($list->completion_percentage > 0)
+                                <flux:badge variant="primary">{{ round($list->completion_percentage) }}%</flux:badge>
+                            @else
+                                <flux:badge variant="ghost">{{ $list->meal_plan_id ? 'Not Started' : 'Empty' }}</flux:badge>
+                            @endif
+                            <flux:button href="{{ route('grocery-lists.show', $list) }}" variant="ghost" size="sm">
+                                View
+                            </flux:button>
+                        </div>
+                    </div>
+                @endforeach
             </div>
-        @endif
+        </div>
 
         {{-- Pagination --}}
         <div class="mt-6">
