@@ -61,52 +61,107 @@
             </div>
         </div>
 
-        {{-- Recipe Info --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            @if ($recipe->prep_time)
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Prep Time</flux:heading>
-                    <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->prep_time }} min</flux:text>
-                </div>
-            @endif
+        {{-- Recipe Info and Ingredients (shared Alpine.js scope for multiplier) --}}
+        <div x-data="recipeShowPage()" x-init="originalServings = {{ $recipe->servings }}">
+            {{-- Recipe Info --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                @if ($recipe->prep_time)
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Prep Time</flux:heading>
+                        <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->prep_time }} min</flux:text>
+                    </div>
+                @endif
 
-            @if ($recipe->cook_time)
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Cook Time</flux:heading>
-                    <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->cook_time }} min</flux:text>
-                </div>
-            @endif
+                @if ($recipe->cook_time)
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Cook Time</flux:heading>
+                        <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->cook_time }} min</flux:text>
+                    </div>
+                @endif
 
-            @if ($this->totalTime)
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                    <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Total Time</flux:heading>
-                    <flux:text class="text-xl font-semibold dark:text-white">{{ $this->totalTime }} min</flux:text>
-                </div>
-            @endif
+                @if ($this->totalTime)
+                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Total Time</flux:heading>
+                        <flux:text class="text-xl font-semibold dark:text-white">{{ $this->totalTime }} min</flux:text>
+                    </div>
+                @endif
 
-            <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Servings</flux:heading>
-                <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->servings }}</flux:text>
+                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <flux:heading size="sm" id="servings-heading" class="text-gray-500 dark:text-gray-400 mb-1">Servings</flux:heading>
+
+                {{-- Multiplier Controls --}}
+                <div role="group" aria-labelledby="servings-heading" class="flex items-center justify-center gap-2 mb-2">
+                    <flux:button
+                        @click="multiplier = Math.max(0.25, multiplier - 0.25)"
+                        variant="ghost"
+                        icon="minus"
+                        size="sm"
+                        aria-label="Decrease serving size"
+                    ></flux:button>
+
+                    <flux:input
+                        type="number"
+                        x-model.number="multiplier"
+                        min="0.25"
+                        max="10"
+                        step="0.25"
+                        @input="setMultiplier($event.target.value)"
+                        class="w-20 text-center text-xl font-semibold"
+                        aria-label="Serving size multiplier"
+                        aria-describedby="servings-result"
+                    />
+
+                    <flux:button
+                        @click="multiplier = Math.min(10, multiplier + 0.25)"
+                        variant="ghost"
+                        icon="plus"
+                        size="sm"
+                        aria-label="Increase serving size"
+                    ></flux:button>
+                </div>
+
+                {{-- Servings Display --}}
+                <div id="servings-result">
+                    <template x-if="multiplier === 1">
+                        <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->servings }}</flux:text>
+                    </template>
+                    <template x-if="multiplier !== 1">
+                        <div>
+                            <flux:text class="text-xl font-semibold dark:text-white" x-text="scaledServings()"></flux:text>
+                            <flux:text class="text-xs text-gray-500 dark:text-gray-400">
+                                (from <span x-text="originalServings"></span>)
+                            </flux:text>
+                        </div>
+                    </template>
+                </div>
+
+                {{-- ARIA Live Region for Screen Readers --}}
+                <div
+                    class="sr-only"
+                    aria-live="polite"
+                    aria-atomic="true"
+                    x-text="multiplier !== 1 ? 'Recipe scaled to ' + multiplier + ' times original, making ' + scaledServings() + ' servings' : ''"
+                ></div>
             </div>
-        </div>
+            </div>
 
-        {{-- Dietary Tags --}}
-        @if ($recipe->dietary_tags && count($recipe->dietary_tags) > 0)
+            {{-- Dietary Tags --}}
+            @if ($recipe->dietary_tags && count($recipe->dietary_tags) > 0)
+                <div class="mb-8">
+                    <flux:heading size="lg" class="mb-3">Dietary Information</flux:heading>
+                    <div class="flex flex-wrap gap-2">
+                        @foreach ($recipe->dietary_tags as $tag)
+                            <flux:badge color="green" icon="check-circle">{{ ucfirst($tag) }}</flux:badge>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
+            {{-- Ingredients --}}
             <div class="mb-8">
-                <flux:heading size="lg" class="mb-3">Dietary Information</flux:heading>
-                <div class="flex flex-wrap gap-2">
-                    @foreach ($recipe->dietary_tags as $tag)
-                        <flux:badge color="green" icon="check-circle">{{ ucfirst($tag) }}</flux:badge>
-                    @endforeach
-                </div>
-            </div>
-        @endif
-
-        {{-- Ingredients --}}
-        <div class="mb-8">
             <flux:heading size="lg" class="mb-4">Ingredients</flux:heading>
             <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
-                <div x-data="ingredientCheckboxes()">
+                <div>
                     <ul class="space-y-3">
                         @foreach ($recipe->recipeIngredients->sortBy('sort_order') as $recipeIngredient)
                             <li class="flex items-start gap-3">
@@ -125,7 +180,7 @@
                                 >
                                     @if ($recipeIngredient->quantity)
                                         <span class="font-medium">
-                                            {{ $recipeIngredient->display_quantity }}
+                                            <span x-text="scaleQuantity({{ $recipeIngredient->quantity }}) || '{{ $recipeIngredient->display_quantity }}'"></span>
                                             @if ($recipeIngredient->unit)
                                                 {{ $recipeIngredient->unit->value }}
                                             @endif
@@ -142,6 +197,7 @@
                         @endforeach
                     </ul>
                 </div>
+            </div>
             </div>
         </div>
 
