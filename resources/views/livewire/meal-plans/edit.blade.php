@@ -16,14 +16,18 @@
 
                 {{-- Date Range Fields --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <flux:input
-                        wire:model="start_date"
-                        label="Start Date"
-                        type="date"
-                        id="start_date"
-                        name="start_date"
-                        required
-                    />
+                    <flux:field>
+                        <flux:label>Start Date</flux:label>
+                        <flux:input
+                            wire:model="start_date"
+                            type="date"
+                            id="start_date"
+                            name="start_date"
+                            required
+                        />
+                        <flux:description>&nbsp;</flux:description>
+                        <flux:error name="start_date" />
+                    </flux:field>
 
                     <flux:field>
                         <flux:label>End Date</flux:label>
