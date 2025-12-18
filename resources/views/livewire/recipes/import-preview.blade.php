@@ -3,10 +3,10 @@
         <flux:heading size="xl" level="1" class="mb-6">Preview Recipe Import</flux:heading>
 
         @if($recipeData)
-        <div class="bg-white rounded-lg shadow p-6 space-y-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 space-y-6">
             {{-- Recipe Name --}}
             <div>
-                <h2 class="text-2xl font-bold">{{ $recipeData['name'] }}</h2>
+                <h2 class="text-2xl font-bold dark:text-white">{{ $recipeData['name'] }}</h2>
             </div>
 
             {{-- Image --}}
@@ -19,8 +19,8 @@
             {{-- Description --}}
             @if($recipeData['description'] ?? null)
             <div>
-                <h3 class="font-semibold mb-2">Description</h3>
-                <p class="text-gray-700">{{ $recipeData['description'] }}</p>
+                <h3 class="font-semibold dark:text-white mb-2">Description</h3>
+                <p class="text-gray-700 dark:text-gray-300">{{ $recipeData['description'] }}</p>
             </div>
             @endif
 
@@ -28,24 +28,24 @@
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                 @if($recipeData['prep_time'] ?? null)
                 <div>
-                    <span class="text-sm text-gray-500">Prep Time</span>
-                    <p class="font-semibold">{{ $recipeData['prep_time'] }} min</p>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Prep Time</span>
+                    <p class="font-semibold dark:text-white">{{ $recipeData['prep_time'] }} min</p>
                 </div>
                 @endif
                 @if($recipeData['cook_time'] ?? null)
                 <div>
-                    <span class="text-sm text-gray-500">Cook Time</span>
-                    <p class="font-semibold">{{ $recipeData['cook_time'] }} min</p>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Cook Time</span>
+                    <p class="font-semibold dark:text-white">{{ $recipeData['cook_time'] }} min</p>
                 </div>
                 @endif
                 <div>
-                    <span class="text-sm text-gray-500">Servings</span>
-                    <p class="font-semibold">{{ $recipeData['servings'] ?? 4 }}</p>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Servings</span>
+                    <p class="font-semibold dark:text-white">{{ $recipeData['servings'] ?? 4 }}</p>
                 </div>
                 @if($recipeData['cuisine'] ?? null)
                 <div>
-                    <span class="text-sm text-gray-500">Cuisine</span>
-                    <p class="font-semibold">{{ $recipeData['cuisine'] }}</p>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">Cuisine</span>
+                    <p class="font-semibold dark:text-white">{{ $recipeData['cuisine'] }}</p>
                 </div>
                 @endif
             </div>
@@ -53,10 +53,10 @@
             {{-- Ingredients --}}
             @if(!empty($recipeData['recipeIngredient']))
             <div>
-                <h3 class="font-semibold mb-2">Ingredients</h3>
+                <h3 class="font-semibold dark:text-white mb-2">Ingredients</h3>
                 <ul class="list-disc list-inside space-y-1">
                     @foreach($recipeData['recipeIngredient'] as $ingredient)
-                    <li class="text-gray-700">{{ $ingredient }}</li>
+                    <li class="text-gray-700 dark:text-gray-300">{{ $ingredient }}</li>
                     @endforeach
                 </ul>
             </div>
@@ -64,15 +64,15 @@
 
             {{-- Instructions --}}
             <div>
-                <h3 class="font-semibold mb-2">Instructions</h3>
-                <div class="text-gray-700 whitespace-pre-line">{{ $recipeData['instructions'] }}</div>
+                <h3 class="font-semibold dark:text-white mb-2">Instructions</h3>
+                <div class="text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ $recipeData['instructions'] }}</div>
             </div>
 
             {{-- Source URL --}}
             @if($recipeData['source_url'] ?? null)
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-gray-500 dark:text-gray-400">
                 <strong>Source:</strong>
-                <a href="{{ $recipeData['source_url'] }}" target="_blank" class="text-blue-600 hover:underline">
+                <a href="{{ $recipeData['source_url'] }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
                     {{ $recipeData['source_url'] }}
                 </a>
             </div>
@@ -82,7 +82,7 @@
             <flux:error name="import" />
 
             {{-- Action Buttons --}}
-            <div class="flex items-center justify-end gap-3 pt-4 border-t">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <flux:button
                     wire:click="cancel"
                     variant="ghost"
