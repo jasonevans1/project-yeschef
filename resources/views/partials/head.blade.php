@@ -12,3 +12,20 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+@php
+echo <<<'HTML'
+<script>
+    (function() {
+        const stored = localStorage.getItem('flux.appearance');
+        if (stored && stored !== 'system') {
+            const root = document.documentElement;
+            if (stored === 'dark') {
+                root.classList.add('dark');
+            } else if (stored === 'light') {
+                root.classList.remove('dark');
+            }
+        }
+    })();
+</script>
+HTML;
+@endphp
