@@ -23,8 +23,8 @@ test.describe('Delete Grocery List', () => {
     await page.fill('input[name="password"]', 'password');
     await page.click('button[type="submit"]');
 
-    // Wait for redirect to dashboard/home
-    await page.waitForURL(/\/(dashboard|home)?$/);
+    // Wait for redirect to dashboard
+    await page.waitForURL('/dashboard');
   });
 
   test('user can cancel deletion without losing data (US2)', async ({ page }) => {

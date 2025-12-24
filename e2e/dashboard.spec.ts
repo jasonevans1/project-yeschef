@@ -97,8 +97,12 @@ test.describe('Dashboard', () => {
         const hasData = await viewAllButton.isVisible().catch(() => false);
 
         if (hasData) {
-            // Find first meal plan link that matches the show pattern (not create or index)
-            const mealPlanLink = page.locator('a[href*="/meal-plans/"]').filter({ hasText: /Debug|Export|Week/ }).first();
+            // Find first meal plan link that matches the show pattern (href ends with /\d+)
+            // Exclude "View All Meal Plans" and "Create Your First Meal Plan" links
+            const mealPlanLink = page.locator('a[href*="/meal-plans/"]')
+                .filter({ hasNotText: 'View All' })
+                .filter({ hasNotText: 'Create' })
+                .first();
             await expect(mealPlanLink).toBeVisible();
 
             // Click and verify navigation

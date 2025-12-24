@@ -18,7 +18,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
     await page.goto(`${BASE_URL}/recipes`);
 
     // Click first recipe
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     // Wait for recipe page to load
@@ -39,14 +39,15 @@ test.describe('Recipe Ingredient Checkboxes', () => {
   // T017: Checking ingredient applies strikethrough and opacity
   test('checking ingredient applies strikethrough and opacity', async ({ page }) => {
     await page.goto(`${BASE_URL}/recipes`);
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
-    // Get first checkbox and its associated text container
-    const firstCheckbox = page.locator('input[type="checkbox"]').first();
-    const textContainer = page.locator('.flex-1').first();
+    // Get first ingredient list item
+    const firstIngredient = page.locator('ul.space-y-3 > li').first();
+    const firstCheckbox = firstIngredient.locator('input[type="checkbox"]');
+    const textContainer = firstIngredient.locator('.flex-1');
 
     // Verify initial state
     await expect(textContainer).not.toHaveClass(/line-through/);
@@ -69,7 +70,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
   // T018: Multiple ingredients can be checked independently
   test('multiple ingredients can be checked independently', async ({ page }) => {
     await page.goto(`${BASE_URL}/recipes`);
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     await expect(page).toHaveURL(/\/recipes\/\d+/);
@@ -95,7 +96,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
   // T019: Checkbox state resets after page refresh
   test('checkbox state resets after page refresh', async ({ page }) => {
     await page.goto(`${BASE_URL}/recipes`);
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     await expect(page).toHaveURL(/\/recipes\/\d+/);
@@ -128,7 +129,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
     await page.goto(`${BASE_URL}/recipes`);
 
     // Get first two recipe links
-    const recipes = page.locator('a[href*="/recipes/"]:not([href*="/create"])');
+    const recipes = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])');
 
     // Navigate to first recipe
     await recipes.nth(0).click();
@@ -145,7 +146,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
     await expect(page).toHaveURL(/\/recipes/);
 
     // Navigate to second recipe
-    const recipesAfterBack = page.locator('a[href*="/recipes/"]:not([href*="/create"])');
+    const recipesAfterBack = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])');
     await recipesAfterBack.nth(1).click();
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
@@ -163,24 +164,26 @@ test.describe('Recipe Ingredient Checkboxes', () => {
     await page.setViewportSize({ width: 375, height: 667 });
 
     await page.goto(`${BASE_URL}/recipes`);
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     await expect(page).toHaveURL(/\/recipes\/\d+/);
 
+    // Get first ingredient list item
+    const firstIngredient = page.locator('ul.space-y-3 > li').first();
+    const firstCheckbox = firstIngredient.locator('input[type="checkbox"]');
+    const textContainer = firstIngredient.locator('.flex-1');
+
     // Verify checkboxes are still clickable on mobile
-    const firstCheckbox = page.locator('input[type="checkbox"]').first();
     await firstCheckbox.check();
     await expect(firstCheckbox).toBeChecked();
-
-    const textContainer = page.locator('.flex-1').first();
     await expect(textContainer).toHaveClass(/line-through/);
   });
 
   // T022: Checkboxes are keyboard accessible (Tab + Space)
   test('checkboxes are keyboard accessible', async ({ page }) => {
     await page.goto(`${BASE_URL}/recipes`);
-    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"])').first();
+    const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
     await firstRecipe.click();
 
     await expect(page).toHaveURL(/\/recipes\/\d+/);

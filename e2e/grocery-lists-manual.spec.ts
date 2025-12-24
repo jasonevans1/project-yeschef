@@ -25,8 +25,8 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.fill('input[name="password"]', 'password');
     await page.click('button[type="submit"]');
 
-    // Wait for redirect to dashboard/home
-    await page.waitForURL(/\/(dashboard|home)?$/);
+    // Wait for redirect to dashboard
+    await page.waitForURL('/dashboard');
   });
 
   test('user can add, edit, delete manual items and verify preservation during regeneration', async ({ page }) => {
@@ -155,7 +155,9 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.waitForTimeout(1500);
 
     // Verify the quantity changed (should show "3 whole")
-    await expect(page.locator('text=/3.*whole/i')).toBeVisible();
+    // Search within the Paper Towels item context to avoid matching other items
+    const paperTowelsContainer = page.locator('text=Paper Towels').locator('..');
+    await expect(paperTowelsContainer.getByText('3 whole', { exact: true })).toBeVisible();
 
     // Optionally check for success message (it might be transient)
     // await expect(page.locator('text=Item updated successfully')).toBeVisible({ timeout: 10000 });
@@ -378,8 +380,8 @@ test.describe('Manual Grocery List Item Management', () => {
     // Verify form is visible
     await expect(page.locator('#itemName')).toBeVisible();
 
-    // Click cancel button
-    const cancelButton = page.locator('button:has-text("Cancel")');
+    // Click cancel button - use wire:click to be specific
+    const cancelButton = page.locator('button[wire\\:click="cancelItemForm"]');
     await cancelButton.click();
     await page.waitForTimeout(500);
 

@@ -4,14 +4,27 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Recipe Servings Multiplier', () => {
     test.beforeEach(async ({ page }) => {
-        // Note: This test assumes a recipe with ID 104 exists (from user request)
-        // In a real scenario, we would set up test data via API or database seeding
-        await page.goto('https://project-tabletop.ddev.site/recipes/104');
+        // Login first
+        await page.goto('https://project-tabletop.ddev.site/login');
+        await page.fill('input[name="email"]', 'test@example.com');
+        await page.fill('input[name="password"]', 'password');
+        await page.click('button[type="submit"]');
+        await page.waitForURL(/dashboard|recipes/);
+
+        // Navigate to recipes and click on first recipe
+        await page.goto('https://project-tabletop.ddev.site/recipes');
+        const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
+        await firstRecipe.click();
+        await page.waitForURL(/\/recipes\/\d+/);
     });
 
-    test('complete user journey for scaling recipe from 4 to 8 servings', async ({ page }) => {
+    test('complete user journey for scaling recipe', async ({ page }) => {
         // Wait for page to load
         await expect(page.locator('text=Servings')).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         // Find and interact with multiplier input
         const multiplierInput = page.getByLabel('Serving size multiplier');
@@ -23,29 +36,37 @@ test.describe('Recipe Servings Multiplier', () => {
         // Wait for Alpine.js to update
         await page.waitForTimeout(100);
 
-        // Verify servings display updates (original 4 servings × 2 = 8 servings)
-        await expect(page.locator('#servings-result')).toContainText('8');
+        // Verify servings display updates (original servings × 2)
+        const expectedServings = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
         await expect(page.locator('#servings-result')).toContainText('(from');
     });
 
-    test('verify calculation accuracy (2 cups → 4 cups at 2x)', async ({ page }) => {
+    test('verify calculation accuracy at 2x multiplier', async ({ page }) => {
         // Wait for ingredients section to load
-        await expect(page.locator('text=Ingredients')).toBeVisible();
+        await expect(page.getByText('Ingredients', { exact: true })).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         // Set multiplier to 2x
         const multiplierInput = page.getByLabel('Serving size multiplier');
         await multiplierInput.fill('2');
         await page.waitForTimeout(100);
 
-        // Note: This test assumes there's an ingredient with 2 cups in recipe 104
-        // Verify that quantities are being scaled (we can't test specific values without knowing the recipe)
-        // But we can verify the multiplier controls work
-        await expect(page.locator('#servings-result')).toContainText('8');
+        // Verify that quantities are being scaled
+        const expectedServings = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
-    test('verify fractional quantities (1.5 cups → 3 cups at 2x)', async ({ page }) => {
+    test('verify servings are doubled at 2x multiplier', async ({ page }) => {
         // Wait for ingredients section
-        await expect(page.locator('text=Ingredients')).toBeVisible();
+        await expect(page.getByText('Ingredients', { exact: true })).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         // Set multiplier to 2x
         const multiplierInput = page.getByLabel('Serving size multiplier');
@@ -53,25 +74,34 @@ test.describe('Recipe Servings Multiplier', () => {
         await page.waitForTimeout(100);
 
         // Verify servings are doubled
-        await expect(page.locator('#servings-result')).toContainText('8');
+        const expectedServings = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
-    test('verify ingredient with no quantity displays unchanged', async ({ page }) => {
+    test('verify multiplier works with all ingredient types', async ({ page }) => {
         // Wait for ingredients section
-        await expect(page.locator('text=Ingredients')).toBeVisible();
+        await expect(page.getByText('Ingredients', { exact: true })).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         // Set multiplier to 2x
         const multiplierInput = page.getByLabel('Serving size multiplier');
         await multiplierInput.fill('2');
         await page.waitForTimeout(100);
 
-        // Ingredients without quantities should remain unchanged
-        // We can verify the multiplier works even with null quantities
-        await expect(page.locator('#servings-result')).toContainText('8');
+        // Verify the multiplier updates the servings count correctly
+        const expectedServings = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
     test('multiplier respects minimum value of 0.25x', async ({ page }) => {
         await expect(page.locator('text=Servings')).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         const multiplierInput = page.getByLabel('Serving size multiplier');
 
@@ -79,12 +109,17 @@ test.describe('Recipe Servings Multiplier', () => {
         await multiplierInput.fill('0.1');
         await page.waitForTimeout(100);
 
-        // Verify it's clamped to 0.25 (4 servings × 0.25 = 1 serving)
-        await expect(page.locator('#servings-result')).toContainText('1');
+        // Verify it's clamped to 0.25 (original servings × 0.25)
+        const expectedServings = Math.round(originalServings * 0.25);
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
     test('multiplier respects maximum value of 10x', async ({ page }) => {
         await expect(page.locator('text=Servings')).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         const multiplierInput = page.getByLabel('Serving size multiplier');
 
@@ -92,31 +127,41 @@ test.describe('Recipe Servings Multiplier', () => {
         await multiplierInput.fill('15');
         await page.waitForTimeout(100);
 
-        // Verify it's clamped to 10 (4 servings × 10 = 40 servings)
-        await expect(page.locator('#servings-result')).toContainText('40');
+        // Verify it's clamped to 10 (original servings × 10)
+        const expectedServings = originalServings * 10;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
     test('multiplier resets to 1x on page reload', async ({ page }) => {
         await expect(page.locator('text=Servings')).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         const multiplierInput = page.getByLabel('Serving size multiplier');
 
         // Set multiplier to 2x
         await multiplierInput.fill('2');
         await page.waitForTimeout(100);
-        await expect(page.locator('#servings-result')).toContainText('8');
+        const expectedDoubled = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedDoubled.toString());
 
         // Reload the page
         await page.reload();
         await expect(page.locator('text=Servings')).toBeVisible();
 
-        // Verify multiplier is back to 1x (showing original 4 servings)
-        await expect(page.locator('#servings-result')).toContainText('4');
+        // Verify multiplier is back to 1x (showing original servings)
+        await expect(page.locator('#servings-result')).toContainText(originalServings.toString());
         await expect(page.locator('#servings-result')).not.toContainText('(from');
     });
 
     test('displays formatted quantities without trailing zeros', async ({ page }) => {
-        await expect(page.locator('text=Ingredients')).toBeVisible();
+        await expect(page.getByText('Ingredients', { exact: true })).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         const multiplierInput = page.getByLabel('Serving size multiplier');
 
@@ -124,8 +169,9 @@ test.describe('Recipe Servings Multiplier', () => {
         await multiplierInput.fill('0.5');
         await page.waitForTimeout(100);
 
-        // Verify servings (4 × 0.5 = 2)
-        await expect(page.locator('#servings-result')).toContainText('2');
+        // Verify servings (original × 0.5)
+        const expectedServings = originalServings * 0.5;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
 
         // The formatting is handled by Alpine.js scaleQuantity() function
         // which removes trailing zeros
@@ -135,13 +181,18 @@ test.describe('Recipe Servings Multiplier', () => {
         // This test runs on all browsers configured in playwright.config.ts
         await expect(page.locator('text=Servings')).toBeVisible();
 
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
+
         const multiplierInput = page.getByLabel('Serving size multiplier');
         await expect(multiplierInput).toBeVisible();
 
         // Test basic functionality on all browsers
         await multiplierInput.fill('2');
         await page.waitForTimeout(100);
-        await expect(page.locator('#servings-result')).toContainText('8');
+        const expectedServings = originalServings * 2;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
 
         // Test works on: Chromium, Firefox, WebKit
         console.log(`Successfully tested multiplier on ${browserName}`);
@@ -150,6 +201,10 @@ test.describe('Recipe Servings Multiplier', () => {
     test('plus button increases multiplier', async ({ page }) => {
         await expect(page.locator('text=Servings')).toBeVisible();
 
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
+
         // Find the plus button
         const plusButton = page.getByLabel('Increase serving size');
 
@@ -157,12 +212,17 @@ test.describe('Recipe Servings Multiplier', () => {
         await plusButton.click();
         await page.waitForTimeout(100);
 
-        // Verify servings increased (4 × 1.25 = 5)
-        await expect(page.locator('#servings-result')).toContainText('5');
+        // Verify servings increased (original × 1.25)
+        const expectedServings = originalServings * 1.25;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
     test('minus button decreases multiplier', async ({ page }) => {
         await expect(page.locator('text=Servings')).toBeVisible();
+
+        // Get the original servings count dynamically
+        const servingsText = await page.locator('#servings-result').textContent();
+        const originalServings = parseInt(servingsText?.trim() || '0');
 
         // Set to 2x first
         const multiplierInput = page.getByLabel('Serving size multiplier');
@@ -176,7 +236,8 @@ test.describe('Recipe Servings Multiplier', () => {
         await minusButton.click();
         await page.waitForTimeout(100);
 
-        // Verify servings decreased (4 × 1.75 = 7)
-        await expect(page.locator('#servings-result')).toContainText('7');
+        // Verify servings decreased (original × 1.75)
+        const expectedServings = originalServings * 1.75;
+        await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 });

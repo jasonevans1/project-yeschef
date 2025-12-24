@@ -26,8 +26,8 @@ test.describe('Standalone Grocery List Management', () => {
     await page.fill('input[name="password"]', 'password');
     await page.click('button[type="submit"]');
 
-    // Wait for redirect to dashboard/home
-    await page.waitForURL(/\/(dashboard|home)?$/);
+    // Wait for redirect to dashboard
+    await page.waitForURL('/dashboard');
   });
 
   test('user can create and manage standalone grocery list', async ({ page }) => {
@@ -37,8 +37,8 @@ test.describe('Standalone Grocery List Management', () => {
     await page.goto('/grocery-lists');
     await page.waitForLoadState('networkidle');
 
-    // Verify we're on the grocery lists index page
-    await expect(page.locator('text=Grocery Lists')).toBeVisible();
+    // Verify we're on the grocery lists index page (Flux headings render as divs)
+    await expect(page.locator('[data-flux-heading]:has-text("Grocery Lists")').first()).toBeVisible();
 
     // Step 2: Click "Create Standalone List" button
     const createStandaloneButton = page.locator('button:has-text("Create Standalone List")').or(
@@ -67,7 +67,8 @@ test.describe('Standalone Grocery List Management', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 4: Verify we're on the show page with the correct name
-    await expect(page.locator(`text=${listName}`)).toBeVisible();
+    // Use data-flux-heading to avoid matching the delete modal text
+    await expect(page.locator(`[data-flux-heading]:has-text("${listName}")`).first()).toBeVisible();
 
     // Step 5: Verify "Standalone List" indicator is shown (not linked to meal plan)
     await expect(page.locator('text=Standalone List')).toBeVisible();
@@ -146,9 +147,8 @@ test.describe('Standalone Grocery List Management', () => {
     await page.waitForURL(/\/grocery-lists$/);
     await page.waitForLoadState('networkidle');
 
-    // Verify the list appears in the "Standalone Lists" section
-    await expect(page.locator('text=Standalone Lists')).toBeVisible();
-    await expect(page.locator(`text=${listName}`)).toBeVisible();
+    // Verify the list appears on the index page (all lists are shown together, not in separate sections)
+    await expect(page.locator(`[data-flux-heading]:has-text("${listName}")`).first()).toBeVisible();
 
     // Verify the completion percentage is shown (67%)
     const listRow = page.locator(`text=${listName}`).locator('xpath=ancestor::div[contains(@class, "p-4")]');
@@ -183,7 +183,8 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Should redirect to the list show page
     await page.waitForURL(/\/grocery-lists\/\d+/);
-    await expect(page.locator('text=Valid List Name')).toBeVisible();
+    // Flux headings render as divs, so use data-flux-heading
+    await expect(page.locator('[data-flux-heading]:has-text("Valid List Name")').first()).toBeVisible();
   });
 
   test('cancel button returns to grocery lists index', async ({ page }) => {
@@ -203,7 +204,7 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Should return to grocery lists index
     await page.waitForURL(/\/grocery-lists$/);
-    await expect(page.locator('text=Grocery Lists')).toBeVisible();
+    await expect(page.locator('[data-flux-heading]:has-text("Grocery Lists")').first()).toBeVisible();
   });
 
   test('standalone list shows all items organized by category', async ({ page }) => {
