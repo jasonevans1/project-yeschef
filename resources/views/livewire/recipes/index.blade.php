@@ -32,13 +32,24 @@
         </div>
     @else
         <div class="mb-6 space-y-4">
-            {{-- Search Input --}}
-            <flux:input
-                wire:model.live.debounce.300ms="search"
-                type="search"
-                placeholder="Search recipes by name or description..."
-                class="w-full"
-            />
+            {{-- Search and Sort --}}
+            <div class="flex flex-col sm:flex-row gap-3">
+                <flux:input
+                    wire:model.live.debounce.300ms="search"
+                    type="search"
+                    placeholder="Search recipes by name or description..."
+                    class="flex-1"
+                />
+
+                <flux:field class="w-full sm:w-48">
+                    <flux:select wire:model.live="sortBy" id="sortBy" name="sortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                    </flux:select>
+                </flux:field>
+            </div>
 
             {{-- Filters --}}
             <div class="flex flex-wrap gap-4">

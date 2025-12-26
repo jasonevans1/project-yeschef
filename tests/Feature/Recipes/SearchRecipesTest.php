@@ -221,3 +221,142 @@ test('search is case insensitive', function () {
     $response3->assertStatus(200);
     $response3->assertSee('Chicken Parmesan');
 });
+
+test('recipes are sorted by newest first by default', function () {
+    $user = User::factory()->create();
+
+    $oldRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Old Recipe',
+        'created_at' => now()->subDays(5),
+    ]);
+
+    $newRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'New Recipe',
+        'created_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index'));
+
+    $response->assertStatus(200);
+    $content = $response->getContent();
+    $newPos = strpos($content, 'New Recipe');
+    $oldPos = strpos($content, 'Old Recipe');
+    expect($newPos)->toBeLessThan($oldPos);
+});
+
+test('recipes can be sorted by oldest first', function () {
+    $user = User::factory()->create();
+
+    // Create recipes with distinct timestamps to ensure proper ordering
+    $oldRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Very Old Recipe 12345',
+        'created_at' => now()->subDays(10),
+    ]);
+
+    $newRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Brand New Recipe 67890',
+        'created_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index', ['sortBy' => 'oldest']));
+
+    $response->assertStatus(200);
+    $response->assertSeeInOrder(['Very Old Recipe 12345', 'Brand New Recipe 67890']);
+});
+
+test('recipes can be sorted by name ascending', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Zebra Cake',
+    ]);
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Apple Pie',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index', ['sortBy' => 'name_asc']));
+
+    $response->assertStatus(200);
+    $content = $response->getContent();
+    $applePos = strpos($content, 'Apple Pie');
+    $zebraPos = strpos($content, 'Zebra Cake');
+    expect($applePos)->toBeLessThan($zebraPos);
+});
+
+test('recipes can be sorted by name descending', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Zebra Cake',
+    ]);
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Apple Pie',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index', ['sortBy' => 'name_desc']));
+
+    $response->assertStatus(200);
+    $content = $response->getContent();
+    $zebraPos = strpos($content, 'Zebra Cake');
+    $applePos = strpos($content, 'Apple Pie');
+    expect($zebraPos)->toBeLessThan($applePos);
+});
+
+test('sort persists in url', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create(['user_id' => null]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\Recipes\Index::class, ['sortBy' => 'name_asc'])
+        ->assertSet('sortBy', 'name_asc')
+        ->assertStatus(200);
+});
+
+test('changing sort resets pagination', function () {
+    $user = User::factory()->create();
+
+    // Create enough recipes to span multiple pages (24 per page)
+    Recipe::factory()->count(30)->create(['user_id' => null]);
+
+    // Simulate changing sort - the updatedSortBy method should reset page
+    Livewire::actingAs($user)
+        ->withQueryParams(['page' => 2])
+        ->test(\App\Livewire\Recipes\Index::class)
+        ->set('sortBy', 'name_asc')
+        ->assertStatus(200);
+});
+
+test('invalid sort value defaults to newest', function () {
+    $user = User::factory()->create();
+
+    $oldRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'Old Recipe',
+        'created_at' => now()->subDays(5),
+    ]);
+
+    $newRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'New Recipe',
+        'created_at' => now(),
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index', ['sortBy' => 'invalid']));
+
+    $response->assertStatus(200);
+    $content = $response->getContent();
+    $newPos = strpos($content, 'New Recipe');
+    $oldPos = strpos($content, 'Old Recipe');
+    expect($newPos)->toBeLessThan($oldPos);
+});

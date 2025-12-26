@@ -21,6 +21,9 @@ class Index extends Component
     #[Url]
     public array $dietaryTags = [];
 
+    #[Url]
+    public string $sortBy = 'newest';
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -32,6 +35,11 @@ class Index extends Component
     }
 
     public function updatedDietaryTags(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSortBy(): void
     {
         $this->resetPage();
     }
@@ -79,7 +87,15 @@ class Index extends Component
             }
         }
 
-        $recipes = $query->latest()->paginate(24);
+        // Apply sorting
+        $query = match ($this->sortBy) {
+            'oldest' => $query->orderBy('created_at', 'asc'),
+            'name_asc' => $query->orderBy('name', 'asc'),
+            'name_desc' => $query->orderBy('name', 'desc'),
+            default => $query->latest(), // 'newest' or invalid values
+        };
+
+        $recipes = $query->paginate(24);
 
         return view('livewire.recipes.index', [
             'recipes' => $recipes,
