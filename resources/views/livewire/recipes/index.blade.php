@@ -12,7 +12,7 @@
     </div>
 
     @php
-        $hasFilters = !empty($search) || !empty($mealTypes) || !empty($dietaryTags);
+        $hasFilters = !empty($search) || !empty($mealTypes) || !empty($dietaryTags) || $myRecipesOnly;
         $totalRecipes = $recipes->total();
     @endphp
 
@@ -72,6 +72,14 @@
                         <flux:checkbox wire:model.live="dietaryTags" value="vegan" label="Vegan" />
                         <flux:checkbox wire:model.live="dietaryTags" value="gluten-free" label="Gluten-Free" />
                         <flux:checkbox wire:model.live="dietaryTags" value="dairy-free" label="Dairy-Free" />
+                    </div>
+                </div>
+
+                {{-- Recipe Source Filter --}}
+                <div class="flex-1 min-w-[250px]">
+                    <flux:label>Recipe Source</flux:label>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <flux:checkbox wire:model.live="myRecipesOnly" label="My Recipes Only" />
                     </div>
                 </div>
             </div>

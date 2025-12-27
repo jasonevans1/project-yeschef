@@ -24,6 +24,9 @@ class Index extends Component
     #[Url]
     public string $sortBy = 'newest';
 
+    #[Url]
+    public bool $myRecipesOnly = false;
+
     public function updatedSearch(): void
     {
         $this->resetPage();
@@ -44,15 +47,27 @@ class Index extends Component
         $this->resetPage();
     }
 
+    public function updatedMyRecipesOnly(): void
+    {
+        $this->resetPage();
+    }
+
     public function render(): View
     {
         $query = Recipe::query()
-            ->with(['recipeIngredients.ingredient'])
-            ->where(function ($q) {
-                // Show system recipes and user's own recipes
+            ->with(['recipeIngredients.ingredient']);
+
+        // Filter by ownership
+        if ($this->myRecipesOnly) {
+            // Show only user's own recipes
+            $query->where('user_id', auth()->id());
+        } else {
+            // Show system recipes and user's own recipes (default behavior)
+            $query->where(function ($q) {
                 $q->whereNull('user_id')
                     ->orWhere('user_id', auth()->id());
             });
+        }
 
         // Full-text search on name, description, and ingredients (fallback to LIKE for SQLite)
         if ($this->search) {

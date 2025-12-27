@@ -360,3 +360,148 @@ test('invalid sort value defaults to newest', function () {
     $oldPos = strpos($content, 'Old Recipe');
     expect($newPos)->toBeLessThan($oldPos);
 });
+
+test('user can filter to show only their own recipes', function () {
+    $user = User::factory()->create();
+
+    // Create a system recipe
+    $systemRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'System Pancakes',
+    ]);
+
+    // Create user's own recipe
+    $userRecipe = Recipe::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'My Special Pancakes',
+    ]);
+
+    // Create another user's recipe (should never show)
+    $otherUserRecipe = Recipe::factory()->create([
+        'user_id' => User::factory()->create()->id,
+        'name' => 'Other User Pancakes',
+    ]);
+
+    // With filter enabled, should only see user's recipe
+    $response = $this->actingAs($user)->get(route('recipes.index', ['myRecipesOnly' => true]));
+
+    $response->assertStatus(200);
+    $response->assertSee('My Special Pancakes');
+    $response->assertDontSee('System Pancakes');
+    $response->assertDontSee('Other User Pancakes');
+});
+
+test('default view shows both system and user recipes', function () {
+    $user = User::factory()->create();
+
+    $systemRecipe = Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'System Spaghetti',
+    ]);
+
+    $userRecipe = Recipe::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'My Spaghetti',
+    ]);
+
+    // Default (myRecipesOnly = false), should see both
+    $response = $this->actingAs($user)->get(route('recipes.index'));
+
+    $response->assertStatus(200);
+    $response->assertSee('System Spaghetti');
+    $response->assertSee('My Spaghetti');
+});
+
+test('my recipes filter persists in url', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->test(\App\Livewire\Recipes\Index::class, ['myRecipesOnly' => true])
+        ->assertSet('myRecipesOnly', true)
+        ->assertStatus(200);
+});
+
+test('changing my recipes filter resets pagination', function () {
+    $user = User::factory()->create();
+
+    // Create many user recipes to span multiple pages
+    Recipe::factory()->count(30)->create(['user_id' => $user->id]);
+
+    Livewire::actingAs($user)
+        ->withQueryParams(['page' => 2])
+        ->test(\App\Livewire\Recipes\Index::class)
+        ->set('myRecipesOnly', true)
+        ->assertStatus(200);
+});
+
+test('my recipes filter works with search', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'System Chicken Soup',
+    ]);
+
+    Recipe::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'My Chicken Curry',
+    ]);
+
+    // Search for "Chicken" with myRecipesOnly filter
+    $response = $this->actingAs($user)->get(route('recipes.index', [
+        'search' => 'Chicken',
+        'myRecipesOnly' => true,
+    ]));
+
+    $response->assertStatus(200);
+    $response->assertSee('My Chicken Curry');
+    $response->assertDontSee('System Chicken Soup');
+});
+
+test('my recipes filter works with meal type filter', function () {
+    $user = User::factory()->create();
+
+    Recipe::factory()->create([
+        'user_id' => null,
+        'name' => 'System Breakfast',
+        'meal_type' => 'breakfast',
+    ]);
+
+    Recipe::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'My Breakfast',
+        'meal_type' => 'breakfast',
+    ]);
+
+    Recipe::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'My Dinner',
+        'meal_type' => 'dinner',
+    ]);
+
+    // Breakfast + myRecipesOnly
+    $response = $this->actingAs($user)->get(route('recipes.index', [
+        'mealTypes' => ['breakfast'],
+        'myRecipesOnly' => true,
+    ]));
+
+    $response->assertStatus(200);
+    $response->assertSee('My Breakfast');
+    $response->assertDontSee('System Breakfast');
+    $response->assertDontSee('My Dinner');
+});
+
+test('user with no personal recipes sees empty state when filter enabled', function () {
+    $user = User::factory()->create();
+
+    // Only create system recipes
+    Recipe::factory()->count(3)->create(['user_id' => null]);
+
+    $response = $this->actingAs($user)->get(route('recipes.index', ['myRecipesOnly' => true]));
+
+    $response->assertStatus(200);
+    // Should show the "no recipes match filters" empty state, not "no recipes exist"
+    // The response should not show any recipe cards
+});
