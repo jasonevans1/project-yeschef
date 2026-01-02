@@ -74,6 +74,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's item templates (personal autocomplete history)
+     */
+    public function itemTemplates(): HasMany
+    {
+        return $this->hasMany(UserItemTemplate::class);
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string
