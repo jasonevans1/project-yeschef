@@ -81,7 +81,7 @@ test('user can edit generated item (tracks original_values in JSON)', function (
     // Verify original values were stored
     expect($item->original_values)->not->toBeNull();
     expect($item->original_values['name'])->toBe('Generated Item');
-    expect($item->original_values['quantity'])->toBe('3.000');
+    expect((float) $item->original_values['quantity'])->toBe(3.0);
     expect($item->original_values['unit'])->toBe(MeasurementUnit::CUP->value);
     expect($item->original_values['category'])->toBe(IngredientCategory::PRODUCE->value);
 });

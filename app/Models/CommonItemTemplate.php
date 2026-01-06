@@ -22,7 +22,7 @@ class CommonItemTemplate extends Model
         return [
             'category' => IngredientCategory::class,
             'unit' => MeasurementUnit::class,
-            'default_quantity' => 'decimal:3',
+            'default_quantity' => 'float',
             'usage_count' => 'integer',
         ];
     }

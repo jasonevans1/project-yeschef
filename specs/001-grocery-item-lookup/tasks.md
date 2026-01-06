@@ -71,27 +71,27 @@ Laravel 12 monolith structure:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Write Pest test for autocomplete query returning common templates in tests/Feature/GroceryLists/AutocompleteItemTest.php
-- [ ] T016 [P] [US1] Write Pest test for partial name matching ("banan" → "banana") in tests/Feature/GroceryLists/AutocompleteItemTest.php
-- [ ] T017 [P] [US1] Write Pest test for category auto-population on selection in tests/Feature/GroceryLists/AutocompleteItemTest.php
-- [ ] T018 [P] [US1] Write Pest test for user can override suggested values in tests/Feature/GroceryLists/AutocompleteItemTest.php
-- [ ] T019 [P] [US1] Write Playwright E2E test for typing triggers dropdown in e2e/grocery-lists/autocomplete-item.spec.ts
-- [ ] T020 [P] [US1] Write Playwright E2E test for selecting suggestion populates fields in e2e/grocery-lists/autocomplete-item.spec.ts
-- [ ] T021 [P] [US1] Write Playwright E2E test for keyboard navigation (arrows, enter, escape) in e2e/grocery-lists/autocomplete-item.spec.ts
+- [X] T015 [P] [US1] Write Pest test for autocomplete query returning common templates in tests/Feature/GroceryLists/AutocompleteItemTest.php
+- [X] T016 [P] [US1] Write Pest test for partial name matching ("banan" → "banana") in tests/Feature/GroceryLists/AutocompleteItemTest.php
+- [X] T017 [P] [US1] Write Pest test for category auto-population on selection in tests/Feature/GroceryLists/AutocompleteItemTest.php
+- [X] T018 [P] [US1] Write Pest test for user can override suggested values in tests/Feature/GroceryLists/AutocompleteItemTest.php
+- [X] T019 [P] [US1] Write Playwright E2E test for typing triggers dropdown in e2e/grocery-lists/autocomplete-item.spec.ts
+- [X] T020 [P] [US1] Write Playwright E2E test for selecting suggestion populates fields in e2e/grocery-lists/autocomplete-item.spec.ts
+- [X] T021 [P] [US1] Write Playwright E2E test for keyboard navigation (arrows, enter, escape) in e2e/grocery-lists/autocomplete-item.spec.ts
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Add searchQuery and suggestions properties to GroceryLists\Show component in app/Livewire/GroceryLists/Show.php
-- [ ] T023 [US1] Implement #[Computed] suggestions() method using ItemAutoCompleteService in app/Livewire/GroceryLists/Show.php
-- [ ] T024 [US1] Implement selectGroceryItem(array $item) method in app/Livewire/GroceryLists/Show.php
-- [ ] T025 [US1] Add autocomplete input with wire:model.live.debounce.300ms in resources/views/livewire/grocery-lists/show.blade.php
-- [ ] T026 [US1] Add Alpine.js groceryAutocomplete() state management script in resources/views/livewire/grocery-lists/show.blade.php
-- [ ] T027 [US1] Implement dropdown suggestions list with ARIA attributes in resources/views/livewire/grocery-lists/show.blade.php
-- [ ] T028 [US1] Add keyboard navigation handlers (@keydown.arrow-down, @keydown.arrow-up, @keydown.enter, @keydown.escape) in resources/views/livewire/grocery-lists/show.blade.php
-- [ ] T029 [US1] Style autocomplete dropdown with Tailwind CSS (mobile-responsive, 44px touch targets) in resources/views/livewire/grocery-lists/show.blade.php
-- [ ] T030 [US1] Run Pest tests for US1 and verify all pass
-- [ ] T031 [US1] Run Playwright E2E tests for US1 and verify all pass
-- [ ] T032 [US1] Run vendor/bin/pint to format code
+- [X] T022 [US1] Add searchQuery and suggestions properties to GroceryLists\Show component in app/Livewire/GroceryLists/Show.php
+- [X] T023 [US1] Implement #[Computed] suggestions() method using ItemAutoCompleteService in app/Livewire/GroceryLists/Show.php
+- [X] T024 [US1] Implement selectGroceryItem(array $item) method in app/Livewire/GroceryLists/Show.php
+- [X] T025 [US1] Add autocomplete input with wire:model.live.debounce.300ms in resources/views/livewire/grocery-lists/show.blade.php
+- [X] T026 [US1] Add Alpine.js groceryAutocomplete() state management script in resources/views/livewire/grocery-lists/show.blade.php
+- [X] T027 [US1] Implement dropdown suggestions list with ARIA attributes in resources/views/livewire/grocery-lists/show.blade.php
+- [X] T028 [US1] Add keyboard navigation handlers (@keydown.arrow-down, @keydown.arrow-up, @keydown.enter, @keydown.escape) in resources/views/livewire/grocery-lists/show.blade.php
+- [X] T029 [US1] Style autocomplete dropdown with Tailwind CSS (mobile-responsive, 44px touch targets) in resources/views/livewire/grocery-lists/show.blade.php
+- [X] T030 [US1] Run Pest tests for US1 and verify all pass
+- [X] T031 [US1] Run Playwright E2E tests for US1 and verify all pass
+- [X] T032 [US1] Run vendor/bin/pint to format code
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - new users can use autocomplete with common defaults
 

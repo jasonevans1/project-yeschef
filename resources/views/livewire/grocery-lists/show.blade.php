@@ -144,15 +144,71 @@
             <flux:heading size="lg" class="mb-4">Add New Item</flux:heading>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div class="md:col-span-2">
+                <div class="md:col-span-2" x-data="groceryAutocomplete()">
                     <label for="itemName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Name *</label>
-                    <input
-                        type="text"
-                        id="itemName"
-                        wire:model.live="itemName"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="e.g., Milk, Bread, Chicken"
-                    />
+                    <div class="relative">
+                        <input
+                            type="text"
+                            id="searchQuery"
+                            wire:model.live.debounce.300ms="searchQuery"
+                            @focus="isOpen = true"
+                            @blur="setTimeout(() => isOpen = false, 150)"
+                            @keydown.arrow-down.prevent="selectNext()"
+                            @keydown.arrow-up.prevent="selectPrevious()"
+                            @keydown.enter.prevent="selectCurrent()"
+                            @keydown.escape="closeDropdown()"
+                            role="combobox"
+                            aria-autocomplete="list"
+                            aria-controls="suggestions-list"
+                            :aria-expanded="isOpen && $wire.suggestions.length > 0"
+                            :aria-activedescendant="activeIndex !== null ? `suggestion-${activeIndex}` : ''"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Start typing to search (e.g., Milk, Bread, Chicken)"
+                        />
+
+                        {{-- Autocomplete Dropdown --}}
+                        <div
+                            x-show="isOpen && $wire.suggestions.length > 0"
+                            x-cloak
+                            id="suggestions-list"
+                            role="listbox"
+                            aria-label="Available grocery items"
+                            class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+                        >
+                            <template x-for="(item, index) in $wire.suggestions" :key="item.id">
+                                <div
+                                    :id="`suggestion-${index}`"
+                                    @click="selectItem(item)"
+                                    @mouseenter="activeIndex = index"
+                                    role="option"
+                                    :aria-selected="activeIndex === index"
+                                    :class="activeIndex === index ? 'bg-blue-100 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'"
+                                    class="px-4 py-3 cursor-pointer transition-colors touch-manipulation min-h-[44px] flex items-center justify-between"
+                                >
+                                    <div class="flex-1">
+                                        <div class="font-medium text-gray-900 dark:text-white" x-text="item.name"></div>
+                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                            <span x-text="item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : ''"></span>
+                                            <span x-show="item.default_quantity && item.unit"> • </span>
+                                            <span x-show="item.default_quantity && item.unit">
+                                                <span x-text="item.default_quantity"></span>
+                                                <span x-text="item.unit ? ' ' + item.unit.replace('_', ' ') : ''"></span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div x-show="item.is_user_template" class="ml-2">
+                                        <span class="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded">
+                                            Personal
+                                        </span>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Hidden input for actual itemName value --}}
+                    <input type="hidden" wire:model="itemName" />
+
                     @error('itemName') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
 
@@ -296,3 +352,58 @@
         </div>
     </flux:modal>
 </div>
+
+{{-- Alpine.js Autocomplete Script --}}
+<script>
+function groceryAutocomplete() {
+    return {
+        isOpen: false,
+        activeIndex: null,
+
+        selectNext() {
+            if (!this.$wire.suggestions || this.$wire.suggestions.length === 0) return;
+
+            this.activeIndex = (this.activeIndex ?? -1) + 1;
+            if (this.activeIndex >= this.$wire.suggestions.length) {
+                this.activeIndex = 0;
+            }
+            this.scrollIntoView();
+        },
+
+        selectPrevious() {
+            if (!this.$wire.suggestions || this.$wire.suggestions.length === 0) return;
+
+            this.activeIndex = (this.activeIndex ?? 0) - 1;
+            if (this.activeIndex < 0) {
+                this.activeIndex = this.$wire.suggestions.length - 1;
+            }
+            this.scrollIntoView();
+        },
+
+        selectCurrent() {
+            if (this.activeIndex !== null && this.$wire.suggestions[this.activeIndex]) {
+                this.selectItem(this.$wire.suggestions[this.activeIndex]);
+            }
+        },
+
+        selectItem(item) {
+            this.$wire.selectGroceryItem(item);
+            this.closeDropdown();
+        },
+
+        closeDropdown() {
+            this.isOpen = false;
+            this.activeIndex = null;
+        },
+
+        scrollIntoView() {
+            this.$nextTick(() => {
+                const active = document.getElementById(`suggestion-${this.activeIndex}`);
+                if (active) {
+                    active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            });
+        }
+    };
+}
+</script>

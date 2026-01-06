@@ -7,6 +7,7 @@ use App\Enums\MeasurementUnit;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Services\GroceryListGenerator;
+use App\Services\ItemAutoCompleteService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -33,6 +34,11 @@ class Show extends Component
     public ?string $itemCategory = null;
 
     public string $itemNotes = '';
+
+    // Properties for autocomplete (US1)
+    public string $searchQuery = '';
+
+    public array $suggestions = [];
 
     // Properties for regeneration confirmation (US4 - T090)
     public bool $showRegenerateConfirm = false;
@@ -475,7 +481,41 @@ class Show extends Component
         $this->itemUnit = null;
         $this->itemCategory = null;
         $this->itemNotes = '';
+        $this->searchQuery = '';
         $this->resetValidation();
+    }
+
+    /**
+     * Update suggestions when search query changes (US1)
+     */
+    public function updatedSearchQuery()
+    {
+        if (empty(trim($this->searchQuery))) {
+            $this->suggestions = [];
+
+            return;
+        }
+
+        $service = app(ItemAutoCompleteService::class);
+        $results = $service->query(auth()->id(), $this->searchQuery, 10);
+
+        $this->suggestions = $results->map(function ($template) use ($service) {
+            return $service->formatSuggestion($template);
+        })->toArray();
+    }
+
+    /**
+     * Select an item from autocomplete suggestions and populate form fields (US1)
+     */
+    public function selectGroceryItem(array $item): void
+    {
+        $this->itemName = $item['name'];
+        $this->itemCategory = $item['category'];
+        $this->itemUnit = $item['unit'];
+        $this->itemQuantity = $item['default_quantity'] ? (string) $item['default_quantity'] : null;
+
+        // Clear search query after selection
+        $this->searchQuery = '';
     }
 
     /**

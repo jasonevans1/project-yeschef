@@ -29,7 +29,7 @@ class GroceryItem extends Model
     ];
 
     protected $casts = [
-        'quantity' => 'decimal:3',
+        'quantity' => 'float',
         'unit' => MeasurementUnit::class,
         'category' => IngredientCategory::class,
         'source_type' => SourceType::class,

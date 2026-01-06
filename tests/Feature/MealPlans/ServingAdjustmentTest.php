@@ -199,5 +199,5 @@ it('uses serving_multiplier in grocery list generation via ServingSizeScaler ser
     // Check that quantity was scaled: 2 lbs * 1.5 = 3 lbs
     $item = $groceryList->groceryItems->first();
     expect($item->name)->toBe('Chicken breast');
-    expect($item->quantity)->toBe('3.000');
+    expect($item->quantity)->toBe(3.0);
 });
