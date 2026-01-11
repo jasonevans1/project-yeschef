@@ -781,6 +781,7 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - RecipeIngredient model with decimal(8,3) quantity field, MeasurementUnit enum (007-format-ingredient-quantities)
 - PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Alpine.js (included with Livewire), Tailwind CSS 4.x (009-recipe-servings-multiplier)
 - N/A (client-side state only, no database changes) (009-recipe-servings-multiplier)
+- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux 2.10, Tailwind CSS 4.x (010-meal-plan-notes)
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x

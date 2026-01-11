@@ -1,0 +1,193 @@
+# Meal Plan Notes - API Contracts
+# Feature Branch: 010-meal-plan-notes
+# Date: 2026-01-11
+#
+# Note: This application uses Livewire components, not REST APIs.
+# These contracts document the Livewire wire:click actions and their behavior.
+
+livewire_component:
+  name: MealPlans\Show
+  namespace: App\Livewire\MealPlans\Show
+
+  # ============================================================
+  # EXISTING PROPERTIES (unchanged)
+  # ============================================================
+  existing_properties:
+    - mealPlan: MealPlan
+    - selectedDate: ?string
+    - selectedMealType: ?string
+    - showRecipeSelector: bool
+    - recipeSearch: string
+    - servingMultiplier: float
+    - selectedAssignmentId: ?int
+    - showRecipeDrawer: bool
+
+  # ============================================================
+  # NEW PROPERTIES (for notes feature)
+  # ============================================================
+  new_properties:
+    - name: showNoteForm
+      type: bool
+      default: false
+      description: Controls visibility of add/edit note modal
+
+    - name: noteTitle
+      type: string
+      default: ""
+      validation: "required|string|max:255"
+      description: Title field for note form
+
+    - name: noteDetails
+      type: string
+      default: ""
+      validation: "nullable|string|max:2000"
+      description: Details field for note form
+
+    - name: editingNoteId
+      type: "?int"
+      default: null
+      description: ID of note being edited (null for new note)
+
+    - name: showNoteDrawer
+      type: bool
+      default: false
+      description: Controls visibility of note detail drawer
+
+    - name: selectedNoteId
+      type: "?int"
+      default: null
+      description: ID of note being viewed in drawer
+
+  # ============================================================
+  # NEW ACTIONS (for notes feature)
+  # ============================================================
+  actions:
+    # ----- Open Add Note Form -----
+    - name: openNoteForm
+      parameters:
+        - name: date
+          type: string
+          format: "Y-m-d"
+        - name: mealType
+          type: string
+          enum: [breakfast, lunch, dinner, snack]
+      behavior:
+        - Sets selectedDate to provided date
+        - Sets selectedMealType to provided mealType
+        - Clears noteTitle and noteDetails
+        - Sets editingNoteId to null
+        - Sets showNoteForm to true
+      authorization: Can update meal plan
+
+    # ----- Open Edit Note Form -----
+    - name: editNote
+      parameters:
+        - name: note
+          type: MealPlanNote
+          description: Route model binding
+      behavior:
+        - Sets selectedDate to note.date
+        - Sets selectedMealType to note.meal_type
+        - Sets noteTitle to note.title
+        - Sets noteDetails to note.details
+        - Sets editingNoteId to note.id
+        - Sets showNoteForm to true
+      authorization: Can update meal plan
+
+    # ----- Close Note Form -----
+    - name: closeNoteForm
+      parameters: []
+      behavior:
+        - Sets showNoteForm to false
+        - Clears selectedDate, selectedMealType
+        - Clears noteTitle, noteDetails
+        - Sets editingNoteId to null
+      authorization: None (UI only)
+
+    # ----- Save Note -----
+    - name: saveNote
+      parameters: []
+      behavior:
+        - Validates noteTitle (required, max 255)
+        - Validates noteDetails (nullable, max 2000)
+        - If editingNoteId is set, updates existing note
+        - If editingNoteId is null, creates new note with:
+          - meal_plan_id from $this->mealPlan->id
+          - date from selectedDate
+          - meal_type from selectedMealType
+          - title from noteTitle
+          - details from noteDetails
+        - Flashes success message
+        - Calls closeNoteForm()
+        - Refreshes mealPlan
+      authorization: Can update meal plan
+      validation_errors:
+        noteTitle:
+          - "required": "The title field is required."
+          - "max": "The title must not exceed 255 characters."
+        noteDetails:
+          - "max": "The details must not exceed 2000 characters."
+
+    # ----- Delete Note -----
+    - name: deleteNote
+      parameters:
+        - name: note
+          type: MealPlanNote
+          description: Route model binding
+      behavior:
+        - Authorizes update on meal plan
+        - Deletes the note
+        - Flashes success message
+        - Refreshes mealPlan
+        - If showNoteDrawer is true and selectedNoteId matches, closes drawer
+      authorization: Can update meal plan
+      confirmation: "Remove this note from the meal slot?"
+
+    # ----- Open Note Drawer -----
+    - name: openNoteDrawer
+      parameters:
+        - name: note
+          type: MealPlanNote
+          description: Route model binding
+      behavior:
+        - Sets selectedNoteId to note.id
+        - Sets showNoteDrawer to true
+      authorization: Can view meal plan
+
+    # ----- Close Note Drawer -----
+    - name: closeNoteDrawer
+      parameters: []
+      behavior:
+        - Sets showNoteDrawer to false
+        - Sets selectedNoteId to null
+      authorization: None (UI only)
+
+  # ============================================================
+  # NEW COMPUTED PROPERTIES
+  # ============================================================
+  computed_properties:
+    - name: selectedNote
+      type: "?MealPlanNote"
+      description: Returns the note being viewed in the drawer
+      implementation: |
+        if (! $this->selectedNoteId) {
+            return null;
+        }
+        return MealPlanNote::find($this->selectedNoteId);
+
+  # ============================================================
+  # MODIFIED RENDER METHOD
+  # ============================================================
+  render_changes:
+    description: |
+      The render() method needs to be modified to also load notes
+      alongside meal assignments for display in the calendar.
+    additional_data:
+      - name: notes
+        type: Collection
+        description: "MealPlanNotes grouped by date_mealType key"
+        example: |
+          $notes = $mealPlan->mealPlanNotes
+              ->groupBy(function ($note) {
+                  return $note->date->format('Y-m-d') . '_' . $note->meal_type->value;
+              });
