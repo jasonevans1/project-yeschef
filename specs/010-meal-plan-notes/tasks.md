@@ -25,12 +25,12 @@
 
 **Purpose**: Create the database schema, model, factory, and policy required for all user stories
 
-- [ ] T001 Create migration for meal_plan_notes table in database/migrations/xxxx_create_meal_plan_notes_table.php
-- [ ] T002 Run database migration to create meal_plan_notes table
-- [ ] T003 [P] Create MealPlanNote model in app/Models/MealPlanNote.php with fillable, casts, and relationships
-- [ ] T004 [P] Create MealPlanNoteFactory in database/factories/MealPlanNoteFactory.php
-- [ ] T005 [P] Create MealPlanNotePolicy in app/Policies/MealPlanNotePolicy.php delegating to MealPlanPolicy
-- [ ] T006 Add mealPlanNotes() hasMany relationship to app/Models/MealPlan.php
+- [x] T001 Create migration for meal_plan_notes table in database/migrations/xxxx_create_meal_plan_notes_table.php
+- [x] T002 Run database migration to create meal_plan_notes table
+- [x] T003 [P] Create MealPlanNote model in app/Models/MealPlanNote.php with fillable, casts, and relationships
+- [x] T004 [P] Create MealPlanNoteFactory in database/factories/MealPlanNoteFactory.php
+- [x] T005 [P] Create MealPlanNotePolicy in app/Policies/MealPlanNotePolicy.php delegating to MealPlanPolicy
+- [x] T006 Add mealPlanNotes() hasMany relationship to app/Models/MealPlan.php
 
 **Checkpoint**: Database and model infrastructure ready - user story implementation can now begin
 

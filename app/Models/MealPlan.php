@@ -38,6 +38,11 @@ class MealPlan extends Model
         return $this->hasMany(MealAssignment::class);
     }
 
+    public function mealPlanNotes(): HasMany
+    {
+        return $this->hasMany(MealPlanNote::class);
+    }
+
     public function groceryList(): HasOne
     {
         return $this->hasOne(GroceryList::class);
