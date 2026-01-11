@@ -2,7 +2,7 @@
     <div class="max-w-4xl mx-auto">
         <flux:heading size="xl" level="1" class="mb-6">Create Recipe</flux:heading>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
             <form wire:submit="save" class="space-y-6">
                 {{-- Basic Information --}}
                 <div>
@@ -178,7 +178,7 @@
                 </flux:field>
 
                 {{-- Action Buttons --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
                     <flux:button
                         href="{{ route('recipes.index') }}"
                         variant="ghost"

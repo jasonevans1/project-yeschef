@@ -103,3 +103,30 @@ test('user can override suggested values', function () {
         ->and($item->unit)->toBe(MeasurementUnit::QUART)
         ->and($item->category)->toBe(IngredientCategory::BEVERAGES);
 });
+
+// Test: User can add custom item not in autocomplete
+test('user can add custom item that does not match autocomplete', function () {
+    $user = User::factory()->create();
+    $groceryList = \App\Models\GroceryList::factory()->for($user)->create();
+
+    $this->actingAs($user);
+
+    // Use Livewire to test the component
+    \Livewire\Livewire::test(\App\Livewire\GroceryLists\Show::class, ['groceryList' => $groceryList])
+        ->call('openAddItemForm')
+        ->set('searchQuery', 'My Custom Item')
+        ->set('itemQuantity', 5)
+        ->set('itemUnit', MeasurementUnit::WHOLE->value)
+        ->set('itemCategory', IngredientCategory::OTHER->value)
+        ->call('addManualItem')
+        ->assertHasNoErrors()
+        ->assertSet('showAddItemForm', false);
+
+    // Verify item was created with searchQuery value
+    $item = $groceryList->groceryItems()->first();
+    expect($item)->not->toBeNull()
+        ->and($item->name)->toBe('My Custom Item')
+        ->and($item->quantity)->toBe(5.0)
+        ->and($item->unit)->toBe(MeasurementUnit::WHOLE)
+        ->and($item->category)->toBe(IngredientCategory::OTHER);
+});

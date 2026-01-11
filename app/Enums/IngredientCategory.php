@@ -14,4 +14,9 @@ enum IngredientCategory: string
     case DELI = 'deli';
     case BEVERAGES = 'beverages';
     case OTHER = 'other';
+
+    public function label(): string
+    {
+        return ucfirst($this->value);
+    }
 }

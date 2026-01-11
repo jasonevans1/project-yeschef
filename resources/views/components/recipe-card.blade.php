@@ -1,8 +1,8 @@
 @props(['recipe'])
 
-<a href="{{ route('recipes.show', $recipe) }}" class="block group hover:shadow-lg transition-shadow duration-200 rounded-lg overflow-hidden bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+<a href="{{ route('recipes.show', $recipe) }}" class="block group hover:shadow-lg transition-shadow duration-200 rounded-lg overflow-hidden bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700">
     {{-- Recipe Image --}}
-    <div class="h-16 bg-gray-100 dark:bg-gray-700 overflow-hidden">
+    <div class="h-16 bg-gray-100 dark:bg-zinc-800 overflow-hidden">
         @if ($recipe->image_url)
             <img
                 src="{{ $recipe->image_url }}"
@@ -10,7 +10,7 @@
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
             >
         @else
-            <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-500">
+            <div class="w-full h-full flex items-center justify-center text-gray-400 dark:text-zinc-500">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -27,7 +27,7 @@
 
         {{-- Recipe Description --}}
         @if ($recipe->description)
-            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 line-clamp-2">
+            <p class="text-gray-600 dark:text-zinc-400 text-sm mb-3 line-clamp-2">
                 {{ $recipe->description }}
             </p>
         @endif
@@ -54,7 +54,7 @@
                     </span>
                 @endforeach
                 @if (count($recipe->dietary_tags) > 3)
-                    <span class="text-xs px-2 py-1 bg-gray-50 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded">
+                    <span class="text-xs px-2 py-1 bg-gray-50 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 rounded">
                         +{{ count($recipe->dietary_tags) - 3 }} more
                     </span>
                 @endif
@@ -62,7 +62,7 @@
         @endif
 
         {{-- Recipe Stats --}}
-        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-700 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div class="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-700 flex items-center justify-between text-sm text-gray-500 dark:text-zinc-400">
             <div class="flex items-center gap-3">
                 @if ($recipe->prep_time || $recipe->cook_time)
                     <span class="flex items-center gap-1">
@@ -82,7 +82,7 @@
             </div>
 
             @if ($recipe->difficulty)
-                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 dark:text-gray-300 rounded">
+                <span class="text-xs px-2 py-1 bg-gray-100 dark:bg-zinc-800 dark:text-zinc-300 rounded">
                     {{ ucfirst($recipe->difficulty) }}
                 </span>
             @endif

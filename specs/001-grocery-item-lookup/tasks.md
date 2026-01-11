@@ -107,27 +107,27 @@ Laravel 12 monolith structure:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T033 [P] [US2] Write Pest test for user template creation on item save in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
-- [ ] T034 [P] [US2] Write Pest test for usage_count increment on repeat saves in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
-- [ ] T035 [P] [US2] Write Pest test for personal history prioritized over common defaults in tests/Feature/ItemTemplates/PrioritizePersonalHistoryTest.php
-- [ ] T036 [P] [US2] Write Pest test for most frequent category wins (5x produce > 2x pantry) in tests/Feature/ItemTemplates/PrioritizePersonalHistoryTest.php
-- [ ] T037 [P] [US2] Write Pest test for observer only tracks manual items (not generated) in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
-- [ ] T038 [P] [US2] Write Pest test for job updates last_used_at timestamp in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
-- [ ] T039 [P] [US2] Write Playwright E2E test for personal suggestions appear first in e2e/grocery-lists/autocomplete-item.spec.ts
+- [X] T033 [P] [US2] Write Pest test for user template creation on item save in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
+- [X] T034 [P] [US2] Write Pest test for usage_count increment on repeat saves in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
+- [X] T035 [P] [US2] Write Pest test for personal history prioritized over common defaults in tests/Feature/ItemTemplates/PrioritizePersonalHistoryTest.php
+- [X] T036 [P] [US2] Write Pest test for most frequent category wins (5x produce > 2x pantry) in tests/Feature/ItemTemplates/PrioritizePersonalHistoryTest.php
+- [X] T037 [P] [US2] Write Pest test for observer only tracks manual items (not generated) in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
+- [X] T038 [P] [US2] Write Pest test for job updates last_used_at timestamp in tests/Feature/ItemTemplates/CreateUserTemplateTest.php
+- [X] T039 [P] [US2] Write Playwright E2E test for personal suggestions appear first in e2e/grocery-lists/autocomplete-item.spec.ts
 
 ### Implementation for User Story 2
 
-- [ ] T040 [US2] Implement GroceryItemObserver created() method to dispatch job in app/Observers/GroceryItemObserver.php
-- [ ] T041 [US2] Add source_type check (only track SourceType::MANUAL) in app/Observers/GroceryItemObserver.php
-- [ ] T042 [US2] Implement UpdateUserItemTemplate job handle() method in app/Jobs/UpdateUserItemTemplate.php
-- [ ] T043 [US2] Use updateOrCreate to increment usage_count and update last_used_at in app/Jobs/UpdateUserItemTemplate.php
-- [ ] T044 [US2] Add cache invalidation (Cache::forget) after template update in app/Jobs/UpdateUserItemTemplate.php
-- [ ] T045 [US2] Update ItemAutoCompleteService to query user templates first in app/Services/ItemAutoCompleteService.php
-- [ ] T046 [US2] Implement ranking: user templates (by usage_count DESC, last_used_at DESC) before common defaults in app/Services/ItemAutoCompleteService.php
-- [ ] T047 [US2] Add de-duplication logic (user template wins over common default with same name) in app/Services/ItemAutoCompleteService.php
-- [ ] T048 [US2] Run Pest tests for US2 and verify all pass
+- [X] T040 [US2] Implement GroceryItemObserver created() method to dispatch job in app/Observers/GroceryItemObserver.php
+- [X] T041 [US2] Add source_type check (only track SourceType::MANUAL) in app/Observers/GroceryItemObserver.php
+- [X] T042 [US2] Implement UpdateUserItemTemplate job handle() method in app/Jobs/UpdateUserItemTemplate.php
+- [X] T043 [US2] Use updateOrCreate to increment usage_count and update last_used_at in app/Jobs/UpdateUserItemTemplate.php
+- [X] T044 [US2] Add cache invalidation (Cache::forget) after template update in app/Jobs/UpdateUserItemTemplate.php
+- [X] T045 [US2] Update ItemAutoCompleteService to query user templates first in app/Services/ItemAutoCompleteService.php
+- [X] T046 [US2] Implement ranking: user templates (by usage_count DESC, last_used_at DESC) before common defaults in app/Services/ItemAutoCompleteService.php
+- [X] T047 [US2] Add de-duplication logic (user template wins over common default with same name) in app/Services/ItemAutoCompleteService.php
+- [X] T048 [US2] Run Pest tests for US2 and verify all pass
 - [ ] T049 [US2] Run Playwright E2E tests for US2 and verify all pass
-- [ ] T050 [US2] Run vendor/bin/pint to format code
+- [X] T050 [US2] Run vendor/bin/pint to format code
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work - autocomplete learns user preferences over time
 
@@ -143,30 +143,30 @@ Laravel 12 monolith structure:
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T051 [P] [US3] Write Pest test for viewing all user templates in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T052 [P] [US3] Write Pest test for editing template category in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T053 [P] [US3] Write Pest test for editing template updates autocomplete suggestions in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T054 [P] [US3] Write Pest test for manually creating template in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T055 [P] [US3] Write Pest test for deleting template falls back to common defaults in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T056 [P] [US3] Write Pest test for authorization (cannot view/edit other users' templates) in tests/Feature/ItemTemplates/ManageTemplatesTest.php
-- [ ] T057 [P] [US3] Write Playwright E2E test for template CRUD workflow in e2e/grocery-lists/item-templates.spec.ts
+- [X] T051 [P] [US3] Write Pest test for viewing all user templates in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T052 [P] [US3] Write Pest test for editing template category in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T053 [P] [US3] Write Pest test for editing template updates autocomplete suggestions in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T054 [P] [US3] Write Pest test for manually creating template in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T055 [P] [US3] Write Pest test for deleting template falls back to common defaults in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T056 [P] [US3] Write Pest test for authorization (cannot view/edit other users' templates) in tests/Feature/ItemTemplates/ManageTemplatesTest.php
+- [X] T057 [P] [US3] Write Playwright E2E test for template CRUD workflow in e2e/grocery-lists/item-templates.spec.ts
 
 ### Implementation for User Story 3
 
-- [ ] T058 [P] [US3] Create ItemTemplates\Index Livewire component in app/Livewire/GroceryLists/ItemTemplates/Index.php
-- [ ] T059 [P] [US3] Create ItemTemplates\Edit Livewire component in app/Livewire/GroceryLists/ItemTemplates/Edit.php
-- [ ] T060 [P] [US3] Create ItemTemplates\Delete Livewire component (or method in Index) in app/Livewire/GroceryLists/ItemTemplates/Index.php
-- [ ] T061 [US3] Add routes for item templates management in routes/web.php
-- [ ] T062 [US3] Implement authorization policy for user item templates in app/Policies/UserItemTemplatePolicy.php
-- [ ] T063 [P] [US3] Create index view listing user's templates in resources/views/livewire/grocery-lists/item-templates/index.blade.php
-- [ ] T064 [P] [US3] Create edit form with Flux components in resources/views/livewire/grocery-lists/item-templates/edit.blade.php
-- [ ] T065 [US3] Add navigation link to "My Item Templates" in app header/sidebar
-- [ ] T066 [US3] Implement save() method with validation in ItemTemplates\Edit component
-- [ ] T067 [US3] Implement delete() method with confirmation in ItemTemplates\Index component
-- [ ] T068 [US3] Add cache invalidation after edit/delete operations
-- [ ] T069 [US3] Run Pest tests for US3 and verify all pass
-- [ ] T070 [US3] Run Playwright E2E tests for US3 and verify all pass
-- [ ] T071 [US3] Run vendor/bin/pint to format code
+- [X] T058 [P] [US3] Create ItemTemplates\Index Livewire component in app/Livewire/GroceryLists/ItemTemplates/Index.php
+- [X] T059 [P] [US3] Create ItemTemplates\Edit Livewire component in app/Livewire/GroceryLists/ItemTemplates/Edit.php
+- [X] T060 [P] [US3] Create ItemTemplates\Delete Livewire component (or method in Index) in app/Livewire/GroceryLists/ItemTemplates/Index.php
+- [X] T061 [US3] Add routes for item templates management in routes/web.php
+- [X] T062 [US3] Implement authorization policy for user item templates in app/Policies/UserItemTemplatePolicy.php
+- [X] T063 [P] [US3] Create index view listing user's templates in resources/views/livewire/grocery-lists/item-templates/index.blade.php
+- [X] T064 [P] [US3] Create edit form with Flux components in resources/views/livewire/grocery-lists/item-templates/edit.blade.php
+- [X] T065 [US3] Add navigation link to "My Item Templates" in app header/sidebar
+- [X] T066 [US3] Implement save() method with validation in ItemTemplates\Edit component
+- [X] T067 [US3] Implement delete() method with confirmation in ItemTemplates\Index component
+- [X] T068 [US3] Add cache invalidation after edit/delete operations
+- [X] T069 [US3] Run Pest tests for US3 and verify all pass
+- [X] T070 [US3] Run Playwright E2E tests for US3 and verify all pass
+- [X] T071 [US3] Run vendor/bin/pint to format code
 
 **Checkpoint**: All user stories should now be independently functional - full autocomplete feature complete
 

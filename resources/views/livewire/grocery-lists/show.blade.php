@@ -6,7 +6,7 @@
                 <flux:heading size="xl" level="1" class="mb-2">{{ $groceryList->name }}</flux:heading>
 
                 {{-- Source Information --}}
-                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                <div class="flex flex-wrap items-center gap-2 text-sm text-gray-600 dark:text-zinc-400">
                     @if($groceryList->is_meal_plan_linked && $groceryList->mealPlan)
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
@@ -23,7 +23,7 @@
                         <span class="font-medium">Standalone List</span>
                     @endif
 
-                    <span class="text-gray-400 dark:text-gray-500">•</span>
+                    <span class="text-gray-400 dark:text-zinc-500">•</span>
 
                     @if($groceryList->generated_at)
                         <span>Generated {{ $groceryList->generated_at->diffForHumans() }}</span>
@@ -32,7 +32,7 @@
                     @endif
 
                     @if($groceryList->regenerated_at)
-                        <span class="text-gray-400 dark:text-gray-500">•</span>
+                        <span class="text-gray-400 dark:text-zinc-500">•</span>
                         <span>Last updated {{ $groceryList->regenerated_at->diffForHumans() }}</span>
                     @endif
                 </div>
@@ -41,14 +41,14 @@
                 @if($groceryList->total_items > 0)
                     <div class="mt-4">
                         <div class="flex items-center justify-between mb-2">
-                            <flux:text class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <flux:text class="text-sm font-medium text-gray-700 dark:text-zinc-300">
                                 {{ $groceryList->completed_items }} of {{ $groceryList->total_items }} items completed
                             </flux:text>
                             <flux:text class="text-sm font-semibold text-gray-900 dark:text-white">
                                 {{ round($groceryList->completion_percentage) }}%
                             </flux:text>
                         </div>
-                        <div class="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5">
+                        <div class="w-full bg-gray-200 dark:bg-zinc-800 rounded-full h-2.5">
                             <div class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
                                  style="width: {{ $groceryList->completion_percentage }}%">
                             </div>
@@ -128,7 +128,7 @@
                     @endif
                 @endcan
 
-                <a href="{{ route('grocery-lists.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <a href="{{ route('grocery-lists.index') }}" class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-zinc-300 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-600 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -140,12 +140,12 @@
 
     {{-- Add Item Form --}}
     @if($showAddItemForm)
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6 border-2 border-blue-200 dark:border-blue-800">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 mb-6 border-2 border-gray-200 dark:border-zinc-700">
             <flux:heading size="lg" class="mb-4">Add New Item</flux:heading>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="md:col-span-2" x-data="groceryAutocomplete()">
-                    <label for="itemName" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item Name *</label>
+                    <label for="itemName" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Item Name *</label>
                     <div class="relative">
                         <input
                             type="text"
@@ -162,7 +162,7 @@
                             aria-controls="suggestions-list"
                             :aria-expanded="isOpen && $wire.suggestions.length > 0"
                             :aria-activedescendant="activeIndex !== null ? `suggestion-${activeIndex}` : ''"
-                            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                             placeholder="Start typing to search (e.g., Milk, Bread, Chicken)"
                         />
 
@@ -173,7 +173,7 @@
                             id="suggestions-list"
                             role="listbox"
                             aria-label="Available grocery items"
-                            class="absolute z-50 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-64 overflow-y-auto"
+                            class="absolute z-50 w-full mt-1 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-600 rounded-lg shadow-lg max-h-64 overflow-y-auto"
                         >
                             <template x-for="(item, index) in $wire.suggestions" :key="item.id">
                                 <div
@@ -182,12 +182,12 @@
                                     @mouseenter="activeIndex = index"
                                     role="option"
                                     :aria-selected="activeIndex === index"
-                                    :class="activeIndex === index ? 'bg-blue-100 dark:bg-blue-900' : 'hover:bg-gray-100 dark:hover:bg-gray-700'"
+                                    :class="activeIndex === index ? 'bg-gray-100 dark:bg-zinc-700' : 'hover:bg-gray-100 dark:hover:bg-zinc-800'"
                                     class="px-4 py-3 cursor-pointer transition-colors touch-manipulation min-h-[44px] flex items-center justify-between"
                                 >
                                     <div class="flex-1">
                                         <div class="font-medium text-gray-900 dark:text-white" x-text="item.name"></div>
-                                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        <div class="text-sm text-gray-500 dark:text-zinc-400">
                                             <span x-text="item.category ? item.category.charAt(0).toUpperCase() + item.category.slice(1) : ''"></span>
                                             <span x-show="item.default_quantity && item.unit"> • </span>
                                             <span x-show="item.default_quantity && item.unit">
@@ -197,7 +197,7 @@
                                         </div>
                                     </div>
                                     <div x-show="item.is_user_template" class="ml-2">
-                                        <span class="text-xs bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100 px-2 py-1 rounded">
+                                        <span class="text-xs bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-zinc-200 px-2 py-1 rounded">
                                             Personal
                                         </span>
                                     </div>
@@ -213,24 +213,24 @@
                 </div>
 
                 <div>
-                    <label for="itemQuantity" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity</label>
+                    <label for="itemQuantity" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Quantity</label>
                     <input
                         type="number"
                         id="itemQuantity"
                         wire:model.live="itemQuantity"
                         step="0.01"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                         placeholder="e.g., 2"
                     />
                     @error('itemQuantity') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
 
                 <div>
-                    <label for="itemUnit" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Unit</label>
+                    <label for="itemUnit" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Unit</label>
                     <select
                         id="itemUnit"
                         wire:model.live="itemUnit"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                     >
                         <option value="">Select unit...</option>
                         @foreach($units as $unit)
@@ -241,11 +241,11 @@
                 </div>
 
                 <div>
-                    <label for="itemCategory" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Category</label>
+                    <label for="itemCategory" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Category</label>
                     <select
                         id="itemCategory"
                         wire:model.live="itemCategory"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                     >
                         <option value="">Select category...</option>
                         @foreach($categories as $category)
@@ -256,24 +256,24 @@
                 </div>
 
                 <div>
-                    <label for="itemNotes" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                    <label for="itemNotes" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Notes</label>
                     <input
                         type="text"
                         id="itemNotes"
                         wire:model.live="itemNotes"
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500"
                         placeholder="Optional notes"
                     />
                     @error('itemNotes') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
                 </div>
             </div>
 
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
                 <flux:button wire:click="cancelItemForm" variant="ghost">
                     Cancel
                 </flux:button>
                 <flux:button wire:click="addManualItem" variant="primary">
-                    Add Item
+                    Save Item
                 </flux:button>
             </div>
         </div>
@@ -281,7 +281,7 @@
 
     {{-- Empty State --}}
     @if($groceryList->total_items === 0)
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
             <div class="text-center py-12">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -318,7 +318,7 @@
     @endif
 
     {{-- Loading State --}}
-    <div wire:loading class="fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
+    <div wire:loading class="fixed bottom-4 right-4 bg-zinc-700 text-white px-4 py-3 rounded-lg shadow-lg flex items-center gap-2">
         <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>

@@ -120,6 +120,12 @@ class Show extends Component
     {
         $this->authorize('update', $this->groceryList);
 
+        // If itemName is empty but searchQuery has a value, copy it over
+        // This handles the case where user types a custom item without selecting autocomplete
+        if (empty($this->itemName) && ! empty($this->searchQuery)) {
+            $this->itemName = $this->searchQuery;
+        }
+
         $this->validate();
 
         $this->groceryList->groceryItems()->create([
@@ -514,8 +520,11 @@ class Show extends Component
         $this->itemUnit = $item['unit'];
         $this->itemQuantity = $item['default_quantity'] ? (string) $item['default_quantity'] : null;
 
-        // Clear search query after selection
-        $this->searchQuery = '';
+        // Set search query to item name so it's visible in the input field
+        $this->searchQuery = $item['name'];
+
+        // Clear suggestions after selection
+        $this->suggestions = [];
     }
 
     /**

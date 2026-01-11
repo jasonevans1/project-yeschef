@@ -48,6 +48,13 @@ return new class extends Migration
                 'pinch',
                 'dash',
                 'to_taste',
+                'jar',
+                'can',
+                'box',
+                'bag',
+                'bottle',
+                'package',
+                'container',
             ])->nullable();
             $table->decimal('default_quantity', 8, 3)->nullable();
             $table->unsignedInteger('usage_count')->default(1);

@@ -17,6 +17,8 @@ use App\Livewire\Recipes\ImportPreview as RecipesImportPreview;
 use App\Livewire\Recipes\Index as RecipesIndex;
 use App\Livewire\Recipes\Show as RecipesShow;
 use App\Livewire\Settings\Appearance;
+use App\Livewire\Settings\ItemTemplates;
+use App\Livewire\Settings\ItemTemplatesEdit;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use App\Livewire\Settings\TwoFactor;
@@ -81,6 +83,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', Profile::class)->name('settings.profile');
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+
+    // Item Templates Routes (moved to settings)
+    Route::get('settings/item-templates', ItemTemplates::class)->name('settings.item-templates');
+    Route::get('settings/item-templates/create', ItemTemplatesEdit::class)->name('settings.item-templates.create');
+    Route::get('settings/item-templates/{template}/edit', ItemTemplatesEdit::class)->name('settings.item-templates.edit');
 
     Route::get('settings/two-factor', TwoFactor::class)
         ->middleware(

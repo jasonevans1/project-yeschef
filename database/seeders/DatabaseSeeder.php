@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         // Seed system recipes with ingredients
         $this->call([
             RecipeSeeder::class,
+            CommonItemTemplateSeeder::class,
         ]);
     }
 }

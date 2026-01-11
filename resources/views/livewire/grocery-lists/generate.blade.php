@@ -2,13 +2,13 @@
     {{-- Header --}}
     <div class="mb-6">
         <flux:heading size="xl" class="mb-2">Generate Grocery List</flux:heading>
-        <flux:text class="text-gray-600 dark:text-gray-400">
+        <flux:text class="text-gray-600 dark:text-zinc-400">
             Create a grocery list from your meal plan
         </flux:text>
     </div>
 
     {{-- Confirmation Dialog --}}
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 max-w-2xl">
+    <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 max-w-2xl">
         @if($existingList)
             {{-- Existing list warning --}}
             <div class="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
@@ -34,30 +34,30 @@
 
             <div class="space-y-3">
                 {{-- Meal Plan Details --}}
-                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <div>
                         <flux:text class="font-medium text-gray-900 dark:text-white">
                             {{ $mealPlan->start_date->format('M d, Y') }} - {{ $mealPlan->end_date->format('M d, Y') }}
                         </flux:text>
-                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                        <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                             {{ $mealPlan->duration_days }} {{ Str::plural('day', $mealPlan->duration_days) }}
                         </flux:text>
                     </div>
                 </div>
 
                 {{-- Recipe Count --}}
-                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <div>
                         <flux:text class="font-medium text-gray-900 dark:text-white">
                             {{ $recipeCount }} {{ Str::plural('recipe', $recipeCount) }}
                         </flux:text>
-                        <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                        <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                             In your meal plan
                         </flux:text>
                     </div>
@@ -65,15 +65,15 @@
 
                 {{-- Estimated Items --}}
                 @if($recipeCount > 0)
-                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
-                        <svg class="w-5 h-5 text-gray-600 dark:text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         <div>
                             <flux:text class="font-medium text-gray-900 dark:text-white">
                                 ~{{ $estimatedItemCount }} {{ Str::plural('item', $estimatedItemCount) }}
                             </flux:text>
-                            <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                            <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                 Estimated (after aggregation)
                             </flux:text>
                         </div>
@@ -98,7 +98,7 @@
         </div>
 
         {{-- Action Buttons --}}
-        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
             <flux:button
                 wire:click="cancel"
                 variant="ghost"

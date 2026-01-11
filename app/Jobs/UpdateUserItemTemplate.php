@@ -2,13 +2,11 @@
 
 namespace App\Jobs;
 
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Queue\Queueable;
+use App\Models\UserItemTemplate;
+use Illuminate\Support\Facades\Cache;
 
-class UpdateUserItemTemplate implements ShouldQueue
+class UpdateUserItemTemplate
 {
-    use Queueable;
-
     /**
      * Create a new job instance.
      */
@@ -17,6 +15,7 @@ class UpdateUserItemTemplate implements ShouldQueue
         public string $itemName,
         public ?string $category = null,
         public ?string $unit = null,
+        public ?float $defaultQuantity = null,
     ) {}
 
     /**
@@ -24,7 +23,34 @@ class UpdateUserItemTemplate implements ShouldQueue
      */
     public function handle(): void
     {
-        // TODO: Implement in Phase 4 (User Story 2)
-        // Will use updateOrCreate to track user item templates
+        // Find existing template or create new one
+        $template = UserItemTemplate::where('user_id', $this->userId)
+            ->where('name', $this->itemName)
+            ->first();
+
+        if ($template) {
+            // Update existing template: increment usage_count
+            $template->update([
+                'category' => $this->category,
+                'unit' => $this->unit,
+                'default_quantity' => $this->defaultQuantity,
+                'usage_count' => $template->usage_count + 1,
+                'last_used_at' => now(),
+            ]);
+        } else {
+            // Create new template: start with usage_count = 1
+            UserItemTemplate::create([
+                'user_id' => $this->userId,
+                'name' => $this->itemName,
+                'category' => $this->category,
+                'unit' => $this->unit,
+                'default_quantity' => $this->defaultQuantity,
+                'usage_count' => 1,
+                'last_used_at' => now(),
+            ]);
+        }
+
+        // Invalidate user's autocomplete cache
+        Cache::forget("suggestions.{$this->userId}");
     }
 }

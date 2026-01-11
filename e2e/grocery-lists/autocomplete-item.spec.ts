@@ -65,9 +65,9 @@ test.describe('Grocery Item Autocomplete', () => {
     // Open add item form
     await page.click('button:has-text("Add Item")');
 
-    // Type to trigger autocomplete
+    // Type to trigger autocomplete (use "butt" for "butter")
     const itemNameInput = page.locator('#searchQuery');
-    await itemNameInput.fill('mil');
+    await itemNameInput.fill('butt');
     await page.waitForTimeout(400);
 
     // Wait for dropdown to appear and click first option
@@ -85,11 +85,11 @@ test.describe('Grocery Item Autocomplete', () => {
     const categorySelect = page.locator('#itemCategory');
     await expect(categorySelect).toHaveValue('dairy');
 
-    // Unit should be auto-populated to "gallon"
+    // Unit should be auto-populated to "lb"
     const unitSelect = page.locator('#itemUnit');
-    await expect(unitSelect).toHaveValue('gallon');
+    await expect(unitSelect).toHaveValue('lb');
 
-    // Quantity should be auto-populated to "1"
+    // Quantity should be auto-populated to "1" (displayed without trailing zeros)
     const quantityInput = page.locator('#itemQuantity');
     await expect(quantityInput).toHaveValue('1');
   });
@@ -138,5 +138,53 @@ test.describe('Grocery Item Autocomplete', () => {
     await expect(itemNameInput).toHaveValue('');
     const categorySelect = page.locator('#itemCategory');
     await expect(categorySelect).not.toHaveValue('');
+  });
+
+  // T039: Test personal suggestions appear first
+  test('personal suggestions appear before common defaults', async ({ page }) => {
+    // Step 1: Add "almond milk" with custom category "beverages"
+    await page.click('button:has-text("Add Item")');
+
+    const itemNameInput = page.locator('#searchQuery');
+    await itemNameInput.fill('almond milk');
+
+    // Wait for searchQuery debounce to sync (300ms + buffer)
+    await page.waitForTimeout(400);
+
+    const categorySelect = page.locator('#itemCategory');
+    await categorySelect.selectOption('beverages');
+
+    const unitSelect = page.locator('#itemUnit');
+    await unitSelect.selectOption('gallon');
+
+    const quantityInput = page.locator('#itemQuantity');
+    await quantityInput.fill('1');
+
+    // Save the item
+    await page.click('button:has-text("Save Item")');
+    await page.waitForTimeout(1000); // Wait for observer job to process
+
+    // Step 2: Open add item form again
+    await page.click('button:has-text("Add Item")');
+
+    // Step 3: Type "alm" to trigger autocomplete
+    await itemNameInput.fill('alm');
+    await page.waitForTimeout(400);
+
+    // Step 4: Verify "almond milk" appears in suggestions
+    const dropdown = page.locator('[role="listbox"]');
+    await expect(dropdown).toBeVisible();
+
+    const firstSuggestion = page.locator('[role="option"]').first();
+    await expect(firstSuggestion).toContainText('almond milk');
+
+    // Step 5: Click on the personal suggestion
+    await firstSuggestion.click();
+    await page.waitForTimeout(200);
+
+    // Step 6: Verify it uses the user's preferred category (beverages, not dairy)
+    await expect(categorySelect).toHaveValue('beverages');
+    await expect(unitSelect).toHaveValue('gallon');
+    await expect(quantityInput).toHaveValue('1.000');
   });
 });

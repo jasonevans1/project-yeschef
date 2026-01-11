@@ -2,7 +2,7 @@
     <div class="max-w-2xl mx-auto">
         <flux:heading size="xl" class="mb-6">Edit Meal Plan</flux:heading>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
             <form wire:submit="update" class="space-y-6">
                 {{-- Name Field --}}
                 <flux:input

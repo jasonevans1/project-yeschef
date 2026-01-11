@@ -13,9 +13,9 @@
     </div>
 
     @if($groceryLists->isEmpty())
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
             <div class="text-center py-12">
-                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-zinc-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
                 <flux:heading size="lg" class="mt-4">No grocery lists yet</flux:heading>
@@ -32,10 +32,10 @@
         </div>
     @else
         {{-- All Grocery Lists --}}
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 mb-6">
             <div class="space-y-4">
                 @foreach($groceryLists as $list)
-                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
                                 <flux:heading size="md">
@@ -55,7 +55,7 @@
                                     </flux:badge>
                                 @endif
                             </div>
-                            <flux:text class="text-sm text-gray-600 dark:text-gray-400">
+                            <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                 @if($list->meal_plan_id)
                                     Generated {{ $list->generated_at->diffForHumans() }}
                                     @if($list->mealPlan)

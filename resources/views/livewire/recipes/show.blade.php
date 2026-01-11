@@ -37,7 +37,7 @@
                     </div>
 
                     @if ($recipe->description)
-                        <flux:text class="text-gray-600 dark:text-gray-400 mb-4">{{ $recipe->description }}</flux:text>
+                        <flux:text class="text-gray-600 dark:text-zinc-400 mb-4">{{ $recipe->description }}</flux:text>
                     @endif
                 </div>
 
@@ -75,28 +75,28 @@
             {{-- Recipe Info --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                 @if ($recipe->prep_time)
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Prep Time</flux:heading>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-zinc-900 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-zinc-400 mb-1">Prep Time</flux:heading>
                         <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->prep_time }} min</flux:text>
                     </div>
                 @endif
 
                 @if ($recipe->cook_time)
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Cook Time</flux:heading>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-zinc-900 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-zinc-400 mb-1">Cook Time</flux:heading>
                         <flux:text class="text-xl font-semibold dark:text-white">{{ $recipe->cook_time }} min</flux:text>
                     </div>
                 @endif
 
                 @if ($this->totalTime)
-                    <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                        <flux:heading size="sm" class="text-gray-500 dark:text-gray-400 mb-1">Total Time</flux:heading>
+                    <div class="text-center p-4 bg-gray-50 dark:bg-zinc-900 rounded-lg">
+                        <flux:heading size="sm" class="text-gray-500 dark:text-zinc-400 mb-1">Total Time</flux:heading>
                         <flux:text class="text-xl font-semibold dark:text-white">{{ $this->totalTime }} min</flux:text>
                     </div>
                 @endif
 
-                <div class="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <flux:heading size="sm" id="servings-heading" class="text-gray-500 dark:text-gray-400 mb-1">Servings</flux:heading>
+                <div class="text-center p-4 bg-gray-50 dark:bg-zinc-900 rounded-lg">
+                <flux:heading size="sm" id="servings-heading" class="text-gray-500 dark:text-zinc-400 mb-1">Servings</flux:heading>
 
                 {{-- Multiplier Controls --}}
                 <div role="group" aria-labelledby="servings-heading" class="flex items-center justify-center gap-2 mb-2">
@@ -137,7 +137,7 @@
                     <template x-if="multiplier !== 1">
                         <div>
                             <flux:text class="text-xl font-semibold dark:text-white" x-text="scaledServings()"></flux:text>
-                            <flux:text class="text-xs text-gray-500 dark:text-gray-400">
+                            <flux:text class="text-xs text-gray-500 dark:text-zinc-400">
                                 (from <span x-text="originalServings"></span>)
                             </flux:text>
                         </div>
@@ -169,7 +169,7 @@
             {{-- Ingredients --}}
             <div class="mb-8">
             <flux:heading size="lg" class="mb-4">Ingredients</flux:heading>
-            <div class="bg-gray-50 dark:bg-gray-800 rounded-lg p-6">
+            <div class="bg-gray-50 dark:bg-zinc-900 rounded-lg p-6">
                 <div>
                     <ul class="space-y-3">
                         @foreach ($recipe->recipeIngredients->sortBy('sort_order') as $recipeIngredient)
@@ -180,7 +180,7 @@
                                         x-model="checkedIngredients"
                                         value="{{ $recipeIngredient->id }}"
                                         :aria-label="'Mark {{ $recipeIngredient->ingredient->name }} as used'"
-                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-zinc-800 dark:border-zinc-600"
                                     />
                                 </div>
                                 <div
@@ -199,7 +199,7 @@
                                         <span>{{ $recipeIngredient->notes ?? $recipeIngredient->ingredient->name }}</span>
                                     @endif
                                     @if ($recipeIngredient->notes && $recipeIngredient->quantity)
-                                        <span class="text-gray-500 dark:text-gray-400 text-sm ml-1">({{ $recipeIngredient->notes }})</span>
+                                        <span class="text-gray-500 dark:text-zinc-400 text-sm ml-1">({{ $recipeIngredient->notes }})</span>
                                     @endif
                                 </div>
                             </li>

@@ -2,6 +2,8 @@
 
 namespace App\Observers;
 
+use App\Enums\SourceType;
+use App\Jobs\UpdateUserItemTemplate;
 use App\Models\GroceryItem;
 
 class GroceryItemObserver
@@ -11,7 +13,18 @@ class GroceryItemObserver
      */
     public function created(GroceryItem $groceryItem): void
     {
-        // TODO: Implement in Phase 4 (User Story 2)
-        // Will dispatch UpdateUserItemTemplate job for MANUAL items only
+        // Only track manually added items (not generated from recipes)
+        if ($groceryItem->source_type !== SourceType::MANUAL) {
+            return;
+        }
+
+        // Dispatch job to update user item template
+        dispatch(new UpdateUserItemTemplate(
+            userId: $groceryItem->groceryList->user_id,
+            itemName: $groceryItem->name,
+            category: $groceryItem->category?->value,
+            unit: $groceryItem->unit?->value,
+            defaultQuantity: $groceryItem->quantity,
+        ));
     }
 }

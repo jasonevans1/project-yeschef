@@ -2,7 +2,7 @@
     <div class="max-w-2xl mx-auto">
         <flux:heading size="xl" level="1" class="mb-6">Create Standalone Grocery List</flux:heading>
 
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
             <form wire:submit="save" class="space-y-6">
                 {{-- Explanation --}}
                 <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
@@ -26,7 +26,7 @@
                 />
 
                 {{-- Action Buttons --}}
-                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-gray-700">
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-zinc-700">
                     <flux:button
                         href="{{ route('grocery-lists.index') }}"
                         variant="ghost"
