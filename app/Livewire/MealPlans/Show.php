@@ -5,6 +5,7 @@ namespace App\Livewire\MealPlans;
 use App\Enums\MealType;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
+use App\Models\MealPlanNote;
 use App\Models\Recipe;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
@@ -30,6 +31,22 @@ class Show extends Component
     public ?int $selectedAssignmentId = null;
 
     public bool $showRecipeDrawer = false;
+
+    // Note-related properties
+    public bool $showNoteForm = false;
+
+    #[Validate('required|string|max:255')]
+    public string $noteTitle = '';
+
+    #[Validate('nullable|string|max:2000')]
+    public string $noteDetails = '';
+
+    public ?int $editingNoteId = null;
+
+    // Note drawer properties
+    public bool $showNoteDrawer = false;
+
+    public ?int $selectedNoteId = null;
 
     public function mount(MealPlan $mealPlan)
     {
@@ -59,8 +76,8 @@ class Show extends Component
     {
         $this->authorize('update', $this->mealPlan);
 
-        // Validate serving multiplier
-        $this->validate();
+        // Validate serving multiplier only
+        $this->validateOnly('servingMultiplier');
 
         if (! $this->selectedDate || ! $this->selectedMealType) {
             return;
@@ -82,10 +99,13 @@ class Show extends Component
             'meal_type' => $this->selectedMealType,
             'serving_multiplier' => $this->servingMultiplier,
         ]);
-        session()->flash('success', 'Recipe assigned successfully!');
-
         $this->closeRecipeSelector();
-        $this->mealPlan->refresh();
+
+        // Force fresh load of relationships
+        $this->mealPlan = MealPlan::with(['mealAssignments.recipe', 'mealPlanNotes'])
+            ->findOrFail($this->mealPlan->id);
+
+        session()->flash('success', 'Recipe assigned successfully!');
     }
 
     public function removeAssignment(MealAssignment $assignment)
@@ -94,9 +114,11 @@ class Show extends Component
 
         $assignment->delete();
 
-        session()->flash('success', 'Recipe removed from meal plan.');
+        // Force fresh load of relationships
+        $this->mealPlan = MealPlan::with(['mealAssignments.recipe', 'mealPlanNotes'])
+            ->findOrFail($this->mealPlan->id);
 
-        $this->mealPlan->refresh();
+        session()->flash('success', 'Recipe removed from meal plan.');
     }
 
     public function openRecipeDrawer(MealAssignment $assignment)
@@ -114,6 +136,121 @@ class Show extends Component
     {
         $this->showRecipeDrawer = false;
         $this->selectedAssignmentId = null;
+    }
+
+    // Note methods
+
+    public function openNoteForm($date, $mealType)
+    {
+        $this->authorize('update', $this->mealPlan);
+
+        $this->selectedDate = $date;
+        $this->selectedMealType = $mealType;
+        $this->noteTitle = '';
+        $this->noteDetails = '';
+        $this->editingNoteId = null;
+        $this->showNoteForm = true;
+    }
+
+    public function closeNoteForm()
+    {
+        $this->showNoteForm = false;
+        $this->selectedDate = null;
+        $this->selectedMealType = null;
+        $this->noteTitle = '';
+        $this->noteDetails = '';
+        $this->editingNoteId = null;
+        $this->resetValidation(['noteTitle', 'noteDetails']);
+    }
+
+    public function saveNote()
+    {
+        $this->authorize('update', $this->mealPlan);
+
+        $this->validate([
+            'noteTitle' => 'required|string|max:255',
+            'noteDetails' => 'nullable|string|max:2000',
+        ]);
+
+        if (! $this->selectedDate || ! $this->selectedMealType) {
+            return;
+        }
+
+        $noteData = [
+            'meal_plan_id' => $this->mealPlan->id,
+            'date' => $this->selectedDate,
+            'meal_type' => $this->selectedMealType,
+            'title' => $this->noteTitle,
+            'details' => $this->noteDetails ?: null,
+        ];
+
+        if ($this->editingNoteId) {
+            $note = MealPlanNote::find($this->editingNoteId);
+            if ($note) {
+                $note->update($noteData);
+                session()->flash('success', 'Note updated successfully!');
+            }
+        } else {
+            MealPlanNote::create($noteData);
+            session()->flash('success', 'Note added successfully!');
+        }
+
+        $this->closeNoteForm();
+
+        // Force fresh load of relationships
+        $this->mealPlan = MealPlan::with(['mealAssignments.recipe', 'mealPlanNotes'])
+            ->findOrFail($this->mealPlan->id);
+    }
+
+    public function openNoteDrawer(MealPlanNote $note)
+    {
+        $this->authorize('view', $this->mealPlan);
+
+        $this->selectedNoteId = $note->id;
+        $this->showNoteDrawer = true;
+    }
+
+    public function closeNoteDrawer()
+    {
+        $this->showNoteDrawer = false;
+        $this->selectedNoteId = null;
+    }
+
+    public function editNote(MealPlanNote $note)
+    {
+        $this->authorize('update', $this->mealPlan);
+
+        $this->selectedDate = $note->date->format('Y-m-d');
+        $this->selectedMealType = $note->meal_type->value;
+        $this->noteTitle = $note->title;
+        $this->noteDetails = $note->details ?? '';
+        $this->editingNoteId = $note->id;
+        $this->showNoteDrawer = false;
+        $this->showNoteForm = true;
+    }
+
+    public function getSelectedNoteProperty()
+    {
+        if (! $this->selectedNoteId) {
+            return null;
+        }
+
+        return MealPlanNote::find($this->selectedNoteId);
+    }
+
+    public function deleteNote(MealPlanNote $note)
+    {
+        $this->authorize('update', $this->mealPlan);
+
+        $note->delete();
+
+        $this->closeNoteDrawer();
+
+        // Force fresh load of relationships
+        $this->mealPlan = MealPlan::with(['mealAssignments.recipe', 'mealPlanNotes'])
+            ->findOrFail($this->mealPlan->id);
+
+        session()->flash('success', 'Note deleted successfully.');
     }
 
     public function delete()
@@ -181,7 +318,7 @@ class Show extends Component
 
     public function render()
     {
-        $mealPlan = $this->mealPlan->load(['mealAssignments.recipe']);
+        $mealPlan = $this->mealPlan->load(['mealAssignments.recipe', 'mealPlanNotes']);
 
         // Generate date range
         $dates = [];
@@ -198,9 +335,17 @@ class Show extends Component
             })
             ->map(fn ($group) => $group->sortBy('created_at'));
 
+        // Group notes by date and meal type, sort by creation time
+        $notes = $mealPlan->mealPlanNotes
+            ->groupBy(function ($note) {
+                return $note->date->format('Y-m-d').'_'.$note->meal_type->value;
+            })
+            ->map(fn ($group) => $group->sortBy('created_at'));
+
         return view('livewire.meal-plans.show', [
             'dates' => $dates,
             'assignments' => $assignments,
+            'notes' => $notes,
             'mealTypes' => MealType::cases(),
         ]);
     }

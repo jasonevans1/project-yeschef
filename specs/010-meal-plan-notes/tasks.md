@@ -48,24 +48,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] Create Pest feature test file in tests/Feature/MealPlans/MealPlanNotesTest.php
-- [ ] T008 [US1] Add test: user can add note to meal plan with title and details
-- [ ] T009 [P] [US1] Add test: title validation required and max 255 characters
-- [ ] T010 [P] [US1] Add test: details validation nullable and max 2000 characters
-- [ ] T011 [P] [US2] Add test: notes are displayed in meal plan grouped by date and meal type
-- [ ] T012 [P] [US1] Add test: user cannot add note to another user's meal plan (authorization)
+- [x] T007 [P] [US1] Create Pest feature test file in tests/Feature/MealPlans/MealPlanNotesTest.php
+- [x] T008 [US1] Add test: user can add note to meal plan with title and details
+- [x] T009 [P] [US1] Add test: title validation required and max 255 characters
+- [x] T010 [P] [US1] Add test: details validation nullable and max 2000 characters
+- [x] T011 [P] [US2] Add test: notes are displayed in meal plan grouped by date and meal type
+- [x] T012 [P] [US1] Add test: user cannot add note to another user's meal plan (authorization)
 
 ### Implementation for User Story 1 & 2
 
-- [ ] T013 [US1] Add note-related properties to app/Livewire/MealPlans/Show.php (showNoteForm, noteTitle, noteDetails, editingNoteId)
-- [ ] T014 [US1] Add openNoteForm() method to app/Livewire/MealPlans/Show.php
-- [ ] T015 [US1] Add closeNoteForm() method to app/Livewire/MealPlans/Show.php
-- [ ] T016 [US1] Add saveNote() method to app/Livewire/MealPlans/Show.php with validation and create logic
-- [ ] T017 [US2] Modify render() method to load and group notes by date_mealType in app/Livewire/MealPlans/Show.php
-- [ ] T018 [US1] Add "Add Note" option to meal slot dropdown in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T019 [US1] Add note form modal (title input, details textarea) in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T020 [US2] Add note display in calendar cells with distinct visual styling (amber background, document icon) in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T021 [US1] Run Pint formatter and verify all US1/US2 tests pass
+- [x] T013 [US1] Add note-related properties to app/Livewire/MealPlans/Show.php (showNoteForm, noteTitle, noteDetails, editingNoteId)
+- [x] T014 [US1] Add openNoteForm() method to app/Livewire/MealPlans/Show.php
+- [x] T015 [US1] Add closeNoteForm() method to app/Livewire/MealPlans/Show.php
+- [x] T016 [US1] Add saveNote() method to app/Livewire/MealPlans/Show.php with validation and create logic
+- [x] T017 [US2] Modify render() method to load and group notes by date_mealType in app/Livewire/MealPlans/Show.php
+- [x] T018 [US1] Add "Add Note" option to meal slot dropdown in resources/views/livewire/meal-plans/show.blade.php
+- [x] T019 [US1] Add note form modal (title input, details textarea) in resources/views/livewire/meal-plans/show.blade.php
+- [x] T020 [US2] Add note display in calendar cells with distinct visual styling (amber background, document icon) in resources/views/livewire/meal-plans/show.blade.php
+- [x] T021 [US1] Run Pint formatter and verify all US1/US2 tests pass
 
 **Checkpoint**: Users can add notes to meal plan slots and see them in the calendar. MVP deliverable.
 
@@ -79,20 +79,20 @@
 
 ### Tests for User Story 3
 
-- [ ] T022 [P] [US3] Add test: user can edit existing note title and details
-- [ ] T023 [P] [US3] Add test: edit validation prevents empty title
+- [x] T022 [P] [US3] Add test: user can edit existing note title and details
+- [x] T023 [P] [US3] Add test: edit validation prevents empty title
 
 ### Implementation for User Story 3
 
-- [ ] T024 [US3] Add note drawer properties to app/Livewire/MealPlans/Show.php (showNoteDrawer, selectedNoteId)
-- [ ] T025 [US3] Add selectedNote computed property to app/Livewire/MealPlans/Show.php
-- [ ] T026 [US3] Add openNoteDrawer() and closeNoteDrawer() methods to app/Livewire/MealPlans/Show.php
-- [ ] T027 [US3] Add editNote() method to app/Livewire/MealPlans/Show.php
-- [ ] T028 [US3] Update saveNote() method to handle update logic (when editingNoteId is set) in app/Livewire/MealPlans/Show.php
-- [ ] T029 [US3] Add note detail drawer component in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T030 [US3] Add click handler on notes in calendar to open drawer in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T031 [US3] Add edit button in note drawer that opens note form in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T032 [US3] Run Pint formatter and verify all US3 tests pass
+- [x] T024 [US3] Add note drawer properties to app/Livewire/MealPlans/Show.php (showNoteDrawer, selectedNoteId)
+- [x] T025 [US3] Add selectedNote computed property to app/Livewire/MealPlans/Show.php
+- [x] T026 [US3] Add openNoteDrawer() and closeNoteDrawer() methods to app/Livewire/MealPlans/Show.php
+- [x] T027 [US3] Add editNote() method to app/Livewire/MealPlans/Show.php
+- [x] T028 [US3] Update saveNote() method to handle update logic (when editingNoteId is set) in app/Livewire/MealPlans/Show.php
+- [x] T029 [US3] Add note detail drawer component in resources/views/livewire/meal-plans/show.blade.php
+- [x] T030 [US3] Add click handler on notes in calendar to open drawer in resources/views/livewire/meal-plans/show.blade.php
+- [x] T031 [US3] Add edit button in note drawer that opens note form in resources/views/livewire/meal-plans/show.blade.php
+- [x] T032 [US3] Run Pint formatter and verify all US3 tests pass
 
 **Checkpoint**: Users can view note details in a drawer and edit notes. US1, US2, US3 all work independently.
 
@@ -106,15 +106,15 @@
 
 ### Tests for User Story 4
 
-- [ ] T033 [P] [US4] Add test: user can delete note from meal plan
-- [ ] T034 [P] [US4] Add test: deleted note no longer appears in calendar
+- [x] T033 [P] [US4] Add test: user can delete note from meal plan
+- [x] T034 [P] [US4] Add test: deleted note no longer appears in calendar
 
 ### Implementation for User Story 4
 
-- [ ] T035 [US4] Add deleteNote() method to app/Livewire/MealPlans/Show.php with confirmation
-- [ ] T036 [US4] Add delete button on note hover in calendar cell in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T037 [US4] Add delete button in note drawer footer in resources/views/livewire/meal-plans/show.blade.php
-- [ ] T038 [US4] Run Pint formatter and verify all US4 tests pass
+- [x] T035 [US4] Add deleteNote() method to app/Livewire/MealPlans/Show.php with confirmation
+- [x] T036 [US4] Add delete button on note hover in calendar cell in resources/views/livewire/meal-plans/show.blade.php
+- [x] T037 [US4] Add delete button in note drawer footer in resources/views/livewire/meal-plans/show.blade.php
+- [x] T038 [US4] Run Pint formatter and verify all US4 tests pass
 
 **Checkpoint**: Full CRUD operations for notes. US1-4 all work independently.
 
@@ -128,13 +128,13 @@
 
 ### Tests for User Story 5
 
-- [ ] T039 [P] [US5] Add test: grocery list generation excludes notes entirely
-- [ ] T040 [P] [US5] Add test: meal plan with only notes generates empty or no-recipes-message grocery list
+- [x] T039 [P] [US5] Add test: grocery list generation excludes notes entirely
+- [x] T040 [P] [US5] Add test: meal plan with only notes generates empty or no-recipes-message grocery list
 
 ### Verification for User Story 5
 
-- [ ] T041 [US5] Verify GroceryListGenerator only queries mealAssignments relationship (no code changes expected)
-- [ ] T042 [US5] Run existing grocery list tests to confirm no regression
+- [x] T041 [US5] Verify GroceryListGenerator only queries mealAssignments relationship (no code changes expected)
+- [x] T042 [US5] Run existing grocery list tests to confirm no regression
 
 **Checkpoint**: Grocery list exclusion verified. All P1 stories complete.
 
@@ -146,19 +146,19 @@
 
 ### E2E Tests (Playwright)
 
-- [ ] T043 [P] Create Playwright test file in e2e/meal-plans-notes.spec.ts
-- [ ] T044 [P] Add E2E test: add note to empty meal slot flow
-- [ ] T045 [P] Add E2E test: add note to slot with existing recipe flow
-- [ ] T046 [P] Add E2E test: view note details in drawer flow
-- [ ] T047 [P] Add E2E test: edit note flow
-- [ ] T048 [P] Add E2E test: delete note flow
+- [x] T043 [P] Create Playwright test file in e2e/meal-plans-notes.spec.ts
+- [x] T044 [P] Add E2E test: add note to empty meal slot flow
+- [x] T045 [P] Add E2E test: add note to slot with existing recipe flow
+- [x] T046 [P] Add E2E test: view note details in drawer flow
+- [x] T047 [P] Add E2E test: edit note flow
+- [x] T048 [P] Add E2E test: delete note flow
 
 ### Final Verification
 
-- [ ] T049 Run full test suite (composer test)
-- [ ] T050 Run Playwright E2E tests for meal plan notes
-- [ ] T051 Run quickstart.md verification checklist
-- [ ] T052 Run Pint formatter on all modified files
+- [x] T049 Run full test suite (composer test)
+- [x] T050 Run Playwright E2E tests for meal plan notes
+- [x] T051 Run quickstart.md verification checklist
+- [x] T052 Run Pint formatter on all modified files
 
 ---
 

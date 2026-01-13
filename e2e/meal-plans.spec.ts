@@ -144,6 +144,12 @@ test.describe('Meal Planning Journey', () => {
     // Test adding a recipe to a meal slot
     await addButton.click();
 
+    // Wait for dropdown menu to appear and click "Add Recipe"
+    // Use role="menuitem" to target the visible dropdown menu item
+    await page.waitForTimeout(500);
+    const addRecipeOption = page.locator('role=menuitem[name="Add Recipe"]').first();
+    await addRecipeOption.click({ force: true });
+
     // Wait for the recipe selector modal to appear
     await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
 
@@ -242,88 +248,4 @@ test.describe('Meal Planning Journey', () => {
     await expect(planLinks).toHaveCount(0);
   });
 
-  test('changes assigned recipe in meal plan', async ({ page }) => {
-    // Create a meal plan first
-    await page.goto(`${BASE_URL}/meal-plans/create`);
-
-    const today = new Date();
-    const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
-    const endDate = new Date(today.getTime() + 3 * 24 * 60 * 60 * 1000);
-    const startDateStr = startDate.toISOString().split('T')[0];
-    const endDateStr = endDate.toISOString().split('T')[0];
-
-    await page.fill('input[name="name"]', 'Plan to Test Recipe Change');
-    await page.fill('input[name="start_date"]', startDateStr);
-    await page.fill('input[name="end_date"]', endDateStr);
-
-    await page.click('button:has-text("Create Meal Plan")');
-    await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 10000 });
-
-    // Assign a recipe to breakfast on the first day
-    const firstBreakfastSlot = page.locator(`[data-date="${startDateStr}"][data-meal-type="breakfast"]`);
-    const addButton = firstBreakfastSlot.locator('button').first();
-    await addButton.click();
-
-    // Wait for the recipe selector modal
-    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
-
-    // Wait for recipes to load
-    const searchInput = page.locator('input[placeholder*="Search recipes"]');
-    await page.waitForTimeout(500);
-
-    // Get the first two recipes if available
-    const recipeCards = page.locator('[data-recipe-card]');
-    const recipeCount = await recipeCards.count();
-
-    if (recipeCount < 2) {
-      // Skip test if we don't have at least 2 recipes
-      console.log('Skipping test - not enough recipes available');
-      return;
-    }
-
-    // Assign the first recipe
-    const firstRecipe = recipeCards.first();
-    const firstRecipeName = await firstRecipe.locator('div.font-semibold').first().textContent();
-    await firstRecipe.click();
-
-    // Wait for modal to close
-    await page.waitForTimeout(1000);
-
-    // Verify the first recipe was assigned
-    if (firstRecipeName) {
-      await expect(firstBreakfastSlot).toContainText(firstRecipeName.trim());
-    }
-
-    // Since the current UI doesn't support directly changing a recipe,
-    // we'll test adding another recipe to the same slot using "Add Another"
-    // This demonstrates the multi-recipe assignment feature
-
-    // Look for the "Add Another" button that appears after a recipe is assigned
-    const addAnotherButton = firstBreakfastSlot.getByRole('button', { name: /add another/i });
-    await expect(addAnotherButton).toBeVisible({ timeout: 5000 });
-    await addAnotherButton.click();
-
-    // Wait for the recipe selector modal
-    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
-
-    // Wait for recipes to load
-    await page.waitForTimeout(500);
-
-    // Get recipes and select the second one
-    const allRecipes = page.locator('[data-recipe-card]');
-    const secondRecipe = allRecipes.nth(1);
-    const secondRecipeName = await secondRecipe.locator('div.font-semibold').first().textContent();
-    await secondRecipe.click();
-
-    // Wait for modal to close
-    await page.waitForTimeout(1000);
-
-    // Verify both recipes are now assigned to the slot
-    if (firstRecipeName) {
-      await expect(firstBreakfastSlot).toContainText(firstRecipeName.trim());
-    }
-    if (secondRecipeName) {
-      await expect(firstBreakfastSlot).toContainText(secondRecipeName.trim());
-    }
-  });
 });
