@@ -60,6 +60,9 @@ test.describe('Grocery List Generation', () => {
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
 
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     // Wait for modal to open and recipes to load
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
 
@@ -75,6 +78,10 @@ test.describe('Grocery List Generation', () => {
     // Recipe 2: Assign to second day's Lunch slot
     const secondLunchSlot = page.locator('tbody tr').nth(1).locator('[data-meal-type="lunch"]');
     await secondLunchSlot.click();
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
 
     const secondRecipe = page.locator('[data-recipe-card]').nth(1);
@@ -87,6 +94,10 @@ test.describe('Grocery List Generation', () => {
     // Recipe 3: Assign to third day's Breakfast slot
     const thirdBreakfastSlot = page.locator('tbody tr').nth(2).locator('[data-meal-type="breakfast"]');
     await thirdBreakfastSlot.click();
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
 
     const thirdRecipe = page.locator('[data-recipe-card]').nth(2);
@@ -218,6 +229,10 @@ test.describe('Grocery List Generation', () => {
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -273,6 +288,10 @@ test.describe('Grocery List Generation', () => {
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -315,6 +334,10 @@ test.describe('Grocery List Generation', () => {
     // Assign at least one recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -383,6 +406,10 @@ test.describe('Grocery List Generation', () => {
     // Assign first recipe to Day 1 Dinner
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -390,6 +417,10 @@ test.describe('Grocery List Generation', () => {
     // Assign second recipe to Day 2 Lunch
     const secondLunchSlot = page.locator('tbody tr').nth(1).locator('[data-meal-type="lunch"]');
     await secondLunchSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').nth(1).click();
     await page.waitForLoadState('networkidle');
@@ -438,6 +469,10 @@ test.describe('Grocery List Generation', () => {
     // Assign at least one recipe to have items in the grocery list
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
+
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
