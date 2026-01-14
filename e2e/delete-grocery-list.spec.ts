@@ -53,7 +53,7 @@ test.describe('Delete Grocery List', () => {
     // Step 2: Add a test item to the list
     await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
     await page.waitForTimeout(500);
-    await page.fill('#itemName', 'Test Item');
+    await page.fill('#searchQuery','Test Item');
     await page.waitForTimeout(300);
     await page.locator('button[wire\\:click="addManualItem"]').click();
     await page.waitForLoadState('networkidle');
@@ -138,7 +138,7 @@ test.describe('Delete Grocery List', () => {
     for (const itemName of itemsToAdd) {
       await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
       await page.waitForTimeout(500);
-      await page.fill('#itemName', itemName);
+      await page.fill('#searchQuery',itemName);
       await page.waitForTimeout(300);
       await page.locator('button[wire\\:click="addManualItem"]').click();
       await page.waitForLoadState('networkidle');
@@ -246,7 +246,7 @@ test.describe('Delete Grocery List', () => {
     for (let i = 1; i <= 5; i++) {
       await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
       await page.waitForTimeout(500);
-      await page.fill('#itemName', `Item ${i}`);
+      await page.fill('#searchQuery',`Item ${i}`);
       await page.waitForTimeout(300);
       await page.locator('button[wire\\:click="addManualItem"]').click();
       await page.waitForLoadState('networkidle');
