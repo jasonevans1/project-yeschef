@@ -117,8 +117,12 @@ test.describe('Dashboard', () => {
         const hasData = await viewAllButton.isVisible().catch(() => false);
 
         if (hasData) {
-            // Find first grocery list link that matches the show pattern (has /\d+/ in href)
-            const groceryListLink = page.locator('a[href*="/grocery-lists/"]').filter({ hasNotText: 'Create' }).filter({ hasText: /Grocery List|Trip|Staples|Week/ }).first();
+            // Find first grocery list link that matches the show pattern (href ends with /\d+)
+            // Exclude "View All Grocery Lists" and "Create Your First List" links
+            const groceryListLink = page.locator('a[href*="/grocery-lists/"]')
+                .filter({ hasNotText: 'View All' })
+                .filter({ hasNotText: 'Create' })
+                .first();
             await expect(groceryListLink).toBeVisible();
 
             // Click and verify navigation
