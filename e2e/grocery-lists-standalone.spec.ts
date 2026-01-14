@@ -89,11 +89,11 @@ test.describe('Standalone Grocery List Management', () => {
       await addItemButton.click();
       await page.waitForTimeout(800); // Allow form to appear
 
-      // Wait for the form to be visible
-      await expect(page.locator('#itemName')).toBeVisible();
+      // Wait for the form to be visible (searchQuery is the autocomplete input)
+      await expect(page.locator('#searchQuery')).toBeVisible();
 
-      // Fill in item details
-      await page.fill('#itemName', item.name);
+      // Fill in item details (searchQuery is the visible autocomplete field)
+      await page.fill('#searchQuery', item.name);
       await page.fill('#itemQuantity', item.quantity);
       await page.locator('#itemUnit').selectOption(item.unit);
       await page.locator('#itemCategory').selectOption(item.category);
@@ -234,7 +234,8 @@ test.describe('Standalone Grocery List Management', () => {
       await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
       await page.waitForTimeout(500);
 
-      await page.fill('#itemName', item.name);
+      // Use searchQuery instead of itemName (autocomplete field)
+      await page.fill('#searchQuery', item.name);
       await page.locator('#itemCategory').selectOption(item.category);
       await page.waitForTimeout(300);
 
