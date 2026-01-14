@@ -65,6 +65,9 @@ test.describe('Grocery List Export and Sharing', () => {
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
 
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     // Wait for modal to open and recipes to load
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
 
