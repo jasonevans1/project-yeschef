@@ -124,7 +124,7 @@ test.describe('Recipe Creation and Management', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 14: Verify recipe was created and details are displayed
-    await expect(page.getByText(uniqueName)).toBeVisible();
+    await expect(page.getByText(uniqueName).first()).toBeVisible();
     await expect(page.getByText('A delicious test recipe')).toBeVisible();
     await expect(page.getByText('15 min')).toBeVisible(); // Prep time
     await expect(page.getByText('30 min')).toBeVisible(); // Cook time
@@ -231,6 +231,9 @@ test.describe('Recipe Creation and Management', () => {
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
     await firstDinnerSlot.click({ timeout: 5000 });
 
+    // Click on "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
+
     // Wait for recipe selection modal to appear
     await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
 
@@ -295,7 +298,7 @@ test.describe('Recipe Creation and Management', () => {
 
     // Verify creation
     await page.waitForURL(/\/recipes\/\d+/, { timeout: 10000 });
-    await expect(page.getByText(simpleName)).toBeVisible();
+    await expect(page.getByText(simpleName).first()).toBeVisible();
     await expect(page.getByText('Eggs').first()).toBeVisible();
   });
 
