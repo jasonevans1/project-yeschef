@@ -20,7 +20,7 @@ test.describe('Recipe Servings Multiplier', () => {
 
     test('complete user journey for scaling recipe', async ({ page }) => {
         // Wait for page to load
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -97,7 +97,7 @@ test.describe('Recipe Servings Multiplier', () => {
     });
 
     test('multiplier respects minimum value of 0.25x', async ({ page }) => {
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -115,7 +115,7 @@ test.describe('Recipe Servings Multiplier', () => {
     });
 
     test('multiplier respects maximum value of 10x', async ({ page }) => {
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -133,7 +133,7 @@ test.describe('Recipe Servings Multiplier', () => {
     });
 
     test('multiplier resets to 1x on page reload', async ({ page }) => {
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -149,7 +149,7 @@ test.describe('Recipe Servings Multiplier', () => {
 
         // Reload the page
         await page.reload();
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Verify multiplier is back to 1x (showing original servings)
         await expect(page.locator('#servings-result')).toContainText(originalServings.toString());
@@ -179,7 +179,7 @@ test.describe('Recipe Servings Multiplier', () => {
 
     test('works across different browsers', async ({ page, browserName }) => {
         // This test runs on all browsers configured in playwright.config.ts
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -199,7 +199,7 @@ test.describe('Recipe Servings Multiplier', () => {
     });
 
     test('plus button increases multiplier', async ({ page }) => {
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
@@ -218,7 +218,7 @@ test.describe('Recipe Servings Multiplier', () => {
     });
 
     test('minus button decreases multiplier', async ({ page }) => {
-        await expect(page.locator('text=Servings')).toBeVisible();
+        await expect(page.locator('#servings-heading')).toBeVisible();
 
         // Get the original servings count dynamically
         const servingsText = await page.locator('#servings-result').textContent();
