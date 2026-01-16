@@ -1,8 +1,8 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/livewire-starter-kit",
+    "name": "yeschef/yeschef",
     "type": "project",
-    "description": "The official Laravel starter kit for Livewire.",
+    "description": "YesChef - A recipe management and meal planning application.",
     "keywords": [
         "laravel",
         "framework"

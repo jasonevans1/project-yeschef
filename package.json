@@ -1,4 +1,5 @@
 {
+  "name": "yeschef",
   "private": true,
   "type": "module",
   "scripts": {

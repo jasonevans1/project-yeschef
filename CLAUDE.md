@@ -10,7 +10,7 @@ This is a Laravel 12 application built with Livewire 3, Volt, and Flux component
 
 The project uses DDEV for local development:
 - **Start development environment**: `ddev start`
-- **Access application**: https://project-tabletop.ddev.site
+- **Access application**: https://yeschef.ddev.site
 - **SSH into container**: `ddev ssh`
 - **Stop environment**: `ddev stop`
 
