@@ -4,6 +4,37 @@
 
 document.addEventListener('livewire:init', () => {
     // console.log('[APP.JS] Livewire initialized');
+
+    // reCAPTCHA v3 Form Handler
+    window.Alpine.data('recaptchaForm', (action) => ({
+        async handleSubmit(event) {
+            const form = event.target;
+            const siteKey = window.recaptchaSiteKey;
+
+            // Skip if reCAPTCHA not configured
+            if (!siteKey || !window.grecaptcha) {
+                this.$wire.call(form.getAttribute('wire:submit'));
+                return;
+            }
+
+            try {
+                // Execute reCAPTCHA and get token
+                const token = await grecaptcha.execute(siteKey, { action: action });
+
+                // Set token in Livewire component
+                this.$wire.recaptcha_token = token;
+
+                // Submit the Livewire form
+                this.$wire.call(form.getAttribute('wire:submit'));
+            } catch (error) {
+                console.error('reCAPTCHA error:', error);
+
+                // Allow form submission anyway (fail open)
+                this.$wire.call(form.getAttribute('wire:submit'));
+            }
+        }
+    }));
+
     window.Alpine.data('ingredientCheckboxes', () => ({
     checkedIngredients: [],
 
