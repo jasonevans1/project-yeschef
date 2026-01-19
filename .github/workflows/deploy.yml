@@ -33,9 +33,6 @@ jobs:
       - name: Install Node Dependencies
         run: npm i
 
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
-
       - name: Install PHP Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
@@ -76,9 +73,6 @@ jobs:
 
       - name: Install Node Dependencies
         run: npm i
-
-      - name: Add Flux Credentials
-        run: composer config http-basic.composer.fluxui.dev "${{ secrets.FLUX_USERNAME }}" "${{ secrets.FLUX_LICENSE_KEY }}"
 
       - name: Install PHP Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
