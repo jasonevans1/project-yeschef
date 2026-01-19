@@ -2,22 +2,22 @@
 
 declare(strict_types=1);
 
-test('header displays project table top branding', function () {
+test('header displays YesChef branding', function () {
     $user = \App\Models\User::factory()->create();
 
     $response = $this->actingAs($user)->get('/dashboard');
 
-    $response->assertSee('Project Table Top');
+    $response->assertSee('YesChef');
     $response->assertDontSee('Laravel Starter Kit');
 });
 
-test('page title includes project table top', function () {
+test('page title includes YesChef', function () {
     $user = \App\Models\User::factory()->create();
 
     $response = $this->actingAs($user)->get('/dashboard');
 
-    // Page title should include "Project Table Top" somewhere
-    $response->assertSee('Project Table Top', false);
+    // Page title should include "YesChef" somewhere
+    $response->assertSee('YesChef', false);
     // And should not contain old branding
     $response->assertDontSee('Laravel Starter Kit', false);
     // The title tag should exist
