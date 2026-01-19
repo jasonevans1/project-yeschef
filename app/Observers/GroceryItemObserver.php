@@ -24,7 +24,7 @@ class GroceryItemObserver
             itemName: $groceryItem->name,
             category: $groceryItem->category?->value,
             unit: $groceryItem->unit?->value,
-            defaultQuantity: $groceryItem->quantity,
+            defaultQuantity: (float) $groceryItem->quantity,
         ));
     }
 }

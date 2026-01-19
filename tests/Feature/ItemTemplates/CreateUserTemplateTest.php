@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Queue;
 
 // T033: Test user template creation on item save
 test('user template is created when manual item is saved', function () {
-    Queue::fake();
-
     $user = User::factory()->create();
     $groceryList = GroceryList::factory()->for($user)->create();
 
@@ -27,14 +25,16 @@ test('user template is created when manual item is saved', function () {
         'sort_order' => 1,
     ]);
 
-    // Verify job was dispatched
-    Queue::assertPushed(UpdateUserItemTemplate::class, function ($job) use ($user) {
-        return $job->userId === $user->id
-            && $job->itemName === 'almond milk'
-            && $job->category === IngredientCategory::BEVERAGES->value
-            && $job->unit === MeasurementUnit::GALLON->value
-            && $job->defaultQuantity === 1.0;
-    });
+    // Verify template was created via observer
+    $template = UserItemTemplate::where('user_id', $user->id)
+        ->where('name', 'almond milk')
+        ->first();
+
+    expect($template)->not->toBeNull()
+        ->and($template->category)->toBe(IngredientCategory::BEVERAGES)
+        ->and($template->unit)->toBe(MeasurementUnit::GALLON)
+        ->and((float) $template->default_quantity)->toBe(1.0)
+        ->and($template->usage_count)->toBe(1);
 });
 
 // T034: Test usage_count increment on repeat saves
@@ -161,7 +161,7 @@ test('user template stores correct default quantity from item', function () {
         ->and($template->name)->toBe('chicken breast')
         ->and($template->category)->toBe(IngredientCategory::MEAT)
         ->and($template->unit)->toBe(MeasurementUnit::LB)
-        ->and($template->default_quantity)->toBe(2.5)
+        ->and((float) $template->default_quantity)->toBe(2.5)
         ->and($template->usage_count)->toBe(1);
 });
 
