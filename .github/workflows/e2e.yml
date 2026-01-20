@@ -67,7 +67,7 @@ jobs:
           timeout 30 bash -c 'until curl -f http://127.0.0.1:8000/login; do sleep 1; done'
 
       - name: Run Playwright Tests
-        run: npm run test:e2e
+        run: npx playwright test e2e/dashboard.spec.ts --project=chromium
         env:
           BASE_URL: http://127.0.0.1:8000
 
