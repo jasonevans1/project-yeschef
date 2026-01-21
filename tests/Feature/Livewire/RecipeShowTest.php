@@ -14,8 +14,8 @@ use function Pest\Laravel\actingAs;
 
 test('recipe page displays formatted whole number quantities without decimals', function () {
     $user = User::factory()->create();
-    $ingredient1 = Ingredient::factory()->create(['name' => 'Flour']);
-    $ingredient2 = Ingredient::factory()->create(['name' => 'Beef']);
+    $ingredient1 = Ingredient::factory()->create();
+    $ingredient2 = Ingredient::factory()->create();
 
     $recipe = Recipe::factory()->for($user)->create();
 
@@ -33,23 +33,28 @@ test('recipe page displays formatted whole number quantities without decimals', 
 
     $response->assertOk();
 
-    // Should see formatted quantities without decimals
-    $response->assertSeeText('2');
+    // Alpine.js renders quantities client-side, so check the x-text bindings
+    // Quantity is cast as decimal:3, so it appears as "2.000" in the binding
+    // But display_quantity strips trailing zeros for the fallback
+    $response->assertSee('scaleQuantity', false);
+    $response->assertSee('scaleQuantity(2.000)', false);
+    $response->assertSee('scaleQuantity(1.000)', false);
+
+    // Check units are displayed
     $response->assertSeeText('cup');
-    $response->assertSeeText('1');
     $response->assertSeeText('lb');
 
-    // Should NOT see trailing zeros in the response
-    $response->assertDontSeeText('2.000');
-    $response->assertDontSeeText('1.000');
+    // Should NOT see trailing zeros in the fallback values
+    $response->assertDontSee("|| '2.000'", false);
+    $response->assertDontSee("|| '1.000'", false);
 });
 
 // User Story 2: Feature test for fractional quantities
 
 test('recipe page displays fractional quantities with minimal precision', function () {
     $user = User::factory()->create();
-    $sugar = Ingredient::factory()->create(['name' => 'Sugar']);
-    $butter = Ingredient::factory()->create(['name' => 'Butter']);
+    $sugar = Ingredient::factory()->create();
+    $butter = Ingredient::factory()->create();
 
     $recipe = Recipe::factory()->for($user)->create();
 
@@ -70,8 +75,8 @@ test('recipe page displays fractional quantities with minimal precision', functi
     // With Alpine.js, quantities are rendered client-side via scaleQuantity()
     // Check for the Alpine.js binding pattern and ingredient names
     $response->assertSee('x-text');
-    $response->assertSeeText('Sugar');
-    $response->assertSeeText('Butter');
+    $response->assertSeeText($sugar->name);
+    $response->assertSeeText($butter->name);
 
     // Verify the quantity values are passed to scaleQuantity in the x-text binding
     // The raw HTML will contain: x-text="scaleQuantity(1.5) || '1.5'"
@@ -84,7 +89,7 @@ test('recipe page displays fractional quantities with minimal precision', functi
 
 test('recipe page handles null quantities gracefully', function () {
     $user = User::factory()->create();
-    $salt = Ingredient::factory()->create(['name' => 'Salt']);
+    $salt = Ingredient::factory()->create();
 
     $recipe = Recipe::factory()->for($user)->create();
 
@@ -105,7 +110,7 @@ test('recipe page handles null quantities gracefully', function () {
 
 test('recipe page displays quantity even when unit is null', function () {
     $user = User::factory()->create();
-    $eggs = Ingredient::factory()->create(['name' => 'Eggs']);
+    $eggs = Ingredient::factory()->create();
 
     $recipe = Recipe::factory()->for($user)->create();
 
@@ -118,12 +123,13 @@ test('recipe page displays quantity even when unit is null', function () {
 
     $response->assertOk();
 
-    // Should see quantity even without unit
-    $response->assertSeeText('2');
-    $response->assertSeeText('Eggs');
+    // Alpine.js renders quantities client-side
+    // Quantity is cast as decimal:3, so it appears as "2.000" in the binding
+    $response->assertSee('scaleQuantity(2.000)', false);
+    $response->assertSeeText($eggs->name);
 
-    // Should NOT see trailing zeros
-    $response->assertDontSeeText('2.000');
+    // Should NOT see trailing zeros in the fallback value
+    $response->assertDontSee("|| '2.000'", false);
 });
 
 // User Story 1 (009-recipe-servings-multiplier): Test multiplier state management

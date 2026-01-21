@@ -55,9 +55,10 @@ test.describe('Grocery Item Autocomplete', () => {
     const dropdown = page.locator('[role="listbox"]');
     await expect(dropdown).toBeVisible();
 
-    // Verify suggestions contain "milk"
+    // Verify suggestions contain "milk" (case-insensitive, matches "milk", "Milk", "Whole Milk", etc.)
     const suggestions = page.locator('[role="option"]');
-    await expect(suggestions.first()).toContainText('milk');
+    const firstSuggestion = suggestions.first();
+    await expect(firstSuggestion.locator('.font-medium').first()).toContainText(/milk/i);
   });
 
   // T020: Test selecting suggestion populates fields

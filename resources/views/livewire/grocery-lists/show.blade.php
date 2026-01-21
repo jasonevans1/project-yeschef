@@ -145,7 +145,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div class="md:col-span-2" x-data="groceryAutocomplete()">
-                    <label for="itemName" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Item Name *</label>
+                    <label for="searchQuery" class="block text-sm font-medium text-gray-700 dark:text-zinc-300 mb-1">Item Name *</label>
                     <div class="relative">
                         <input
                             type="text"

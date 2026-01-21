@@ -60,7 +60,11 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Step 2: Assign at least one recipe to the meal plan
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+
+    // Click "Add Recipe" from the dropdown menu
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
 
     // Wait for modal to open and recipes to load
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
@@ -99,10 +103,10 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.waitForTimeout(500); // Allow Livewire to show the form
 
     // Verify form is visible
-    await expect(page.locator('#itemName')).toBeVisible();
+    await expect(page.locator('#searchQuery')).toBeVisible();
 
     // Step 5: Fill in the add item form
-    await page.fill('#itemName', 'Paper Towels');
+    await page.fill('#searchQuery', 'Paper Towels');
     await page.fill('#itemQuantity', '2');
     await page.locator('#itemUnit').selectOption('whole');
 
@@ -184,7 +188,7 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
     await page.waitForTimeout(500);
 
-    await page.fill('#itemName', 'Trash Bags');
+    await page.fill('#searchQuery', 'Trash Bags');
     await page.fill('#itemQuantity', '1');
     await page.locator('#itemUnit').selectOption('whole');
     await page.locator('#itemCategory').selectOption('other');
@@ -236,7 +240,9 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -253,7 +259,7 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.locator('button[wire\\:click="openAddItemForm"]').first().click();
     await page.waitForTimeout(500);
 
-    await page.fill('#itemName', 'Organic Bananas');
+    await page.fill('#searchQuery', 'Organic Bananas');
     await page.fill('#itemQuantity', '6');
     await page.locator('#itemUnit').selectOption('whole');
     await page.locator('#itemCategory').selectOption('produce');
@@ -290,7 +296,9 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -360,7 +368,9 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');
@@ -378,7 +388,7 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.waitForTimeout(500);
 
     // Verify form is visible
-    await expect(page.locator('#itemName')).toBeVisible();
+    await expect(page.locator('#searchQuery')).toBeVisible();
 
     // Click cancel button - use wire:click to be specific
     const cancelButton = page.locator('button[wire\\:click="cancelItemForm"]');
@@ -408,7 +418,9 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+    await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
     await page.waitForLoadState('networkidle');

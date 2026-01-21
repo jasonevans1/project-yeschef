@@ -67,17 +67,17 @@
                                 <flux:text class="font-medium">{{ $template->name }}</flux:text>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <flux:badge>{{ $template->category->label() }}</flux:badge>
+                                <flux:badge>{{ $template->category?->label() ?? 'N/A' }}</flux:badge>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <flux:text>{{ $template->unit->label() }}</flux:text>
+                                <flux:text>{{ $template->unit?->label() ?? 'N/A' }}</flux:text>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <flux:text>{{ $template->usage_count }}</flux:text>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
-                                    {{ $template->last_used_at->diffForHumans() }}
+                                    {{ $template->last_used_at?->diffForHumans() ?? 'Never' }}
                                 </flux:text>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
