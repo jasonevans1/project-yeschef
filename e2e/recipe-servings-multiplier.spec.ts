@@ -5,14 +5,14 @@ import { test, expect } from '@playwright/test';
 test.describe('Recipe Servings Multiplier', () => {
     test.beforeEach(async ({ page }) => {
         // Login first
-        await page.goto('https://project-tabletop.ddev.site/login');
+        await page.goto('/login');
         await page.fill('input[name="email"]', 'test@example.com');
         await page.fill('input[name="password"]', 'password');
         await page.click('button[type="submit"]');
         await page.waitForURL(/dashboard|recipes/);
 
         // Navigate to recipes and click on first recipe
-        await page.goto('https://project-tabletop.ddev.site/recipes');
+        await page.goto('/recipes');
         const firstRecipe = page.locator('a[href*="/recipes/"]:not([href*="/create"]):not([href*="/import"]):not([href*="/edit"])').first();
         await firstRecipe.click();
         await page.waitForURL(/\/recipes\/\d+/);

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const BASE_URL = process.env.BASE_URL || 'https://project-tabletop.ddev.site';
+const BASE_URL = process.env.BASE_URL || 'https://yeschef.ddev.site';
 
 test.describe('Recipe Ingredient Checkboxes', () => {
   test.beforeEach(async ({ page }) => {
@@ -23,7 +23,7 @@ test.describe('Recipe Ingredient Checkboxes', () => {
 
     // Wait for recipe page to load
     await expect(page).toHaveURL(/\/recipes\/\d+/);
-    await expect(page.getByText('Ingredients')).toBeVisible();
+    await expect(page.getByText('Ingredients').first()).toBeVisible();
 
     // Verify checkboxes exist
     const checkboxes = page.locator('input[type="checkbox"]');

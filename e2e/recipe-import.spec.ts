@@ -65,8 +65,8 @@ test('successfully imports recipe from URL', async ({ page }) => {
   // Verify we're on the recipe page
   await expect(page).toHaveURL(/\/recipes\/\d+$/);
 
-  // Verify recipe name appears on the page
-  await expect(page.locator('text=Test Chocolate Chip Cookies')).toBeVisible();
+  // Verify recipe name appears on the page - use first() to avoid strict mode violation
+  await expect(page.locator('text=Test Chocolate Chip Cookies').first()).toBeVisible();
 });
 
 // T047: Phase 3 - E2E test for cancel flow

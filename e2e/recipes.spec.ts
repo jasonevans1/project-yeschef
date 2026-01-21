@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 // This test assumes the application is running at the DDEV URL
 // and that test data has been seeded
-const BASE_URL = process.env.BASE_URL || 'https://project-tabletop.ddev.site';
+const BASE_URL = process.env.BASE_URL || 'https://yeschef.ddev.site';
 
 test.describe('Recipe browsing journey', () => {
   test.beforeEach(async ({ page }) => {
