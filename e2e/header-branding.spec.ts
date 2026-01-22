@@ -10,15 +10,15 @@ test.describe('Header Branding', () => {
     await page.waitForURL('/dashboard');
   });
 
-  test('displays Project Table Top branding', async ({ page }) => {
+  test('displays YesChef branding', async ({ page }) => {
     // Check for branding in header (first occurrence)
-    await expect(page.locator('text=Project Table Top').first()).toBeVisible();
+    await expect(page.locator('text=YesChef').first()).toBeVisible();
     await expect(page.locator('text=Laravel Starter Kit')).not.toBeVisible();
   });
 
-  test('page title includes Project Table Top', async ({ page }) => {
-    // Page title should include both page name and app name (e.g., "Dashboard - Project Table Top")
-    await expect(page).toHaveTitle(/Project Table Top/);
+  test('page title includes YesChef', async ({ page }) => {
+    // Page title should include both page name and app name (e.g., "Dashboard - YesChef")
+    await expect(page).toHaveTitle(/YesChef/);
     const title = await page.title();
     expect(title).not.toContain('Laravel Starter Kit');
     // Verify it follows the pattern "Page Name - App Name"
@@ -62,7 +62,7 @@ test.describe('Header Branding', () => {
     for (const url of pages) {
       await page.goto(url);
       // Use .first() to handle multiple instances (header + sidebar)
-      await expect(page.locator('text=Project Table Top').first()).toBeVisible();
+      await expect(page.locator('text=YesChef').first()).toBeVisible();
     }
   });
 });

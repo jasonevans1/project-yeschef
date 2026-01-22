@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-// This test assumes the application is running at the DDEV URL
-// and that test data has been seeded
-const BASE_URL = process.env.BASE_URL || 'https://project-tabletop.ddev.site';
-
 test.describe('Meal Plan Notes', () => {
   test.beforeEach(async ({ page }) => {
     // Login with test user (should be seeded in database)
-    await page.goto(`${BASE_URL}/login`);
+    await page.goto('/login');
     await page.fill('input[name="email"]', 'test@example.com');
     await page.fill('input[name="password"]', 'password');
     await page.click('button[type="submit"]');
@@ -18,7 +14,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('adds note to empty meal slot', async ({ page }) => {
     // Create a meal plan first
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -68,7 +64,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('adds note to slot with existing recipe', async ({ page }) => {
     // Create a meal plan first
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -150,7 +146,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('views note details in drawer', async ({ page }) => {
     // Create a meal plan with a note
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -211,7 +207,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('edits existing note', async ({ page }) => {
     // Create a meal plan with a note
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -281,7 +277,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('deletes note from drawer', async ({ page }) => {
     // Create a meal plan with a note
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -342,7 +338,7 @@ test.describe('Meal Plan Notes', () => {
 
   test('deletes note from hover action', async ({ page }) => {
     // Create a meal plan with a note
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);

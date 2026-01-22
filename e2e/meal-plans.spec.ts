@@ -1,13 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-// This test assumes the application is running at the DDEV URL
-// and that test data has been seeded
-const BASE_URL = process.env.BASE_URL || 'https://project-tabletop.ddev.site';
-
 test.describe('Meal Planning Journey', () => {
   test.beforeEach(async ({ page }) => {
     // Login with test user (should be seeded in database)
-    await page.goto(`${BASE_URL}/login`);
+    await page.goto('/login');
     await page.fill('input[name="email"]', 'test@example.com');
     await page.fill('input[name="password"]', 'password');
     await page.click('button[type="submit"]');
@@ -18,7 +14,7 @@ test.describe('Meal Planning Journey', () => {
 
   test('complete meal plan creation workflow', async ({ page }) => {
     // Go directly to create page
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
     await expect(page).toHaveURL(/\/meal-plans\/create$/);
 
     // Fill in meal plan details (use future dates)
@@ -53,7 +49,7 @@ test.describe('Meal Planning Journey', () => {
   });
 
   test('validates meal plan creation', async ({ page }) => {
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     // Verify form fields are present
     await expect(page.locator('input[name="name"]')).toBeVisible();
@@ -70,7 +66,7 @@ test.describe('Meal Planning Journey', () => {
   });
 
   test('creates meal plan with valid date range', async ({ page }) => {
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     // Create a valid meal plan with a 7-day range
     const today = new Date();
@@ -94,7 +90,7 @@ test.describe('Meal Planning Journey', () => {
 
   test('meal calendar displays and functions correctly', async ({ page }) => {
     // Create a meal plan first
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);
@@ -208,7 +204,7 @@ test.describe('Meal Planning Journey', () => {
 
   test('deletes meal plan successfully', async ({ page }) => {
     // Create a meal plan first
-    await page.goto(`${BASE_URL}/meal-plans/create`);
+    await page.goto('/meal-plans/create');
 
     const today = new Date();
     const startDate = new Date(today.getTime() + 24 * 60 * 60 * 1000);

@@ -58,10 +58,21 @@ test.describe('Serving Size Adjustment in Meal Plans', () => {
 
     // Step 2: Assign recipe to meal slot and adjust servings
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstDinnerSlot.click({ timeout: 5000 });
 
-    // Wait for modal to open and recipes to load
-    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+    // Click the add button in the slot
+    const addButton = firstDinnerSlot.locator('button').first();
+    await addButton.click({ timeout: 5000 });
+
+    // Wait for dropdown menu and click "Add Recipe"
+    await page.waitForTimeout(500);
+    const addRecipeOption = page.locator('role=menuitem[name="Add Recipe"]').first();
+    await addRecipeOption.click({ force: true });
+
+    // Wait for modal to open
+    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
+
+    // Wait for recipes to load
+    await page.waitForTimeout(500);
 
     // Select first available recipe
     const firstRecipe = page.locator('[data-recipe-card]').first();
@@ -239,8 +250,21 @@ test.describe('Serving Size Adjustment in Meal Plans', () => {
 
     // First assignment: 4 servings (1x multiplier)
     const firstSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
-    await firstSlot.click({ timeout: 5000 });
-    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+
+    // Click the add button
+    const addButton1 = firstSlot.locator('button').first();
+    await addButton1.click({ timeout: 5000 });
+
+    // Wait for dropdown and click "Add Recipe"
+    await page.waitForTimeout(500);
+    const addRecipeOption1 = page.locator('role=menuitem[name="Add Recipe"]').first();
+    await addRecipeOption1.click({ force: true });
+
+    // Wait for modal to open
+    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
+
+    // Wait for recipes to load
+    await page.waitForTimeout(500);
 
     const recipe = page.locator('[data-recipe-card]').first();
     const recipeName = await recipe.locator('.font-semibold').textContent();
@@ -274,8 +298,21 @@ test.describe('Serving Size Adjustment in Meal Plans', () => {
 
     // Second assignment: 6 servings (1.5x multiplier)
     const secondSlot = page.locator('tbody tr').nth(1).locator('[data-meal-type="lunch"]');
-    await secondSlot.click({ timeout: 5000 });
-    await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
+
+    // Click the add button in the second slot
+    const addButton2nd = secondSlot.locator('button').first();
+    await addButton2nd.click({ timeout: 5000 });
+
+    // Wait for dropdown and click "Add Recipe"
+    await page.waitForTimeout(500);
+    const addRecipeOption2nd = page.locator('role=menuitem[name="Add Recipe"]').first();
+    await addRecipeOption2nd.click({ force: true });
+
+    // Wait for modal to open
+    await expect(page.locator('text=Select Recipe for')).toBeVisible({ timeout: 5000 });
+
+    // Wait for recipes to load
+    await page.waitForTimeout(500);
 
     // Select the same recipe (or first available)
     const recipe2 = page.locator('[data-recipe-card]').first();
