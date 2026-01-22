@@ -22,6 +22,11 @@ class RecipeFetcher
      */
     public function fetch(string $url): string
     {
+        // Handle local test routes to avoid self-referential HTTP requests
+        if ($this->isLocalTestRoute($url)) {
+            return $this->fetchLocalRoute($url);
+        }
+
         try {
             $response = Http::timeout(30)
                 ->connectTimeout(10)
@@ -58,5 +63,41 @@ class RecipeFetcher
                 'Could not connect to the site. Please check your internet connection and try again.'
             );
         }
+    }
+
+    /**
+     * Check if URL is a local test route (to avoid self-referential HTTP requests).
+     *
+     * @param  string  $url  The URL to check
+     * @return bool True if URL is a local test route
+     */
+    protected function isLocalTestRoute(string $url): bool
+    {
+        // Only handle test routes in testing/local environments
+        if (! app()->environment(['local', 'testing'])) {
+            return false;
+        }
+
+        // Check if URL contains /test/ path segment
+        return str_contains($url, '/test/');
+    }
+
+    /**
+     * Fetch content from a local route without making HTTP request.
+     *
+     * @param  string  $url  The URL to fetch
+     * @return string The response content
+     */
+    protected function fetchLocalRoute(string $url): string
+    {
+        // Extract the path from the URL
+        $parsedUrl = parse_url($url);
+        $path = $parsedUrl['path'] ?? '';
+
+        // Make an internal request using Laravel's test helpers
+        $response = app(\Illuminate\Foundation\Application::class)
+            ->handle(\Illuminate\Http\Request::create($path, 'GET'));
+
+        return $response->getContent();
     }
 }

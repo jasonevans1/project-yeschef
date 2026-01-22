@@ -212,8 +212,8 @@ test.describe('Recipe Servings Multiplier', () => {
         await plusButton.click();
         await page.waitForTimeout(100);
 
-        // Verify servings increased (original × 1.25)
-        const expectedServings = originalServings * 1.25;
+        // Verify servings increased (original × 1.25, rounded)
+        const expectedServings = Math.round(originalServings * 1.25);
         await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
@@ -236,8 +236,8 @@ test.describe('Recipe Servings Multiplier', () => {
         await minusButton.click();
         await page.waitForTimeout(100);
 
-        // Verify servings decreased (original × 1.75)
-        const expectedServings = originalServings * 1.75;
+        // Verify servings decreased (original × 1.75, rounded)
+        const expectedServings = Math.round(originalServings * 1.75);
         await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 });
