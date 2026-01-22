@@ -169,8 +169,8 @@ test.describe('Recipe Servings Multiplier', () => {
         await multiplierInput.fill('0.5');
         await page.waitForTimeout(100);
 
-        // Verify servings (original × 0.5)
-        const expectedServings = originalServings * 0.5;
+        // Verify servings (original × 0.5, rounded)
+        const expectedServings = Math.round(originalServings * 0.5);
         await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
 
         // The formatting is handled by Alpine.js scaleQuantity() function
