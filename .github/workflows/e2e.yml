@@ -1,10 +1,6 @@
 name: e2e
 
 on:
-  push:
-    branches:
-      - develop
-      - main
   pull_request:
     branches:
       - develop
