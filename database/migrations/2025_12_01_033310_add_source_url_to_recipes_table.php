@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('recipes', function (Blueprint $table) {
             $table->string('source_url', 2048)->nullable()->after('image_url');
-            $table->index('source_url'); // For duplicate detection
         });
     }
 
@@ -23,7 +22,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->dropIndex(['source_url']);
             $table->dropColumn('source_url');
         });
     }
