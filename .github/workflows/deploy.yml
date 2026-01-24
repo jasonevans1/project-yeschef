@@ -1,0 +1,27 @@
+name: deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  deploy:
+    name: Deploy to Laravel Cloud
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    timeout-minutes: 5
+    environment: Production
+
+    steps:
+      - name: Trigger Laravel Cloud Deploy Hook
+        run: |
+          curl -X POST "${{ secrets.LARAVEL_CLOUD_DEPLOY_HOOK }}?commit_hash=${{ github.sha }}"
+
+      - name: Deployment Summary
+        if: success()
+        run: |
+          echo "✅ Deploy hook triggered successfully!"
+          echo "🚀 Laravel Cloud is deploying commit ${{ github.sha }}"
+          echo "📊 Monitor deployment status in your Laravel Cloud dashboard"

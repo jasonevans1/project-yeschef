@@ -1,0 +1,51 @@
+# Laravel & PHP
+/vendor/
+/node_modules/
+/.idea/
+/.vscode/
+/.fleet/
+/.phpstorm.meta.php
+/_ide_helper.php
+/.phpunit.result.cache
+/Homestead.json
+/Homestead.yaml
+/auth.json
+/npm-debug.log
+/yarn-error.log
+/.env
+/.env.backup
+/.env.production
+.phpunit.result.cache
+
+# Laravel specific
+/public/hot
+/public/storage
+/storage/*.key
+/bootstrap/cache/*
+!/.gitkeep
+
+# Logs
+*.log
+storage/logs/*.log
+
+# Build outputs
+/public/build
+/public/mix-manifest.json
+/public/css
+/public/js
+
+# IDE
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+/coverage/
+/.phpunit.cache
+
+# Temporary files
+*.tmp
+*.bak
+*.cache

@@ -4,7 +4,13 @@
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form method="POST" wire:submit="register" class="flex flex-col gap-6">
+    <form
+        method="POST"
+        wire:submit="register"
+        class="flex flex-col gap-6"
+        x-data="recaptchaForm('register')"
+        @submit.prevent="handleSubmit($event)"
+    >
         <!-- Name -->
         <flux:input
             wire:model="name"
@@ -47,6 +53,9 @@
             :placeholder="__('Confirm password')"
             viewable
         />
+
+        <!-- Hidden reCAPTCHA Token -->
+        <input type="hidden" wire:model="recaptcha_token">
 
         <div class="flex items-center justify-end">
             <flux:button type="submit" variant="primary" class="w-full">

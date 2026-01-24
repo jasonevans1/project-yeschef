@@ -1,0 +1,601 @@
+# Recipe Management API Contract
+# Livewire Component Interactions for Recipe Management
+
+version: 1.0.0
+domain: Recipes
+components:
+  - App\Livewire\Recipes\Index
+  - App\Livewire\Recipes\Show
+  - App\Livewire\Recipes\Create
+  - App\Livewire\Recipes\Edit
+  - App\Livewire\Recipes\Delete
+
+# ============================================================================
+# Component: Recipes\Index (Browse & Search Recipes)
+# ============================================================================
+
+Index:
+  route: GET /recipes
+  auth: required
+  purpose: Browse, search, and filter recipes
+
+  properties:
+    search:
+      type: string
+      default: ""
+      url: true
+      description: Search query for recipe name/description/ingredients
+
+    mealTypes:
+      type: array
+      default: []
+      url: true
+      description: Filter by meal type (breakfast, lunch, dinner, snack)
+
+    dietaryTags:
+      type: array
+      default: []
+      url: true
+      description: Filter by dietary tags (vegetarian, vegan, gluten-free, etc.)
+
+    showSystemRecipes:
+      type: boolean
+      default: true
+      url: true
+      description: Include system recipes in results
+
+    showMyRecipes:
+      type: boolean
+      default: true
+      url: true
+      description: Include user's personal recipes in results
+
+  computed_properties:
+    recipes:
+      type: Collection<Recipe>
+      pagination: 24
+      description: Filtered and paginated recipes
+      query_logic: |
+        - Apply full-text search on name/description if search present
+        - Filter by meal types if specified
+        - Filter by dietary tags if specified
+        - Filter by ownership (system vs user recipes)
+        - Eager load: recipeIngredients.ingredient
+        - Order by: name ASC
+        - Paginate: 24 per page
+
+  methods:
+    updatedSearch():
+      trigger: When search property changes
+      action: Reset pagination to page 1
+      side_effects: None
+
+    clearFilters():
+      trigger: User clicks "Clear Filters" button
+      action: Reset all filter properties to defaults
+      side_effects: None
+      response: Re-renders component with unfiltered results
+
+    toggleMealType(string $mealType):
+      trigger: User clicks meal type filter chip
+      parameters:
+        - mealType: breakfast|lunch|dinner|snack
+      action: Add or remove meal type from filter array
+      side_effects: Updates URL query params
+      response: Re-renders with updated filters
+
+    toggleDietaryTag(string $tag):
+      trigger: User clicks dietary tag filter chip
+      parameters:
+        - tag: String dietary tag name
+      action: Add or remove tag from filter array
+      side_effects: Updates URL query params
+      response: Re-renders with updated filters
+
+  events_emitted:
+    - None
+
+  events_listened:
+    - None
+
+# ============================================================================
+# Component: Recipes\Show (View Recipe Details)
+# ============================================================================
+
+Show:
+  route: GET /recipes/{recipe}
+  auth: required
+  purpose: Display detailed recipe information
+
+  properties:
+    recipe:
+      type: Recipe
+      mount_param: true
+      description: Recipe model instance (route model binding)
+
+  computed_properties:
+    canEdit:
+      type: boolean
+      description: Whether current user can edit this recipe
+      logic: $this->recipe->user_id === auth()->id()
+
+    canDelete:
+      type: boolean
+      description: Whether current user can delete this recipe
+      logic: $this->recipe->user_id === auth()->id()
+
+    ingredients:
+      type: Collection<RecipeIngredient>
+      description: Recipe ingredients with quantities
+      logic: $this->recipe->recipeIngredients()->with('ingredient')->ordered()->get()
+
+    totalTime:
+      type: int
+      description: Prep time + cook time in minutes
+      logic: $this->recipe->prep_time + $this->recipe->cook_time
+
+  methods:
+    mount(Recipe $recipe):
+      trigger: Component initialization
+      parameters:
+        - recipe: Recipe model from route binding
+      authorization: |
+        - System recipes: Allow all authenticated users
+        - Personal recipes: Allow owner only
+      action: Load recipe with relationships
+      side_effects: None
+      throws: AuthorizationException if user cannot view recipe
+
+    edit():
+      trigger: User clicks "Edit Recipe" button
+      authorization: canEdit must be true
+      action: Redirect to recipes.edit route
+      side_effects: None
+      response: Redirect to edit page
+
+    delete():
+      trigger: User confirms recipe deletion
+      authorization: canDelete must be true
+      action: Call Delete component modal
+      side_effects: Opens delete confirmation modal
+      response: None (modal handles deletion)
+
+  events_emitted:
+    - None
+
+  events_listened:
+    - None
+
+# ============================================================================
+# Component: Recipes\Create (Create Personal Recipe)
+# ============================================================================
+
+Create:
+  route: GET /recipes/create
+  auth: required
+  purpose: Create a new personal recipe
+
+  properties:
+    name:
+      type: string
+      default: ""
+      validate: required|string|min:3|max:255
+
+    description:
+      type: string
+      default: ""
+      validate: nullable|string|max:1000
+
+    prepTime:
+      type: int|null
+      default: null
+      validate: nullable|integer|min:0|max:1440
+
+    cookTime:
+      type: int|null
+      default: null
+      validate: nullable|integer|min:0|max:1440
+
+    servings:
+      type: int
+      default: 4
+      validate: required|integer|min:1|max:100
+
+    mealType:
+      type: string|null
+      default: null
+      validate: nullable|in:breakfast,lunch,dinner,snack
+
+    cuisine:
+      type: string|null
+      default: null
+      validate: nullable|string|max:100
+
+    difficulty:
+      type: string|null
+      default: null
+      validate: nullable|in:easy,medium,hard
+
+    dietaryTags:
+      type: array
+      default: []
+      validate: nullable|array
+
+    instructions:
+      type: string
+      default: ""
+      validate: required|string|min:10
+
+    ingredients:
+      type: array
+      default: []
+      validate: required|array|min:1
+      description: Array of ingredient objects
+      structure: |
+        [
+          {
+            "ingredient_name": "Chicken Breast",
+            "quantity": 2.0,
+            "unit": "lb",
+            "category": "meat",
+            "notes": "boneless, skinless"
+          }
+        ]
+
+    imageUrl:
+      type: string|null
+      default: null
+      validate: nullable|url|max:255
+
+  methods:
+    addIngredient():
+      trigger: User clicks "Add Ingredient" button
+      action: Append empty ingredient object to ingredients array
+      side_effects: Re-renders ingredient form fields
+      response: None
+
+    removeIngredient(int $index):
+      trigger: User clicks "Remove" on ingredient row
+      parameters:
+        - index: Array index of ingredient to remove
+      action: Remove ingredient at index from array
+      side_effects: Re-renders ingredient list
+      response: None
+
+    updateIngredient(int $index, string $field, mixed $value):
+      trigger: User updates ingredient form field
+      parameters:
+        - index: Ingredient array index
+        - field: Field name (ingredient_name, quantity, unit, etc.)
+        - value: New value
+      action: Update ingredient array at index
+      side_effects: None
+      response: None
+
+    save():
+      trigger: User clicks "Create Recipe" button
+      validation: Validates all properties
+      action: |
+        1. Create Recipe model with user_id = auth()->id()
+        2. For each ingredient:
+           - Find or create Ingredient by name
+           - Create RecipeIngredient pivot record
+        3. Save recipe
+        4. Redirect to recipe show page
+      side_effects: |
+        - Creates Recipe record
+        - Creates Ingredient records (if new)
+        - Creates RecipeIngredient pivot records
+      response: Redirect to recipes.show with success message
+      errors: |
+        - Validation errors: Display inline on form
+        - Database errors: Display flash error message
+
+  events_emitted:
+    - recipe-created: { recipeId: int }
+
+  events_listened:
+    - None
+
+# ============================================================================
+# Component: Recipes\Edit (Edit Personal Recipe)
+# ============================================================================
+
+Edit:
+  route: GET /recipes/{recipe}/edit
+  auth: required
+  purpose: Edit an existing personal recipe
+
+  properties:
+    recipe:
+      type: Recipe
+      mount_param: true
+      description: Recipe model instance to edit
+
+    # Same properties as Create component
+    name:
+      type: string
+      validate: required|string|min:3|max:255
+
+    description:
+      type: string
+      validate: nullable|string|max:1000
+
+    prepTime:
+      type: int|null
+      validate: nullable|integer|min:0|max:1440
+
+    cookTime:
+      type: int|null
+      validate: nullable|integer|min:0|max:1440
+
+    servings:
+      type: int
+      validate: required|integer|min:1|max:100
+
+    mealType:
+      type: string|null
+      validate: nullable|in:breakfast,lunch,dinner,snack
+
+    cuisine:
+      type: string|null
+      validate: nullable|string|max:100
+
+    difficulty:
+      type: string|null
+      validate: nullable|in:easy,medium,hard
+
+    dietaryTags:
+      type: array
+      validate: nullable|array
+
+    instructions:
+      type: string
+      validate: required|string|min:10
+
+    ingredients:
+      type: array
+      validate: required|array|min:1
+
+    imageUrl:
+      type: string|null
+      validate: nullable|url|max:255
+
+  methods:
+    mount(Recipe $recipe):
+      trigger: Component initialization
+      parameters:
+        - recipe: Recipe model from route binding
+      authorization: $recipe->user_id === auth()->id()
+      action: |
+        1. Authorize user owns recipe
+        2. Load recipe relationships
+        3. Populate properties from recipe
+        4. Convert ingredients to array format
+      side_effects: None
+      throws: AuthorizationException if user doesn't own recipe
+
+    addIngredient():
+      # Same as Create component
+
+    removeIngredient(int $index):
+      # Same as Create component
+
+    updateIngredient(int $index, string $field, mixed $value):
+      # Same as Create component
+
+    update():
+      trigger: User clicks "Update Recipe" button
+      authorization: User owns recipe
+      validation: Validates all properties
+      action: |
+        1. Update Recipe model
+        2. Sync ingredients:
+           - Delete removed RecipeIngredient records
+           - Update existing RecipeIngredient records
+           - Create new RecipeIngredient records
+           - Find or create new Ingredient records
+        3. Save changes
+        4. Redirect to recipe show page
+      side_effects: |
+        - Updates Recipe record
+        - Modifies RecipeIngredient pivot records
+        - May create new Ingredient records
+      response: Redirect to recipes.show with success message
+      errors: Display validation or database errors
+
+    cancel():
+      trigger: User clicks "Cancel" button
+      action: Redirect back to recipe show page
+      side_effects: Discard unsaved changes
+      response: Redirect without saving
+
+  events_emitted:
+    - recipe-updated: { recipeId: int }
+
+  events_listened:
+    - None
+
+# ============================================================================
+# Component: Recipes\Delete (Delete Recipe Action)
+# ============================================================================
+
+Delete:
+  route: N/A (embedded in Show component)
+  auth: required
+  purpose: Delete a personal recipe with confirmation
+
+  properties:
+    recipe:
+      type: Recipe
+      mount_param: true
+      description: Recipe to delete
+
+    showConfirmation:
+      type: boolean
+      default: false
+      description: Whether confirmation modal is visible
+
+  methods:
+    mount(Recipe $recipe):
+      trigger: Component initialization
+      parameters:
+        - recipe: Recipe model
+      authorization: $recipe->user_id === auth()->id()
+      action: Store recipe reference
+      side_effects: None
+      throws: AuthorizationException if user doesn't own recipe
+
+    confirmDelete():
+      trigger: User clicks "Delete Recipe" button
+      action: Set showConfirmation = true
+      side_effects: Opens confirmation modal
+      response: None
+
+    delete():
+      trigger: User confirms deletion in modal
+      authorization: User owns recipe
+      action: |
+        1. Check if recipe is in any active meal plans
+        2. If yes, show warning but allow deletion (meals preserve recipe data)
+        3. Delete recipe (CASCADE deletes recipe_ingredients)
+        4. Redirect to recipes index
+      side_effects: |
+        - Deletes Recipe record
+        - Cascade deletes RecipeIngredient records
+        - meal_assignments.recipe_id remains (ON DELETE RESTRICT prevents deletion if in meal plans)
+      response: Redirect to recipes.index with success message
+      errors: |
+        - If recipe in meal plans: Cannot delete (foreign key constraint)
+        - Solution: User must remove from meal plans first, or change FK to SET NULL
+
+    cancel():
+      trigger: User clicks "Cancel" in modal
+      action: Set showConfirmation = false
+      side_effects: Closes modal
+      response: None
+
+  events_emitted:
+    - recipe-deleted: { recipeId: int }
+
+  events_listened:
+    - None
+
+# ============================================================================
+# Data Transfer Objects (DTOs)
+# ============================================================================
+
+dtos:
+  RecipeDTO:
+    properties:
+      id: int
+      user_id: int|null
+      name: string
+      description: string|null
+      prep_time: int|null
+      cook_time: int|null
+      servings: int
+      meal_type: string|null
+      cuisine: string|null
+      difficulty: string|null
+      dietary_tags: array
+      instructions: string
+      image_url: string|null
+      is_system_recipe: boolean
+      total_time: int
+      ingredient_count: int
+      created_at: string (ISO 8601)
+      updated_at: string (ISO 8601)
+
+  RecipeIngredientDTO:
+    properties:
+      id: int
+      ingredient_name: string
+      quantity: float
+      unit: string
+      category: string
+      notes: string|null
+      sort_order: int
+
+# ============================================================================
+# Authorization Policies
+# ============================================================================
+
+policies:
+  RecipePolicy:
+    view:
+      logic: System recipes (user_id = null) OR owned by current user
+      error: "You do not have permission to view this recipe."
+
+    create:
+      logic: Authenticated user
+      error: "You must be logged in to create recipes."
+
+    update:
+      logic: Recipe owned by current user (user_id = auth()->id())
+      error: "You can only edit your own recipes."
+
+    delete:
+      logic: Recipe owned by current user AND not in any meal plans
+      error: "You can only delete your own recipes."
+
+# ============================================================================
+# Validation Rules
+# ============================================================================
+
+validation:
+  create_recipe:
+    name: required|string|min:3|max:255
+    description: nullable|string|max:1000
+    prep_time: nullable|integer|min:0|max:1440
+    cook_time: nullable|integer|min:0|max:1440
+    servings: required|integer|min:1|max:100
+    meal_type: nullable|in:breakfast,lunch,dinner,snack
+    cuisine: nullable|string|max:100
+    difficulty: nullable|in:easy,medium,hard
+    dietary_tags: nullable|array
+    dietary_tags.*: string|max:50
+    instructions: required|string|min:10
+    ingredients: required|array|min:1
+    ingredients.*.ingredient_name: required|string|min:1|max:255
+    ingredients.*.quantity: required|numeric|min:0.001|max:9999.999
+    ingredients.*.unit: required|in:tsp,tbsp,fl_oz,cup,pint,quart,gallon,ml,liter,oz,lb,gram,kg,whole,clove,slice,piece,pinch,dash,to_taste
+    ingredients.*.category: required|in:produce,dairy,meat,seafood,pantry,frozen,bakery,deli,beverages,other
+    ingredients.*.notes: nullable|string|max:255
+    image_url: nullable|url|max:255
+
+  update_recipe:
+    # Same as create_recipe
+
+# ============================================================================
+# Success/Error Responses
+# ============================================================================
+
+responses:
+  create_success:
+    type: redirect
+    route: recipes.show
+    params: [created_recipe_id]
+    flash_message: "Recipe created successfully!"
+
+  update_success:
+    type: redirect
+    route: recipes.show
+    params: [updated_recipe_id]
+    flash_message: "Recipe updated successfully!"
+
+  delete_success:
+    type: redirect
+    route: recipes.index
+    flash_message: "Recipe deleted successfully!"
+
+  validation_error:
+    type: inline
+    display: Form fields with error messages
+    flash_message: "Please correct the errors below."
+
+  authorization_error:
+    type: redirect
+    route: recipes.index
+    flash_message: "You do not have permission to perform this action."
+    status: 403

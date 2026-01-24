@@ -1,0 +1,313 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Grocery Item Autocomplete API",
+    "version": "1.0.0",
+    "description": "API for autocomplete suggestions when adding grocery items. Returns personalized suggestions based on user history and common defaults."
+  },
+  "servers": [
+    {
+      "url": "https://project-tabletop.ddev.site",
+      "description": "Local DDEV development server"
+    }
+  ],
+  "paths": {
+    "/grocery-lists/{listId}/items/autocomplete": {
+      "get": {
+        "summary": "Get autocomplete suggestions for grocery items",
+        "description": "Returns up to 10 item suggestions matching the query, prioritizing user's personal item history over common defaults. Suggestions include pre-filled category, unit, and quantity values.",
+        "operationId": "getItemSuggestions",
+        "tags": ["Autocomplete"],
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "listId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the grocery list (used for authorization check)",
+            "schema": {
+              "type": "integer",
+              "example": 42
+            }
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Search term entered by user (minimum 1 character, typically 2+ for meaningful results)",
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 255,
+              "example": "mil"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Maximum number of suggestions to return (default: 10)",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "example": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response with autocomplete suggestions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["suggestions", "query", "total"],
+                  "properties": {
+                    "suggestions": {
+                      "type": "array",
+                      "description": "Array of item suggestions, ordered by relevance (user templates first, then common defaults)",
+                      "items": {
+                        "$ref": "#/components/schemas/ItemSuggestion"
+                      }
+                    },
+                    "query": {
+                      "type": "string",
+                      "description": "Original search query (echoed back)",
+                      "example": "mil"
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of suggestions returned",
+                      "example": 5
+                    }
+                  }
+                },
+                "examples": {
+                  "personalizedResults": {
+                    "summary": "User with personal history",
+                    "value": {
+                      "suggestions": [
+                        {
+                          "name": "almond milk",
+                          "category": "beverages",
+                          "unit": "gallon",
+                          "quantity": 1,
+                          "source": "user",
+                          "usage_count": 15,
+                          "last_used": "2025-12-26T10:30:00Z"
+                        },
+                        {
+                          "name": "milk",
+                          "category": "dairy",
+                          "unit": "gallon",
+                          "quantity": 1,
+                          "source": "common",
+                          "usage_count": null,
+                          "last_used": null
+                        }
+                      ],
+                      "query": "mil",
+                      "total": 2
+                    }
+                  },
+                  "newUserResults": {
+                    "summary": "New user (only common defaults)",
+                    "value": {
+                      "suggestions": [
+                        {
+                          "name": "milk",
+                          "category": "dairy",
+                          "unit": "gallon",
+                          "quantity": 1,
+                          "source": "common",
+                          "usage_count": null,
+                          "last_used": null
+                        }
+                      ],
+                      "query": "mil",
+                      "total": 1
+                    }
+                  },
+                  "emptyResults": {
+                    "summary": "No matches found",
+                    "value": {
+                      "suggestions": [],
+                      "query": "xyzabc",
+                      "total": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "User not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Unauthenticated",
+                  "message": "Please log in to access this resource"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "User not authorized to access this grocery list",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Forbidden",
+                  "message": "You do not have access to this grocery list"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Grocery list not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "error": "Not Found",
+                  "message": "Grocery list not found"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation error (invalid query parameter)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "error": "Validation Failed",
+                  "errors": {
+                    "query": ["The query field is required."]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ItemSuggestion": {
+        "type": "object",
+        "required": ["name", "category", "source"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Item name to display in autocomplete dropdown",
+            "example": "almond milk"
+          },
+          "category": {
+            "type": "string",
+            "description": "Pre-filled category value",
+            "enum": ["produce", "dairy", "meat", "seafood", "pantry", "frozen", "bakery", "deli", "beverages", "other"],
+            "example": "beverages"
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true,
+            "description": "Pre-filled unit value (optional)",
+            "enum": ["tsp", "tbsp", "fl_oz", "cup", "pint", "quart", "gallon", "ml", "liter", "oz", "lb", "gram", "kg", "whole", "clove", "slice", "piece", "pinch", "dash", "to_taste"],
+            "example": "gallon"
+          },
+          "quantity": {
+            "type": "number",
+            "format": "decimal",
+            "nullable": true,
+            "description": "Pre-filled quantity value (optional)",
+            "example": 1
+          },
+          "source": {
+            "type": "string",
+            "description": "Source of suggestion (user = personal history, common = global default)",
+            "enum": ["user", "common"],
+            "example": "user"
+          },
+          "usage_count": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Number of times user added this item (null for common templates)",
+            "example": 15
+          },
+          "last_used": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "ISO 8601 timestamp of last usage (null for common templates)",
+            "example": "2025-12-26T10:30:00Z"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": ["error", "message"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type",
+            "example": "Forbidden"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable error message",
+            "example": "You do not have access to this resource"
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": ["error", "errors"],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Error type",
+            "example": "Validation Failed"
+          },
+          "errors": {
+            "type": "object",
+            "description": "Field-specific validation errors",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "query": ["The query field is required."]
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "sessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "laravel_session",
+        "description": "Laravel session cookie (automatically included by browser)"
+      }
+    }
+  }
+}

@@ -1,7 +1,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>{{ $title ?? config('app.name') }}</title>
+<title>{{ isset($title) ? $title . ' - ' . config('app.name') : config('app.name') }}</title>
 
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
@@ -12,3 +12,20 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 @fluxAppearance
+@php
+echo <<<'HTML'
+<script>
+    (function() {
+        const stored = localStorage.getItem('flux.appearance');
+        if (stored && stored !== 'system') {
+            const root = document.documentElement;
+            if (stored === 'dark') {
+                root.classList.add('dark');
+            } else if (stored === 'light') {
+                root.classList.remove('dark');
+            }
+        }
+    })();
+</script>
+HTML;
+@endphp

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
@@ -15,33 +15,18 @@
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:navbar.item>
+                <flux:navbar.item icon="book-open" :href="route('recipes.index')" :current="request()->routeIs('recipes.*')" wire:navigate>
+                    {{ __('Recipes') }}
+                </flux:navbar.item>
+                <flux:navbar.item icon="calendar" :href="route('meal-plans.index')" :current="request()->routeIs('meal-plans.*')" wire:navigate>
+                    {{ __('Meal Plans') }}
+                </flux:navbar.item>
+                <flux:navbar.item icon="shopping-cart" :href="route('grocery-lists.index')" :current="request()->routeIs('grocery-lists.*')" wire:navigate>
+                    {{ __('Grocery Lists') }}
+                </flux:navbar.item>
             </flux:navbar>
 
             <flux:spacer />
-
-            <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
-                <flux:tooltip :content="__('Search')" position="bottom">
-                    <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Repository')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="folder-git-2"
-                        href="https://github.com/laravel/livewire-starter-kit"
-                        target="_blank"
-                        :label="__('Repository')"
-                    />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Documentation')" position="bottom">
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="book-open-text"
-                        href="https://laravel.com/docs/starter-kits#livewire"
-                        target="_blank"
-                        label="Documentation"
-                    />
-                </flux:tooltip>
-            </flux:navbar>
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="top" align="end">
@@ -101,23 +86,25 @@
                     <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                       {{ __('Dashboard') }}
                     </flux:navlist.item>
+                    <flux:navlist.item icon="book-open" :href="route('recipes.index')" :current="request()->routeIs('recipes.*')" wire:navigate>
+                      {{ __('Recipes') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="calendar" :href="route('meal-plans.index')" :current="request()->routeIs('meal-plans.*')" wire:navigate>
+                      {{ __('Meal Plans') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item icon="shopping-cart" :href="route('grocery-lists.index')" :current="request()->routeIs('grocery-lists.*')" wire:navigate>
+                      {{ __('Grocery Lists') }}
+                    </flux:navlist.item>
                 </flux:navlist.group>
             </flux:navlist>
 
             <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                    {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits#livewire" target="_blank">
-                    {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
         </flux:sidebar>
 
         {{ $slot }}
+
+        {{-- Flash Messages Toast Notifications --}}
+        <x-flash-messages />
 
         @fluxScripts
     </body>

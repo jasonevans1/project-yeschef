@@ -13,11 +13,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
+        // Create a test user
+        User::factory()->withoutTwoFactor()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
+        ]);
+
+        // Seed system recipes with ingredients
+        $this->call([
+            RecipeSeeder::class,
+            CommonItemTemplateSeeder::class,
         ]);
     }
 }

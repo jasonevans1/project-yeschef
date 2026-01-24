@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Str;
@@ -46,6 +47,38 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the user's personal recipes
+     */
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class);
+    }
+
+    /**
+     * Get the user's meal plans
+     */
+    public function mealPlans(): HasMany
+    {
+        return $this->hasMany(MealPlan::class);
+    }
+
+    /**
+     * Get the user's grocery lists
+     */
+    public function groceryLists(): HasMany
+    {
+        return $this->hasMany(GroceryList::class);
+    }
+
+    /**
+     * Get the user's item templates (personal autocomplete history)
+     */
+    public function itemTemplates(): HasMany
+    {
+        return $this->hasMany(UserItemTemplate::class);
     }
 
     /**

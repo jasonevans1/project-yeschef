@@ -4,7 +4,13 @@
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
 
-    <form method="POST" wire:submit="sendPasswordResetLink" class="flex flex-col gap-6">
+    <form
+        method="POST"
+        wire:submit="sendPasswordResetLink"
+        class="flex flex-col gap-6"
+        x-data="recaptchaForm('forgot_password')"
+        @submit.prevent="handleSubmit($event)"
+    >
         <!-- Email Address -->
         <flux:input
             wire:model="email"
@@ -14,6 +20,9 @@
             autofocus
             placeholder="email@example.com"
         />
+
+        <!-- Hidden reCAPTCHA Token -->
+        <input type="hidden" wire:model="recaptcha_token">
 
         <flux:button variant="primary" type="submit" class="w-full">{{ __('Email password reset link') }}</flux:button>
     </form>
