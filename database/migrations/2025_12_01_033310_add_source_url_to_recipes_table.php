@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->string('source_url', 2048)->nullable()->after('image_url');
+            if (! Schema::hasColumn('recipes', 'source_url')) {
+                $table->string('source_url', 2048)->nullable()->after('image_url');
+            }
         });
     }
 
@@ -22,7 +24,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->dropColumn('source_url');
+            if (Schema::hasColumn('recipes', 'source_url')) {
+                $table->dropColumn('source_url');
+            }
         });
     }
 };
