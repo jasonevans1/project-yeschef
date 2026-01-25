@@ -19,8 +19,16 @@ class ImportPreview extends Component
     {
         $this->recipeData = session('recipe_import_preview', []);
 
+        logger()->info('Recipe import preview loaded', [
+            'session_id' => session()->getId(),
+            'has_data' => ! empty($this->recipeData),
+            'recipe_name' => $this->recipeData['name'] ?? null,
+        ]);
+
         if (empty($this->recipeData)) {
-            $this->redirect(route('recipes.import'), navigate: true);
+            logger()->warning('Recipe import session data missing');
+            session()->flash('error', 'Recipe import data was lost. Please try importing again.');
+            $this->redirect(route('recipes.import'));
         }
     }
 
@@ -50,7 +58,7 @@ class ImportPreview extends Component
 
                 // Redirect to recipe show page
                 session()->flash('success', 'Recipe imported successfully!');
-                $this->redirect(route('recipes.show', $recipe), navigate: true);
+                $this->redirect(route('recipes.show', $recipe));
             });
         } catch (\Exception $e) {
             logger()->error('Import failed: '.$e->getMessage(), ['exception' => $e]);
@@ -87,7 +95,7 @@ class ImportPreview extends Component
     public function cancel(): void
     {
         session()->forget('recipe_import_preview');
-        $this->redirect(route('recipes.import'), navigate: true);
+        $this->redirect(route('recipes.import'));
     }
 
     public function render(): View

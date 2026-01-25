@@ -131,7 +131,8 @@ test('preview redirects to import if no session data', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->assertRedirect(route('recipes.import'));
+        ->assertRedirect(route('recipes.import'))
+        ->assertSessionHas('error', 'Recipe import data was lost. Please try importing again.');
 });
 
 test('confirming import creates recipe in database', function () {

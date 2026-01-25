@@ -32,7 +32,29 @@ class Import extends Component
             session()->put('recipe_import_preview', $recipeData);
             session()->save();
 
-            $this->redirect(route('recipes.import.preview'), navigate: true);
+            // Verify session was saved
+            $verified = session('recipe_import_preview');
+            if (empty($verified)) {
+                logger()->error('Session verification failed immediately after save', [
+                    'url' => $this->url,
+                    'session_id' => session()->getId(),
+                    'data_size_bytes' => strlen(json_encode($recipeData)),
+                ]);
+                $this->addError('url', 'Unable to store recipe data. Please try again.');
+
+                return;
+            }
+
+            // Log for debugging
+            logger()->info('Recipe import session saved', [
+                'url' => $this->url,
+                'session_id' => session()->getId(),
+                'data_size_bytes' => strlen(json_encode($recipeData)),
+                'recipe_name' => $recipeData['name'] ?? null,
+                'ingredient_count' => count($recipeData['recipeIngredient'] ?? []),
+            ]);
+
+            $this->redirect(route('recipes.import.preview'));
         } catch (NetworkTimeoutException $e) {
             $this->addError('url', $e->getMessage());
         } catch (InvalidHTTPStatusException $e) {
