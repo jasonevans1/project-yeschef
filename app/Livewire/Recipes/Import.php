@@ -12,6 +12,7 @@ use App\Exceptions\NetworkTimeoutException;
 use App\Services\RecipeImporter\RecipeImportService;
 use Exception;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -27,17 +28,18 @@ class Import extends Component
         try {
             $recipeData = $importService->fetchAndParse($this->url);
 
-            // Store in session with source URL
+            // Store in cache with source URL (10 minute TTL)
             $recipeData['source_url'] = $this->url;
-            session()->put('recipe_import_preview', $recipeData);
-            session()->save();
+            $cacheKey = 'recipe_import_preview:'.auth()->id();
+            Cache::put($cacheKey, $recipeData, now()->addMinutes(10));
 
-            // Verify session was saved
-            $verified = session('recipe_import_preview');
+            // Verify cache was saved
+            $verified = Cache::get($cacheKey);
             if (empty($verified)) {
-                logger()->error('Session verification failed immediately after save', [
+                logger()->error('Cache verification failed immediately after save', [
                     'url' => $this->url,
-                    'session_id' => session()->getId(),
+                    'cache_key' => $cacheKey,
+                    'user_id' => auth()->id(),
                     'data_size_bytes' => strlen(json_encode($recipeData)),
                 ]);
                 $this->addError('url', 'Unable to store recipe data. Please try again.');
@@ -46,9 +48,10 @@ class Import extends Component
             }
 
             // Log for debugging
-            logger()->info('Recipe import session saved', [
+            logger()->info('Recipe import data cached', [
                 'url' => $this->url,
-                'session_id' => session()->getId(),
+                'cache_key' => $cacheKey,
+                'user_id' => auth()->id(),
                 'data_size_bytes' => strlen(json_encode($recipeData)),
                 'recipe_name' => $recipeData['name'] ?? null,
                 'ingredient_count' => count($recipeData['recipeIngredient'] ?? []),
