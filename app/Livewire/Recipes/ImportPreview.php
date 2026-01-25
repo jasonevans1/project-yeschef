@@ -76,8 +76,14 @@ class ImportPreview extends Component
     {
         $ingredients = $this->recipeData['recipeIngredient'] ?? [];
         $parser = app(\App\Services\RecipeImporter\IngredientParser::class);
+        $addedIngredientIds = [];
 
         foreach ($ingredients as $index => $ingredientText) {
+            // Guard clause for empty ingredients
+            if (empty(trim($ingredientText))) {
+                continue;
+            }
+
             // Parse ingredient text to extract quantity, unit, and name
             $parsed = $parser->parse(trim($ingredientText));
 
@@ -86,6 +92,16 @@ class ImportPreview extends Component
                 ['name' => $parsed['name']],
                 ['category' => IngredientCategory::OTHER] // Default to OTHER for imported ingredients
             );
+
+            // Check for duplicate ingredient
+            if (in_array($ingredient->id, $addedIngredientIds, strict: true)) {
+                $this->handleDuplicateIngredient($recipe, $ingredient, $parsed);
+
+                continue;
+            }
+
+            // Track this ingredient ID
+            $addedIngredientIds[] = $ingredient->id;
 
             // Create recipe-ingredient relationship
             $recipe->recipeIngredients()->create([
@@ -96,6 +112,38 @@ class ImportPreview extends Component
                 'sort_order' => $index,
             ]);
         }
+    }
+
+    protected function handleDuplicateIngredient(Recipe $recipe, Ingredient $ingredient, array $parsed): void
+    {
+        $existingRecipeIngredient = $recipe->recipeIngredients()
+            ->where('ingredient_id', $ingredient->id)
+            ->first();
+
+        $duplicateNote = $this->buildDuplicateNote($parsed);
+
+        $updatedNotes = $existingRecipeIngredient->notes
+            ? $existingRecipeIngredient->notes.' | Also listed as: '.$duplicateNote
+            : 'Also listed as: '.$duplicateNote;
+
+        $existingRecipeIngredient->update(['notes' => $updatedNotes]);
+    }
+
+    protected function buildDuplicateNote(array $parsed): string
+    {
+        // If we have quantity and/or unit, format nicely
+        if ($parsed['quantity'] || $parsed['unit']) {
+            $parts = array_filter([
+                $parsed['quantity'],
+                $parsed['unit']?->value,
+                $parsed['name'],
+            ]);
+
+            return implode(' ', $parts);
+        }
+
+        // Otherwise use original text
+        return $parsed['original'];
     }
 
     public function cancel(): void
