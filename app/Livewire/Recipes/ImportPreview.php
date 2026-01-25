@@ -8,6 +8,7 @@ use App\Enums\IngredientCategory;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -17,16 +18,21 @@ class ImportPreview extends Component
 
     public function mount(): void
     {
-        $this->recipeData = session('recipe_import_preview', []);
+        $cacheKey = 'recipe_import_preview:'.auth()->id();
+        $this->recipeData = Cache::get($cacheKey, []);
 
         logger()->info('Recipe import preview loaded', [
-            'session_id' => session()->getId(),
+            'cache_key' => $cacheKey,
+            'user_id' => auth()->id(),
             'has_data' => ! empty($this->recipeData),
             'recipe_name' => $this->recipeData['name'] ?? null,
         ]);
 
         if (empty($this->recipeData)) {
-            logger()->warning('Recipe import session data missing');
+            logger()->warning('Recipe import cache data missing', [
+                'cache_key' => $cacheKey,
+                'user_id' => auth()->id(),
+            ]);
             session()->flash('error', 'Recipe import data was lost. Please try importing again.');
             $this->redirect(route('recipes.import'));
         }
@@ -53,8 +59,8 @@ class ImportPreview extends Component
                 // Parse and create ingredients
                 $this->createIngredients($recipe);
 
-                // Clear session
-                session()->forget('recipe_import_preview');
+                // Clear cache
+                Cache::forget('recipe_import_preview:'.auth()->id());
 
                 // Redirect to recipe show page
                 session()->flash('success', 'Recipe imported successfully!');
@@ -94,7 +100,7 @@ class ImportPreview extends Component
 
     public function cancel(): void
     {
-        session()->forget('recipe_import_preview');
+        Cache::forget('recipe_import_preview:'.auth()->id());
         $this->redirect(route('recipes.import'));
     }
 

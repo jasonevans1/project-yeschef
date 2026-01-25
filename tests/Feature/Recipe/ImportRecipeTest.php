@@ -6,6 +6,7 @@ use App\Livewire\Recipes\Import;
 use App\Livewire\Recipes\ImportPreview;
 use App\Models\Recipe;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 
@@ -72,11 +73,12 @@ test('successful import redirects to preview with session data', function () {
         ->assertHasNoErrors()
         ->assertRedirect(route('recipes.import.preview'));
 
-    // Verify session data
-    expect(session()->has('recipe_import_preview'))->toBeTrue();
-    $sessionData = session('recipe_import_preview');
-    expect($sessionData['name'])->toBe('Test Recipe');
-    expect($sessionData['source_url'])->toBe('https://example.com/recipe');
+    // Verify cache data
+    $cacheKey = 'recipe_import_preview:'.$user->id;
+    expect(Cache::has($cacheKey))->toBeTrue();
+    $cachedData = Cache::get($cacheKey);
+    expect($cachedData['name'])->toBe('Test Recipe');
+    expect($cachedData['source_url'])->toBe('https://example.com/recipe');
 });
 
 test('import displays error when no recipe data found', function () {
@@ -111,10 +113,10 @@ test('import displays error on network failure', function () {
 
 // T038: Tests for ImportPreview Component
 
-test('preview page loads session data', function () {
+test('preview page loads cache data', function () {
     $user = User::factory()->create();
 
-    session()->put('recipe_import_preview', [
+    Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Preview Test Recipe',
         'instructions' => 'Test instructions',
         'recipeIngredient' => ['Ingredient 1'],
@@ -126,7 +128,7 @@ test('preview page loads session data', function () {
         ->assertSet('recipeData.name', 'Preview Test Recipe');
 });
 
-test('preview redirects to import if no session data', function () {
+test('preview redirects to import if no cache data', function () {
     $user = User::factory()->create();
 
     Livewire::actingAs($user)
@@ -138,7 +140,7 @@ test('preview redirects to import if no session data', function () {
 test('confirming import creates recipe in database', function () {
     $user = User::factory()->create();
 
-    session()->put('recipe_import_preview', [
+    Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Imported Recipe',
         'description' => 'A delicious recipe',
         'instructions' => 'Mix and bake at 350°F',
@@ -174,7 +176,7 @@ test('confirming import creates recipe in database', function () {
 test('confirming import creates recipe ingredients', function () {
     $user = User::factory()->create();
 
-    session()->put('recipe_import_preview', [
+    Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Ingredients',
         'instructions' => 'Cook it',
         'source_url' => 'https://example.com/recipe',
@@ -196,11 +198,11 @@ test('confirming import creates recipe ingredients', function () {
     expect($firstIngredient->sort_order)->toBe(0);
 });
 
-test('confirming import clears session data', function () {
+test('confirming import clears cache data', function () {
     $user = User::factory()->create();
 
-    session()->put('recipe_import_preview', [
-        'name' => 'Session Test Recipe',
+    Cache::put('recipe_import_preview:'.$user->id, [
+        'name' => 'Cache Test Recipe',
         'instructions' => 'Test',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [],
@@ -210,13 +212,13 @@ test('confirming import clears session data', function () {
         ->test(ImportPreview::class)
         ->call('confirmImport');
 
-    expect(session()->has('recipe_import_preview'))->toBeFalse();
+    expect(Cache::has('recipe_import_preview:'.$user->id))->toBeFalse();
 });
 
-test('cancel clears session without creating recipe', function () {
+test('cancel clears cache without creating recipe', function () {
     $user = User::factory()->create();
 
-    session()->put('recipe_import_preview', [
+    Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Canceled Recipe',
         'instructions' => 'Should not be saved',
         'source_url' => 'https://example.com/recipe',
@@ -233,8 +235,8 @@ test('cancel clears session without creating recipe', function () {
     // Verify no recipe was created
     expect(Recipe::count())->toBe($initialCount);
 
-    // Verify session was cleared
-    expect(session()->has('recipe_import_preview'))->toBeFalse();
+    // Verify cache was cleared
+    expect(Cache::has('recipe_import_preview:'.$user->id))->toBeFalse();
 });
 
 test('import shows helpful error for Cloudflare-protected sites', function () {
