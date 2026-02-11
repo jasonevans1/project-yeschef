@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroceryList extends Model
@@ -52,6 +54,30 @@ class GroceryList extends Model
     public function groceryItems(): HasMany
     {
         return $this->hasMany(GroceryItem::class);
+    }
+
+    public function contentShares(): MorphMany
+    {
+        return $this->morphMany(ContentShare::class, 'shareable');
+    }
+
+    // Scopes
+
+    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('contentShares', function ($sq) use ($user) {
+                    $sq->where('recipient_id', $user->id);
+                })
+                ->orWhereIn('user_id', function ($sq) use ($user) {
+                    $sq->select('owner_id')
+                        ->from('content_shares')
+                        ->where('recipient_id', $user->id)
+                        ->where('share_all', true)
+                        ->where('shareable_type', self::class);
+                });
+        });
     }
 
     // Computed Attributes

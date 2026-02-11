@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\MealType;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Recipe extends Model
 {
@@ -62,7 +64,30 @@ class Recipe extends Model
         return $this->hasMany(MealAssignment::class);
     }
 
+    public function contentShares(): MorphMany
+    {
+        return $this->morphMany(ContentShare::class, 'shareable');
+    }
+
     // Scopes
+
+    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->whereNull('user_id')
+                ->orWhere('user_id', $user->id)
+                ->orWhereHas('contentShares', function ($sq) use ($user) {
+                    $sq->where('recipient_id', $user->id);
+                })
+                ->orWhereIn('user_id', function ($sq) use ($user) {
+                    $sq->select('owner_id')
+                        ->from('content_shares')
+                        ->where('recipient_id', $user->id)
+                        ->where('share_all', true)
+                        ->where('shareable_type', self::class);
+                });
+        });
+    }
 
     public function scopeImported($query)
     {

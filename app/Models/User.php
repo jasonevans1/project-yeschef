@@ -82,6 +82,22 @@ class User extends Authenticatable
     }
 
     /**
+     * Get shares this user has created (as owner)
+     */
+    public function outgoingShares(): HasMany
+    {
+        return $this->hasMany(ContentShare::class, 'owner_id');
+    }
+
+    /**
+     * Get shares this user has received (as recipient)
+     */
+    public function incomingShares(): HasMany
+    {
+        return $this->hasMany(ContentShare::class, 'recipient_id');
+    }
+
+    /**
      * Get the user's initials
      */
     public function initials(): string
