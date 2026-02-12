@@ -84,6 +84,9 @@
                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
                                 Permission
                             </th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wider">
+                                Actions
+                            </th>
                         </tr>
                     </thead>
                     <tbody class="bg-white dark:bg-zinc-900 divide-y divide-gray-200 dark:divide-zinc-700">
@@ -113,11 +116,23 @@
                                     @endif
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($share->permission === \App\Enums\SharePermission::Write)
-                                        <flux:badge variant="warning">Read & Write</flux:badge>
-                                    @else
-                                        <flux:badge variant="outline">Read Only</flux:badge>
-                                    @endif
+                                    <flux:select
+                                        wire:change="updatePermission({{ $share->id }}, $event.target.value)"
+                                        class="w-36"
+                                    >
+                                        <option value="read" @selected($share->permission === \App\Enums\SharePermission::Read)>Read Only</option>
+                                        <option value="write" @selected($share->permission === \App\Enums\SharePermission::Write)>Read & Write</option>
+                                    </flux:select>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right">
+                                    <flux:button
+                                        wire:click="revokeShare({{ $share->id }})"
+                                        wire:confirm="Are you sure you want to revoke this share?"
+                                        variant="danger"
+                                        size="sm"
+                                    >
+                                        Revoke
+                                    </flux:button>
                                 </td>
                             </tr>
                         @endforeach

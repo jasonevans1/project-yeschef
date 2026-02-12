@@ -141,14 +141,14 @@
 
 ### Tests for User Story 4
 
-- [ ] T046 [P] [US4] Write tests for share management: list all outgoing shares, update permission level, revoke share, revoke share-all removes all access, specific revoke under share-all keeps access in `tests/Feature/Sharing/ShareManagementTest.php`
+- [x] T046 [P] [US4] Write tests for share management: list all outgoing shares, update permission level, revoke share, revoke share-all removes all access, specific revoke under share-all keeps access in `tests/Feature/Sharing/ShareManagementTest.php`
 
 ### Implementation for User Story 4
 
-- [ ] T047 [US4] Add `updatePermission(int $shareId, string $newPermission)` action to `app/Livewire/Settings/Sharing.php` — find share, verify owner, update permission field
-- [ ] T048 [US4] Add `revokeShare(int $shareId)` action to `app/Livewire/Settings/Sharing.php` — find share, verify owner, delete record
-- [ ] T049 [US4] Add permission change dropdown and revoke button per share row in `resources/views/livewire/settings/sharing.blade.php`
-- [ ] T050 [US4] Run US4 tests: `php artisan test tests/Feature/Sharing/ShareManagementTest.php`
+- [x] T047 [US4] Add `updatePermission(int $shareId, string $newPermission)` action to `app/Livewire/Settings/Sharing.php` — find share, verify owner, update permission field
+- [x] T048 [US4] Add `revokeShare(int $shareId)` action to `app/Livewire/Settings/Sharing.php` — find share, verify owner, delete record
+- [x] T049 [US4] Add permission change dropdown and revoke button per share row in `resources/views/livewire/settings/sharing.blade.php`
+- [x] T050 [US4] Run US4 tests: `php artisan test tests/Feature/Sharing/ShareManagementTest.php`
 
 **Checkpoint**: Owners have full control to manage, modify, and revoke shares.
 

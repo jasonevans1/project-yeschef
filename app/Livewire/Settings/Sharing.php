@@ -71,6 +71,36 @@ class Sharing extends Component
         $this->shareAllPermission = 'read';
     }
 
+    public function updatePermission(int $shareId, string $newPermission): void
+    {
+        if (! in_array($newPermission, ['read', 'write'])) {
+            $this->addError('permission', 'Invalid permission value.');
+
+            return;
+        }
+
+        $share = ContentShare::findOrFail($shareId);
+
+        if ($share->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $share->update([
+            'permission' => SharePermission::from($newPermission),
+        ]);
+    }
+
+    public function revokeShare(int $shareId): void
+    {
+        $share = ContentShare::findOrFail($shareId);
+
+        if ($share->owner_id !== auth()->id()) {
+            abort(403);
+        }
+
+        $share->delete();
+    }
+
     public function render(): View
     {
         $shares = auth()->user()->outgoingShares()
