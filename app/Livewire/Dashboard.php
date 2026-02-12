@@ -23,7 +23,7 @@ class Dashboard extends Component
         $nextWeek = now()->addDays(7)->endOfDay();
 
         return MealPlan::query()
-            ->where('user_id', auth()->id())
+            ->accessibleBy(auth()->user())
             ->where(function ($query) use ($today, $nextWeek) {
                 // Plans that start in the next 7 days, or are currently active
                 $query->whereBetween('start_date', [$today, $nextWeek])
@@ -46,7 +46,7 @@ class Dashboard extends Component
     public function recentGroceryLists()
     {
         return GroceryList::query()
-            ->where('user_id', auth()->id())
+            ->accessibleBy(auth()->user())
             ->withCount([
                 'groceryItems as total_items',
                 'groceryItems as completed_items' => function ($query) {

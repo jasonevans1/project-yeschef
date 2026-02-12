@@ -55,18 +55,15 @@ class Index extends Component
     public function render(): View
     {
         $query = Recipe::query()
-            ->with(['recipeIngredients.ingredient']);
+            ->with(['recipeIngredients.ingredient', 'user']);
 
         // Filter by ownership
         if ($this->myRecipesOnly) {
             // Show only user's own recipes
             $query->where('user_id', auth()->id());
         } else {
-            // Show system recipes and user's own recipes (default behavior)
-            $query->where(function ($q) {
-                $q->whereNull('user_id')
-                    ->orWhere('user_id', auth()->id());
-            });
+            // Show system recipes, user's own, and shared recipes
+            $query->accessibleBy(auth()->user());
         }
 
         // Full-text search on name, description, and ingredients (fallback to LIKE for SQLite)

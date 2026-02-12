@@ -54,6 +54,9 @@
                                         Standalone
                                     </flux:badge>
                                 @endif
+                                @if($list->user_id !== auth()->id() && $list->user)
+                                    <flux:badge size="sm" color="purple" icon="share">Shared by {{ $list->user->name }}</flux:badge>
+                                @endif
                             </div>
                             <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                 @if($list->meal_plan_id)

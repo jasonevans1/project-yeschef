@@ -2,6 +2,7 @@
 
 namespace App\Livewire\MealPlans;
 
+use App\Models\MealPlan;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,8 +12,8 @@ class Index extends Component
 
     public function render()
     {
-        $mealPlans = auth()->user()
-            ->mealPlans()
+        $mealPlans = MealPlan::accessibleBy(auth()->user())
+            ->with('user')
             ->withCount('mealAssignments')
             ->latest()
             ->paginate(10);

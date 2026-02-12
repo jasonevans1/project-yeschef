@@ -19,8 +19,10 @@
                     <div class="flex flex-wrap gap-2 mb-4">
                         @if ($this->isSystemRecipe)
                             <flux:badge color="blue" icon="star">System Recipe</flux:badge>
-                        @else
+                        @elseif ($recipe->user_id === auth()->id())
                             <flux:badge color="green" icon="user">My Recipe</flux:badge>
+                        @elseif ($recipe->user)
+                            <flux:badge color="purple" icon="share">Shared by {{ $recipe->user->name }}</flux:badge>
                         @endif
 
                         @if ($recipe->meal_type)

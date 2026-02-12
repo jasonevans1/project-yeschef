@@ -42,6 +42,8 @@
                 <flux:badge size="sm" color="blue" icon="star">System</flux:badge>
             @elseif ($recipe->user_id === auth()->id())
                 <flux:badge size="sm" color="green" icon="user">My Recipe</flux:badge>
+            @elseif ($recipe->user)
+                <flux:badge size="sm" color="purple" icon="share">Shared by {{ $recipe->user->name }}</flux:badge>
             @endif
         </div>
 

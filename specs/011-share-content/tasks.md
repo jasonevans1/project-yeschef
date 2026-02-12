@@ -115,19 +115,19 @@
 
 ### Tests for User Story 3
 
-- [ ] T036 [P] [US3] Write tests for shared content display: shared items appear in index views, owner name label visible, read-only items hide edit/delete controls, read-write items show edit controls, recipients cannot delete or re-share in `tests/Feature/Sharing/SharedContentDisplayTest.php`
+- [x] T036 [P] [US3] Write tests for shared content display: shared items appear in index views, owner name label visible, read-only items hide edit/delete controls, read-write items show edit controls, recipients cannot delete or re-share in `tests/Feature/Sharing/SharedContentDisplayTest.php`
 
 ### Implementation for User Story 3
 
-- [ ] T037 [US3] Update recipe index query in `app/Livewire/Recipes/Index.php` to use `accessibleBy(auth()->user())` scope instead of `where('user_id', auth()->id())`. Eager-load `user` relationship for owner name display.
-- [ ] T038 [P] [US3] Update meal plan index query in `app/Livewire/MealPlans/Index.php` to use `accessibleBy(auth()->user())` scope. Eager-load `user` relationship.
-- [ ] T039 [P] [US3] Update grocery list index query in `app/Livewire/GroceryLists/Index.php` to use `accessibleBy(auth()->user())` scope. Eager-load `user` relationship.
-- [ ] T040 [US3] Update dashboard queries in `app/Livewire/Dashboard.php` to include shared meal plans and grocery lists using `accessibleBy()` scope
-- [ ] T041 [US3] Add "Shared by {owner name}" badge to recipe cards in `resources/views/livewire/recipes/index.blade.php` for items where `user_id !== auth()->id()`
-- [ ] T042 [P] [US3] Add "Shared by {owner name}" badge to meal plan cards in `resources/views/livewire/meal-plans/index.blade.php`
-- [ ] T043 [P] [US3] Add "Shared by {owner name}" badge to grocery list cards in `resources/views/livewire/grocery-lists/index.blade.php`
-- [ ] T044 [US3] Conditionally hide edit/delete/share buttons on show pages (`recipes/show`, `meal-plans/show`, `grocery-lists/show`) when the current user is not the owner. Show edit button only if user has write permission via policy `can('update', $model)`.
-- [ ] T045 [US3] Run US3 tests: `php artisan test tests/Feature/Sharing/SharedContentDisplayTest.php`
+- [x] T037 [US3] Update recipe index query in `app/Livewire/Recipes/Index.php` to use `accessibleBy(auth()->user())` scope instead of `where('user_id', auth()->id())`. Eager-load `user` relationship for owner name display.
+- [x] T038 [P] [US3] Update meal plan index query in `app/Livewire/MealPlans/Index.php` to use `accessibleBy(auth()->user())` scope. Eager-load `user` relationship.
+- [x] T039 [P] [US3] Update grocery list index query in `app/Livewire/GroceryLists/Index.php` to use `accessibleBy(auth()->user())` scope. Eager-load `user` relationship.
+- [x] T040 [US3] Update dashboard queries in `app/Livewire/Dashboard.php` to include shared meal plans and grocery lists using `accessibleBy()` scope
+- [x] T041 [US3] Add "Shared by {owner name}" badge to recipe cards in `resources/views/livewire/recipes/index.blade.php` for items where `user_id !== auth()->id()`
+- [x] T042 [P] [US3] Add "Shared by {owner name}" badge to meal plan cards in `resources/views/livewire/meal-plans/index.blade.php`
+- [x] T043 [P] [US3] Add "Shared by {owner name}" badge to grocery list cards in `resources/views/livewire/grocery-lists/index.blade.php`
+- [x] T044 [US3] Conditionally hide edit/delete/share buttons on show pages (`recipes/show`, `meal-plans/show`, `grocery-lists/show`) when the current user is not the owner. Show edit button only if user has write permission via policy `can('update', $model)`.
+- [x] T045 [US3] Run US3 tests: `php artisan test tests/Feature/Sharing/SharedContentDisplayTest.php`
 
 **Checkpoint**: Recipients see shared content with owner labels. Permission enforcement works end-to-end.
 
