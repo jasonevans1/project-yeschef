@@ -81,10 +81,22 @@
                     </flux:menu>
                 </flux:dropdown>
 
-                {{-- Share Button (US8 - T131) --}}
+                {{-- Share Link Button (US8 - T131) --}}
                 @can('update', $groceryList)
                     <flux:button
                         wire:click="openShareDialog"
+                        variant="ghost"
+                        size="sm"
+                        icon="link"
+                    >
+                        Share Link
+                    </flux:button>
+                @endcan
+
+                {{-- Share With User Button (011-share-content) --}}
+                @can('share', $groceryList)
+                    <flux:button
+                        wire:click="openShareModal"
                         variant="ghost"
                         size="sm"
                         icon="share"
@@ -351,6 +363,9 @@
             </flux:button>
         </div>
     </flux:modal>
+
+    {{-- User-Based Share Modal (011-share-content) --}}
+    <x-share-modal :model="$groceryList" title="Share &quot;{{ $groceryList->name }}&quot;" />
 </div>
 
 {{-- Alpine.js Autocomplete Script --}}

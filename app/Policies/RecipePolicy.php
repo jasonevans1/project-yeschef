@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\SharePermission;
+use App\Models\ContentShare;
 use App\Models\Recipe;
 use App\Models\User;
 
@@ -11,7 +13,7 @@ class RecipePolicy
      * Determine whether the user can view the recipe.
      *
      * System recipes (user_id = null) can be viewed by anyone.
-     * Personal recipes can only be viewed by their owner.
+     * Personal recipes can be viewed by their owner or shared recipients.
      */
     public function view(User $user, Recipe $recipe): bool
     {
@@ -20,8 +22,13 @@ class RecipePolicy
             return true;
         }
 
-        // Personal recipes can only be viewed by their owner
-        return $recipe->user_id === $user->id;
+        // Owner can always view
+        if ($recipe->user_id === $user->id) {
+            return true;
+        }
+
+        // Shared recipients can view (read or write)
+        return $this->hasShareAccess($user, $recipe);
     }
 
     /**
@@ -37,7 +44,7 @@ class RecipePolicy
     /**
      * Determine whether the user can update the recipe.
      *
-     * Only the owner can update their personal recipes.
+     * Only the owner or write-shared recipients can update personal recipes.
      * System recipes cannot be updated.
      */
     public function update(User $user, Recipe $recipe): bool
@@ -47,8 +54,13 @@ class RecipePolicy
             return false;
         }
 
-        // Only the owner can update their recipe
-        return $recipe->user_id === $user->id;
+        // Owner can always update
+        if ($recipe->user_id === $user->id) {
+            return true;
+        }
+
+        // Write-shared recipients can update
+        return $this->hasWriteShareAccess($user, $recipe);
     }
 
     /**
@@ -66,5 +78,44 @@ class RecipePolicy
 
         // Only the owner can delete their recipe
         return $recipe->user_id === $user->id;
+    }
+
+    /**
+     * Determine whether the user can share the recipe.
+     *
+     * Only the owner can share their recipe.
+     */
+    public function share(User $user, Recipe $recipe): bool
+    {
+        return $recipe->user_id === $user->id;
+    }
+
+    private function hasShareAccess(User $user, Recipe $recipe): bool
+    {
+        return ContentShare::where('recipient_id', $user->id)
+            ->where('shareable_type', Recipe::class)
+            ->where(function ($query) use ($recipe) {
+                $query->where('shareable_id', $recipe->id)
+                    ->orWhere(function ($q) use ($recipe) {
+                        $q->where('share_all', true)
+                            ->where('owner_id', $recipe->user_id);
+                    });
+            })
+            ->exists();
+    }
+
+    private function hasWriteShareAccess(User $user, Recipe $recipe): bool
+    {
+        return ContentShare::where('recipient_id', $user->id)
+            ->where('shareable_type', Recipe::class)
+            ->where('permission', SharePermission::Write)
+            ->where(function ($query) use ($recipe) {
+                $query->where('shareable_id', $recipe->id)
+                    ->orWhere(function ($q) use ($recipe) {
+                        $q->where('share_all', true)
+                            ->where('owner_id', $recipe->user_id);
+                    });
+            })
+            ->exists();
     }
 }

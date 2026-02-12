@@ -2,6 +2,8 @@
 
 namespace App\Policies;
 
+use App\Enums\SharePermission;
+use App\Models\ContentShare;
 use App\Models\MealPlan;
 use App\Models\User;
 
@@ -20,11 +22,15 @@ class MealPlanPolicy
     /**
      * Determine whether the user can view the meal plan.
      *
-     * Users can only view their own meal plans.
+     * Users can view their own meal plans or shared ones.
      */
     public function view(User $user, MealPlan $mealPlan): bool
     {
-        return $mealPlan->user_id === $user->id;
+        if ($mealPlan->user_id === $user->id) {
+            return true;
+        }
+
+        return $this->hasShareAccess($user, $mealPlan);
     }
 
     /**
@@ -40,11 +46,15 @@ class MealPlanPolicy
     /**
      * Determine whether the user can update the meal plan.
      *
-     * Users can only update their own meal plans.
+     * Users can update their own meal plans or write-shared ones.
      */
     public function update(User $user, MealPlan $mealPlan): bool
     {
-        return $mealPlan->user_id === $user->id;
+        if ($mealPlan->user_id === $user->id) {
+            return true;
+        }
+
+        return $this->hasWriteShareAccess($user, $mealPlan);
     }
 
     /**
@@ -55,5 +65,44 @@ class MealPlanPolicy
     public function delete(User $user, MealPlan $mealPlan): bool
     {
         return $mealPlan->user_id === $user->id;
+    }
+
+    /**
+     * Determine whether the user can share the meal plan.
+     *
+     * Only the owner can share their meal plan.
+     */
+    public function share(User $user, MealPlan $mealPlan): bool
+    {
+        return $mealPlan->user_id === $user->id;
+    }
+
+    private function hasShareAccess(User $user, MealPlan $mealPlan): bool
+    {
+        return ContentShare::where('recipient_id', $user->id)
+            ->where('shareable_type', MealPlan::class)
+            ->where(function ($query) use ($mealPlan) {
+                $query->where('shareable_id', $mealPlan->id)
+                    ->orWhere(function ($q) use ($mealPlan) {
+                        $q->where('share_all', true)
+                            ->where('owner_id', $mealPlan->user_id);
+                    });
+            })
+            ->exists();
+    }
+
+    private function hasWriteShareAccess(User $user, MealPlan $mealPlan): bool
+    {
+        return ContentShare::where('recipient_id', $user->id)
+            ->where('shareable_type', MealPlan::class)
+            ->where('permission', SharePermission::Write)
+            ->where(function ($query) use ($mealPlan) {
+                $query->where('shareable_id', $mealPlan->id)
+                    ->orWhere(function ($q) use ($mealPlan) {
+                        $q->where('share_all', true)
+                            ->where('owner_id', $mealPlan->user_id);
+                    });
+            })
+            ->exists();
     }
 }

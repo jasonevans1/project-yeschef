@@ -31,7 +31,7 @@
 - [x] T010 [P] Add `scopeAccessibleBy(Builder $query, User $user)` query scope to `app/Models/Recipe.php` returning owned + specifically shared + share-all items
 - [x] T011 [P] Add `scopeAccessibleBy(Builder $query, User $user)` query scope to `app/Models/MealPlan.php` returning owned + specifically shared + share-all items
 - [x] T012 [P] Add `scopeAccessibleBy(Builder $query, User $user)` query scope to `app/Models/GroceryList.php` returning owned + specifically shared + share-all items
-- [ ] T013 Run migration and verify schema on SQLite: `php artisan migrate`
+- [x] T013 Run migration and verify schema on SQLite: `php artisan migrate`
 
 **Checkpoint**: Data layer ready — ContentShare model, factory, enums, relationships, and query scopes all in place
 
@@ -45,17 +45,17 @@
 
 ### Tests for Foundational Phase
 
-- [ ] T014 [P] Write policy tests for Recipe sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
-- [ ] T015 [P] Write policy tests for MealPlan sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
-- [ ] T016 [P] Write policy tests for GroceryList sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
+- [x] T014 [P] Write policy tests for Recipe sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
+- [x] T015 [P] Write policy tests for MealPlan sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
+- [x] T016 [P] Write policy tests for GroceryList sharing permissions (owner, read-shared, write-shared, unshared, share-all) in `tests/Feature/Sharing/SharePermissionsTest.php`
 
 ### Implementation for Foundational Phase
 
-- [ ] T017 Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/RecipePolicy.php`. Extend `view()` to allow shared access (read or write). Extend `update()` to allow write-shared access. Keep `delete()` owner-only.
-- [ ] T018 [P] Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/MealPlanPolicy.php`. Extend `view()` and `update()` for shared access. Keep `delete()` owner-only.
-- [ ] T019 [P] Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/GroceryListPolicy.php`. Extend `view()` and `update()` for shared access. Keep `delete()` owner-only. Preserve existing `viewShared()` for token-based sharing.
-- [ ] T020 Write ContentShare model relationship and scope tests in `tests/Feature/Sharing/ContentShareModelTest.php` — test `accessibleBy` scope for owned items, specific shares, share-all shares, and no-access cases
-- [ ] T021 Run foundational tests: `php artisan test tests/Feature/Sharing/SharePermissionsTest.php tests/Feature/Sharing/ContentShareModelTest.php`
+- [x] T017 Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/RecipePolicy.php`. Extend `view()` to allow shared access (read or write). Extend `update()` to allow write-shared access. Keep `delete()` owner-only.
+- [x] T018 [P] Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/MealPlanPolicy.php`. Extend `view()` and `update()` for shared access. Keep `delete()` owner-only.
+- [x] T019 [P] Add `share()` method (owner-only) and `hasShareAccess()`/`hasWriteShareAccess()` private helpers to `app/Policies/GroceryListPolicy.php`. Extend `view()` and `update()` for shared access. Keep `delete()` owner-only. Preserve existing `viewShared()` for token-based sharing.
+- [x] T020 Write ContentShare model relationship and scope tests in `tests/Feature/Sharing/ContentShareModelTest.php` — test `accessibleBy` scope for owned items, specific shares, share-all shares, and no-access cases
+- [x] T021 Run foundational tests: `php artisan test tests/Feature/Sharing/SharePermissionsTest.php tests/Feature/Sharing/ContentShareModelTest.php`
 
 **Checkpoint**: Authorization layer ready — policies check share permissions, scopes return correct items. All user story implementation can now begin.
 
@@ -69,17 +69,17 @@
 
 ### Tests for User Story 1
 
-- [ ] T022 [P] [US1] Write tests for sharing a recipe from the show page (valid email, self-share prevention, non-owner blocked, upsert on duplicate) in `tests/Feature/Sharing/ShareRecipeTest.php`
-- [ ] T023 [P] [US1] Write tests for sharing a meal plan from the show page in `tests/Feature/Sharing/ShareMealPlanTest.php`
-- [ ] T024 [P] [US1] Write tests for sharing a grocery list from the show page in `tests/Feature/Sharing/ShareGroceryListTest.php`
+- [x] T022 [P] [US1] Write tests for sharing a recipe from the show page (valid email, self-share prevention, non-owner blocked, upsert on duplicate) in `tests/Feature/Sharing/ShareRecipeTest.php`
+- [x] T023 [P] [US1] Write tests for sharing a meal plan from the show page in `tests/Feature/Sharing/ShareMealPlanTest.php`
+- [x] T024 [P] [US1] Write tests for sharing a grocery list from the show page in `tests/Feature/Sharing/ShareGroceryListTest.php`
 
 ### Implementation for User Story 1
 
-- [ ] T025 [US1] Create reusable share modal Blade component with email input, permission select (read-only / read-write), and submit button in `resources/views/components/share-modal.blade.php`
-- [ ] T026 [US1] Add `shareWith()` Livewire action, `shareEmail`/`sharePermission` properties, `showShareModal` state, and share modal to `app/Livewire/Recipes/Show.php` and `resources/views/livewire/recipes/show.blade.php`. Include share button, self-share prevention, upsert logic, and success flash.
-- [ ] T027 [P] [US1] Add `shareWith()` Livewire action, share properties, modal state, and share button to `app/Livewire/MealPlans/Show.php` and `resources/views/livewire/meal-plans/show.blade.php`
-- [ ] T028 [P] [US1] Add `shareWith()` Livewire action, share properties, modal state, and share button to `app/Livewire/GroceryLists/Show.php` and `resources/views/livewire/grocery-lists/show.blade.php`
-- [ ] T029 [US1] Run US1 tests: `php artisan test tests/Feature/Sharing/ShareRecipeTest.php tests/Feature/Sharing/ShareMealPlanTest.php tests/Feature/Sharing/ShareGroceryListTest.php`
+- [x] T025 [US1] Create reusable share modal Blade component with email input, permission select (read-only / read-write), and submit button in `resources/views/components/share-modal.blade.php`
+- [x] T026 [US1] Add `shareWith()` Livewire action, `shareEmail`/`sharePermission` properties, `showShareModal` state, and share modal to `app/Livewire/Recipes/Show.php` and `resources/views/livewire/recipes/show.blade.php`. Include share button, self-share prevention, upsert logic, and success flash.
+- [x] T027 [P] [US1] Add `shareWith()` Livewire action, share properties, modal state, and share button to `app/Livewire/MealPlans/Show.php` and `resources/views/livewire/meal-plans/show.blade.php`
+- [x] T028 [P] [US1] Add `shareWith()` Livewire action, share properties, modal state, and share button to `app/Livewire/GroceryLists/Show.php` and `resources/views/livewire/grocery-lists/show.blade.php`
+- [x] T029 [US1] Run US1 tests: `php artisan test tests/Feature/Sharing/ShareRecipeTest.php tests/Feature/Sharing/ShareMealPlanTest.php tests/Feature/Sharing/ShareGroceryListTest.php`
 
 **Checkpoint**: Users can share specific items with other registered users. MVP is functional.
 
@@ -93,15 +93,15 @@
 
 ### Tests for User Story 2
 
-- [ ] T030 [P] [US2] Write tests for share-all creation (all recipes, all meal plans, all grocery lists), auto-inclusion of future items, coexistence with specific-item shares, and upsert behavior in `tests/Feature/Sharing/ShareAllTest.php`
+- [x] T030 [P] [US2] Write tests for share-all creation (all recipes, all meal plans, all grocery lists), auto-inclusion of future items, coexistence with specific-item shares, and upsert behavior in `tests/Feature/Sharing/ShareAllTest.php`
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Create `Settings\Sharing` Livewire component with outgoing shares list (grouped by recipient), `shareAll()` action with email/type/permission inputs, and self-share prevention in `app/Livewire/Settings/Sharing.php`
-- [ ] T032 [US2] Create sharing settings Blade view with share-all form (email, content type dropdown, permission select), active shares list with type/item/permission columns in `resources/views/livewire/settings/sharing.blade.php`
-- [ ] T033 [US2] Add route `GET /settings/sharing` pointing to `Settings\Sharing` in `routes/web.php`
-- [ ] T034 [US2] Add "Sharing" navlist entry to settings sidebar in `resources/views/components/settings/layout.blade.php`
-- [ ] T035 [US2] Run US2 tests: `php artisan test tests/Feature/Sharing/ShareAllTest.php`
+- [x] T031 [US2] Create `Settings\Sharing` Livewire component with outgoing shares list (grouped by recipient), `shareAll()` action with email/type/permission inputs, and self-share prevention in `app/Livewire/Settings/Sharing.php`
+- [x] T032 [US2] Create sharing settings Blade view with share-all form (email, content type dropdown, permission select), active shares list with type/item/permission columns in `resources/views/livewire/settings/sharing.blade.php`
+- [x] T033 [US2] Add route `GET /settings/sharing` pointing to `Settings\Sharing` in `routes/web.php`
+- [x] T034 [US2] Add "Sharing" navlist entry to settings sidebar in `resources/views/components/settings/layout.blade.php`
+- [x] T035 [US2] Run US2 tests: `php artisan test tests/Feature/Sharing/ShareAllTest.php`
 
 **Checkpoint**: Users can share all items of a content type and manage shares from settings. Future items auto-included.
 

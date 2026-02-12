@@ -21,6 +21,16 @@
                         <span class="sm:hidden">Grocery List</span>
                     </flux:button>
                 @endif
+                @can('share', $mealPlan)
+                    <flux:button
+                        wire:click="openShareModal"
+                        variant="ghost"
+                        icon="share"
+                        class="flex-1 sm:flex-none"
+                    >
+                        Share
+                    </flux:button>
+                @endcan
                 <flux:button
                     href="{{ route('meal-plans.edit', $mealPlan) }}"
                     variant="ghost"
@@ -641,4 +651,7 @@
             </div>
         </div>
     @endif
+
+    {{-- Share Modal --}}
+    <x-share-modal :model="$mealPlan" title="Share &quot;{{ $mealPlan->name }}&quot;" />
 </div>

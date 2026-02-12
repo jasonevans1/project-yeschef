@@ -10,6 +10,7 @@
             @endif
             <flux:navlist.item :href="route('settings.item-templates')" wire:navigate>{{ __('My Item Templates') }}</flux:navlist.item>
             <flux:navlist.item :href="route('settings.appearance')" wire:navigate>{{ __('Appearance') }}</flux:navlist.item>
+            <flux:navlist.item :href="route('settings.sharing')" wire:navigate>{{ __('Sharing') }}</flux:navlist.item>
         </flux:navlist>
     </div>
 

@@ -51,6 +51,16 @@
                         Add To Meal Plan
                     </flux:button>
 
+                    @can('share', $recipe)
+                        <flux:button
+                            wire:click="openShareModal"
+                            variant="ghost"
+                            icon="share"
+                        >
+                            Share
+                        </flux:button>
+                    @endcan
+
                     @can('update', $recipe)
                         <flux:button variant="primary" href="{{ route('recipes.edit', $recipe) }}" icon="pencil">
                             Edit
@@ -218,6 +228,9 @@
             </div>
         </div>
     </div>
+
+    {{-- Share Modal --}}
+    <x-share-modal :model="$recipe" title="Share &quot;{{ $recipe->name }}&quot;" />
 
     {{-- Add To Meal Plan Modal --}}
     <flux:modal wire:model="showMealPlanModal" class="max-w-2xl">

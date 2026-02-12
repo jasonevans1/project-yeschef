@@ -4,8 +4,11 @@ namespace App\Livewire\GroceryLists;
 
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
+use App\Enums\SharePermission;
+use App\Models\ContentShare;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
+use App\Models\User;
 use App\Services\GroceryListGenerator;
 use App\Services\ItemAutoCompleteService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
@@ -47,6 +50,13 @@ class Show extends Component
 
     // Properties for share dialog (US8 - T131)
     public bool $showShareDialog = false;
+
+    // Properties for user-based sharing (011-share-content)
+    public bool $showShareModal = false;
+
+    public string $shareEmail = '';
+
+    public string $sharePermission = 'read';
 
     // Properties for delete confirmation (US1)
     public bool $showDeleteConfirm = false;
@@ -442,6 +452,69 @@ class Show extends Component
         $this->groceryList->refresh();
 
         session()->flash('message', 'Share access revoked successfully');
+    }
+
+    /**
+     * Open user-based share modal (011-share-content)
+     */
+    public function openShareModal(): void
+    {
+        $this->showShareModal = true;
+        $this->shareEmail = '';
+        $this->sharePermission = 'read';
+        $this->resetValidation(['shareEmail', 'sharePermission']);
+    }
+
+    /**
+     * Close user-based share modal (011-share-content)
+     */
+    public function closeShareModal(): void
+    {
+        $this->showShareModal = false;
+        $this->shareEmail = '';
+        $this->sharePermission = 'read';
+        $this->resetValidation(['shareEmail', 'sharePermission']);
+    }
+
+    /**
+     * Share grocery list with a user by email (011-share-content)
+     */
+    public function shareWith(): void
+    {
+        $this->authorize('share', $this->groceryList);
+
+        $this->validate([
+            'shareEmail' => ['required', 'email', 'max:255'],
+            'sharePermission' => ['required', 'in:read,write'],
+        ]);
+
+        // Prevent self-sharing
+        if ($this->shareEmail === auth()->user()->email) {
+            $this->addError('shareEmail', 'You cannot share with yourself.');
+
+            return;
+        }
+
+        $recipient = User::where('email', $this->shareEmail)->first();
+
+        ContentShare::updateOrCreate(
+            [
+                'owner_id' => auth()->id(),
+                'recipient_email' => $this->shareEmail,
+                'shareable_type' => GroceryList::class,
+                'shareable_id' => $this->groceryList->id,
+            ],
+            [
+                'recipient_id' => $recipient?->id,
+                'permission' => SharePermission::from($this->sharePermission),
+                'share_all' => false,
+            ]
+        );
+
+        session()->flash('success', "Shared with {$this->shareEmail}");
+
+        $this->closeShareModal();
+        $this->dispatch('close-modal');
     }
 
     /**

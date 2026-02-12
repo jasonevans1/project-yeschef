@@ -21,6 +21,7 @@ use App\Livewire\Settings\ItemTemplates;
 use App\Livewire\Settings\ItemTemplatesEdit;
 use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
+use App\Livewire\Settings\Sharing;
 use App\Livewire\Settings\TwoFactor;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -93,6 +94,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/item-templates', ItemTemplates::class)->name('settings.item-templates');
     Route::get('settings/item-templates/create', ItemTemplatesEdit::class)->name('settings.item-templates.create');
     Route::get('settings/item-templates/{template}/edit', ItemTemplatesEdit::class)->name('settings.item-templates.edit');
+
+    Route::get('settings/sharing', Sharing::class)->name('settings.sharing');
 
     Route::get('settings/two-factor', TwoFactor::class)
         ->middleware(
