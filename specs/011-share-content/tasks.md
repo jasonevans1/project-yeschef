@@ -181,10 +181,10 @@
 
 **Purpose**: Quality assurance, code formatting, and regression testing
 
-- [ ] T058 Run Laravel Pint to format all new and modified files: `vendor/bin/pint --dirty`
-- [ ] T059 Verify existing token-based grocery list sharing still works: `php artisan test tests/Feature/GroceryLists/ShareGroceryListTest.php`
-- [ ] T060 Run full test suite to verify no regressions: `php artisan test`
-- [ ] T061 Verify all edge cases: self-sharing prevention, duplicate share upsert, owner deletion cascades shares, share-all + specific share coexistence
+- [x] T058 Run Laravel Pint to format all new and modified files: `vendor/bin/pint --dirty`
+- [x] T059 Verify existing token-based grocery list sharing still works: `php artisan test tests/Feature/GroceryLists/ShareGroceryListTest.php`
+- [x] T060 Run full test suite to verify no regressions: `php artisan test`
+- [x] T061 Verify all edge cases: self-sharing prevention, duplicate share upsert, owner deletion cascades shares, share-all + specific share coexistence
 
 ---
 
