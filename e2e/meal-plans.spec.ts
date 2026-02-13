@@ -198,7 +198,7 @@ test.describe('Meal Planning Journey', () => {
       }
     } else {
       // No recipes found - close the modal
-      await page.locator('button:has-text("Cancel")').click();
+      await page.locator('button[wire\\:click="closeRecipeSelector"]').click();
     }
   });
 

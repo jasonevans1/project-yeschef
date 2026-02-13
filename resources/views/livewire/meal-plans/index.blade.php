@@ -32,11 +32,16 @@
                     @foreach($activePlans as $plan)
                         <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
                             <div class="flex-1">
-                                <flux:heading size="md">
-                                    <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
-                                        {{ $plan->name }}
-                                    </a>
-                                </flux:heading>
+                                <div class="flex items-center gap-2">
+                                    <flux:heading size="md">
+                                        <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
+                                            {{ $plan->name }}
+                                        </a>
+                                    </flux:heading>
+                                    @if($plan->user_id !== auth()->id() && $plan->user)
+                                        <flux:badge size="sm" color="purple" icon="share">Shared by {{ $plan->user->name }}</flux:badge>
+                                    @endif
+                                </div>
                                 <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                     {{ $plan->start_date->format('M d, Y') }} - {{ $plan->end_date->format('M d, Y') }}
                                     · {{ $plan->duration_days }} {{ Str::plural('day', $plan->duration_days) }}
@@ -63,11 +68,16 @@
                     @foreach($futurePlans as $plan)
                         <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition">
                             <div class="flex-1">
-                                <flux:heading size="md">
-                                    <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
-                                        {{ $plan->name }}
-                                    </a>
-                                </flux:heading>
+                                <div class="flex items-center gap-2">
+                                    <flux:heading size="md">
+                                        <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
+                                            {{ $plan->name }}
+                                        </a>
+                                    </flux:heading>
+                                    @if($plan->user_id !== auth()->id() && $plan->user)
+                                        <flux:badge size="sm" color="purple" icon="share">Shared by {{ $plan->user->name }}</flux:badge>
+                                    @endif
+                                </div>
                                 <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                     {{ $plan->start_date->format('M d, Y') }} - {{ $plan->end_date->format('M d, Y') }}
                                     · {{ $plan->duration_days }} {{ Str::plural('day', $plan->duration_days) }}
@@ -94,11 +104,16 @@
                     @foreach($pastPlans as $plan)
                         <div class="flex items-center justify-between p-4 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 transition opacity-75">
                             <div class="flex-1">
-                                <flux:heading size="md">
-                                    <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
-                                        {{ $plan->name }}
-                                    </a>
-                                </flux:heading>
+                                <div class="flex items-center gap-2">
+                                    <flux:heading size="md">
+                                        <a href="{{ route('meal-plans.show', $plan) }}" class="hover:text-gray-600 dark:hover:text-zinc-300">
+                                            {{ $plan->name }}
+                                        </a>
+                                    </flux:heading>
+                                    @if($plan->user_id !== auth()->id() && $plan->user)
+                                        <flux:badge size="sm" color="purple" icon="share">Shared by {{ $plan->user->name }}</flux:badge>
+                                    @endif
+                                </div>
                                 <flux:text class="text-sm text-gray-600 dark:text-zinc-400">
                                     {{ $plan->start_date->format('M d, Y') }} - {{ $plan->end_date->format('M d, Y') }}
                                     · {{ $plan->duration_days }} {{ Str::plural('day', $plan->duration_days) }}

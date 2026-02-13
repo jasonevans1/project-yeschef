@@ -10,35 +10,51 @@
                 </flux:text>
             </div>
             <div class="flex flex-wrap items-center gap-2 lg:gap-3">
-                @if($mealPlan->mealAssignments->isNotEmpty() && Route::has('grocery-lists.generate'))
+                @can('update', $mealPlan)
+                    @if($mealPlan->mealAssignments->isNotEmpty() && Route::has('grocery-lists.generate'))
+                        <flux:button
+                            href="{{ route('grocery-lists.generate', $mealPlan) }}"
+                            variant="primary"
+                            icon="shopping-cart"
+                            class="flex-1 sm:flex-none"
+                        >
+                            <span class="hidden sm:inline">Generate Grocery List</span>
+                            <span class="sm:hidden">Grocery List</span>
+                        </flux:button>
+                    @endif
+                @endcan
+                @can('share', $mealPlan)
                     <flux:button
-                        href="{{ route('grocery-lists.generate', $mealPlan) }}"
-                        variant="primary"
-                        icon="shopping-cart"
+                        wire:click="openShareModal"
+                        variant="ghost"
+                        icon="share"
                         class="flex-1 sm:flex-none"
                     >
-                        <span class="hidden sm:inline">Generate Grocery List</span>
-                        <span class="sm:hidden">Grocery List</span>
+                        Share
                     </flux:button>
-                @endif
-                <flux:button
-                    href="{{ route('meal-plans.edit', $mealPlan) }}"
-                    variant="ghost"
-                    icon="pencil"
-                    class="flex-1 sm:flex-none"
-                >
-                    Edit
-                </flux:button>
-                <flux:button
-                    wire:click="delete"
-                    wire:confirm="Are you sure you want to delete this meal plan? This action cannot be undone."
-                    variant="ghost"
-                    icon="trash"
-                    class="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
-                >
-                    <span wire:loading.remove wire:target="delete">Delete</span>
-                    <span wire:loading wire:target="delete">Deleting...</span>
-                </flux:button>
+                @endcan
+                @can('update', $mealPlan)
+                    <flux:button
+                        href="{{ route('meal-plans.edit', $mealPlan) }}"
+                        variant="ghost"
+                        icon="pencil"
+                        class="flex-1 sm:flex-none"
+                    >
+                        Edit
+                    </flux:button>
+                @endcan
+                @can('delete', $mealPlan)
+                    <flux:button
+                        wire:click="delete"
+                        wire:confirm="Are you sure you want to delete this meal plan? This action cannot be undone."
+                        variant="ghost"
+                        icon="trash"
+                        class="text-red-600 hover:text-red-700 flex-1 sm:flex-none"
+                    >
+                        <span wire:loading.remove wire:target="delete">Delete</span>
+                        <span wire:loading wire:target="delete">Deleting...</span>
+                    </flux:button>
+                @endcan
             </div>
         </div>
 
@@ -113,16 +129,18 @@
                                                         {{ Str::limit($assignment->notes, 50) }}
                                                     </div>
                                                 @endif
-                                                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <flux:button
-                                                        wire:click.stop="removeAssignment({{ $assignment->id }})"
-                                                        wire:confirm="Remove this recipe from the meal slot?"
-                                                        variant="ghost"
-                                                        size="xs"
-                                                        icon="x-mark"
-                                                        class="text-red-600"
-                                                    />
-                                                </div>
+                                                @can('update', $mealPlan)
+                                                    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <flux:button
+                                                            wire:click.stop="removeAssignment({{ $assignment->id }})"
+                                                            wire:confirm="Remove this recipe from the meal slot?"
+                                                            variant="ghost"
+                                                            size="xs"
+                                                            icon="x-mark"
+                                                            class="text-red-600"
+                                                        />
+                                                    </div>
+                                                @endcan
                                             </div>
                                         @endforeach
 
@@ -149,55 +167,59 @@
                                                         @endif
                                                     </div>
                                                 </div>
-                                                <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <flux:button
-                                                        wire:click.stop="deleteNote({{ $note->id }})"
-                                                        wire:confirm="Delete this note?"
-                                                        variant="ghost"
-                                                        size="xs"
-                                                        icon="x-mark"
-                                                        class="text-red-600"
-                                                    />
-                                                </div>
+                                                @can('update', $mealPlan)
+                                                    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <flux:button
+                                                            wire:click.stop="deleteNote({{ $note->id }})"
+                                                            wire:confirm="Delete this note?"
+                                                            variant="ghost"
+                                                            size="xs"
+                                                            icon="x-mark"
+                                                            class="text-red-600"
+                                                        />
+                                                    </div>
+                                                @endcan
                                             </div>
                                         @endforeach
 
                                         {{-- Empty state or Add Another button --}}
-                                        @if(!$hasItems)
-                                            <flux:dropdown>
-                                                <flux:button
-                                                    variant="ghost"
-                                                    icon="plus"
-                                                    class="w-full h-full min-h-[60px] border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg hover:border-gray-400 dark:hover:border-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
-                                                />
-                                                <flux:menu>
-                                                    <flux:menu.item wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="book-open">
-                                                        Add Recipe
-                                                    </flux:menu.item>
-                                                    <flux:menu.item wire:click="openNoteForm('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="document-text">
-                                                        Add Note
-                                                    </flux:menu.item>
-                                                </flux:menu>
-                                            </flux:dropdown>
-                                        @else
-                                            <flux:dropdown>
-                                                <flux:button
-                                                    variant="ghost"
-                                                    icon="plus"
-                                                    class="w-full border border-dashed border-gray-300 dark:border-zinc-600 rounded-lg hover:border-gray-400 dark:hover:border-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors text-xs py-1"
-                                                >
-                                                    Add Another
-                                                </flux:button>
-                                                <flux:menu>
-                                                    <flux:menu.item wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="book-open">
-                                                        Add Recipe
-                                                    </flux:menu.item>
-                                                    <flux:menu.item wire:click="openNoteForm('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="document-text">
-                                                        Add Note
-                                                    </flux:menu.item>
-                                                </flux:menu>
-                                            </flux:dropdown>
-                                        @endif
+                                        @can('update', $mealPlan)
+                                            @if(!$hasItems)
+                                                <flux:dropdown>
+                                                    <flux:button
+                                                        variant="ghost"
+                                                        icon="plus"
+                                                        class="w-full h-full min-h-[60px] border-2 border-dashed border-gray-300 dark:border-zinc-600 rounded-lg hover:border-gray-400 dark:hover:border-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors"
+                                                    />
+                                                    <flux:menu>
+                                                        <flux:menu.item wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="book-open">
+                                                            Add Recipe
+                                                        </flux:menu.item>
+                                                        <flux:menu.item wire:click="openNoteForm('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="document-text">
+                                                            Add Note
+                                                        </flux:menu.item>
+                                                    </flux:menu>
+                                                </flux:dropdown>
+                                            @else
+                                                <flux:dropdown>
+                                                    <flux:button
+                                                        variant="ghost"
+                                                        icon="plus"
+                                                        class="w-full border border-dashed border-gray-300 dark:border-zinc-600 rounded-lg hover:border-gray-400 dark:hover:border-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-800 transition-colors text-xs py-1"
+                                                    >
+                                                        Add Another
+                                                    </flux:button>
+                                                    <flux:menu>
+                                                        <flux:menu.item wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="book-open">
+                                                            Add Recipe
+                                                        </flux:menu.item>
+                                                        <flux:menu.item wire:click="openNoteForm('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')" icon="document-text">
+                                                            Add Note
+                                                        </flux:menu.item>
+                                                    </flux:menu>
+                                                </flux:dropdown>
+                                            @endif
+                                        @endcan
                                     </div>
                                 </td>
                             @endforeach
@@ -641,4 +663,7 @@
             </div>
         </div>
     @endif
+
+    {{-- Share Modal --}}
+    <x-share-modal :model="$mealPlan" title="Share &quot;{{ $mealPlan->name }}&quot;" />
 </div>

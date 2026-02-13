@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class MealPlan extends Model
 {
@@ -48,11 +50,35 @@ class MealPlan extends Model
         return $this->hasOne(GroceryList::class);
     }
 
+    public function contentShares(): MorphMany
+    {
+        return $this->morphMany(ContentShare::class, 'shareable');
+    }
+
     public function recipes(): BelongsToMany
     {
         return $this->belongsToMany(Recipe::class, 'meal_assignments')
             ->withPivot('date', 'meal_type', 'serving_multiplier', 'notes')
             ->withTimestamps();
+    }
+
+    // Scopes
+
+    public function scopeAccessibleBy(Builder $query, User $user): Builder
+    {
+        return $query->where(function ($q) use ($user) {
+            $q->where('user_id', $user->id)
+                ->orWhereHas('contentShares', function ($sq) use ($user) {
+                    $sq->where('recipient_id', $user->id);
+                })
+                ->orWhereIn('user_id', function ($sq) use ($user) {
+                    $sq->select('owner_id')
+                        ->from('content_shares')
+                        ->where('recipient_id', $user->id)
+                        ->where('share_all', true)
+                        ->where('shareable_type', self::class);
+                });
+        });
     }
 
     // Computed Attributes

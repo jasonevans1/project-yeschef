@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GroceryLists;
 
+use App\Models\GroceryList;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,9 +12,8 @@ class Index extends Component
 
     public function render()
     {
-        $groceryLists = auth()->user()
-            ->groceryLists()
-            ->with('mealPlan')
+        $groceryLists = GroceryList::accessibleBy(auth()->user())
+            ->with(['mealPlan', 'user'])
             ->withCount([
                 'groceryItems as total_items',
                 'groceryItems as completed_items' => function ($query) {

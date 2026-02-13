@@ -2,11 +2,16 @@
 
 namespace App\Livewire\Recipes;
 
+use App\Enums\SharePermission;
+use App\Mail\ShareInvitation;
+use App\Models\ContentShare;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -17,6 +22,15 @@ class Show extends Component
     public Recipe $recipe;
 
     public bool $showMealPlanModal = false;
+
+    // Share modal properties
+    public bool $showShareModal = false;
+
+    #[Validate('required|email|max:255')]
+    public string $shareEmail = '';
+
+    #[Validate('required|in:read,write')]
+    public string $sharePermission = 'read';
 
     public ?int $selectedMealPlanId = null;
 
@@ -106,6 +120,67 @@ class Show extends Component
         ]);
 
         $this->redirect(route('recipes.show', $this->recipe), navigate: true);
+    }
+
+    public function openShareModal(): void
+    {
+        $this->showShareModal = true;
+        $this->shareEmail = '';
+        $this->sharePermission = 'read';
+        $this->resetValidation(['shareEmail', 'sharePermission']);
+    }
+
+    public function closeShareModal(): void
+    {
+        $this->showShareModal = false;
+        $this->reset(['shareEmail', 'sharePermission']);
+        $this->resetValidation(['shareEmail', 'sharePermission']);
+    }
+
+    public function shareWith(): void
+    {
+        $this->authorize('share', $this->recipe);
+
+        $this->validate([
+            'shareEmail' => ['required', 'email', 'max:255'],
+            'sharePermission' => ['required', 'in:read,write'],
+        ]);
+
+        // Prevent self-sharing
+        if ($this->shareEmail === auth()->user()->email) {
+            $this->addError('shareEmail', 'You cannot share with yourself.');
+
+            return;
+        }
+
+        $recipient = User::where('email', $this->shareEmail)->first();
+
+        $share = ContentShare::updateOrCreate(
+            [
+                'owner_id' => auth()->id(),
+                'recipient_email' => $this->shareEmail,
+                'shareable_type' => Recipe::class,
+                'shareable_id' => $this->recipe->id,
+            ],
+            [
+                'recipient_id' => $recipient?->id,
+                'permission' => SharePermission::from($this->sharePermission),
+                'share_all' => false,
+            ]
+        );
+
+        if (! $recipient && $share->wasRecentlyCreated) {
+            Mail::to($this->shareEmail)->send(new ShareInvitation(
+                ownerName: auth()->user()->name,
+                contentDescription: "a recipe: \"{$this->recipe->name}\"",
+                registerUrl: route('register'),
+            ));
+        }
+
+        session()->flash('success', "Shared with {$this->shareEmail}");
+
+        $this->closeShareModal();
+        $this->dispatch('close-modal');
     }
 
     public function getMealPlansProperty()
