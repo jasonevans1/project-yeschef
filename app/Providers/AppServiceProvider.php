@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Listeners\ResolvePendingShares;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,5 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         \App\Models\GroceryItem::observe(\App\Observers\GroceryItemObserver::class);
+
+        Event::listen(Registered::class, ResolvePendingShares::class);
     }
 }

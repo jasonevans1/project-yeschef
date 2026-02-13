@@ -4,6 +4,7 @@ namespace App\Livewire\MealPlans;
 
 use App\Enums\MealType;
 use App\Enums\SharePermission;
+use App\Mail\ShareInvitation;
 use App\Models\ContentShare;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
@@ -11,6 +12,7 @@ use App\Models\MealPlanNote;
 use App\Models\Recipe;
 use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -298,7 +300,7 @@ class Show extends Component
 
         $recipient = User::where('email', $this->shareEmail)->first();
 
-        ContentShare::updateOrCreate(
+        $share = ContentShare::updateOrCreate(
             [
                 'owner_id' => auth()->id(),
                 'recipient_email' => $this->shareEmail,
@@ -311,6 +313,14 @@ class Show extends Component
                 'share_all' => false,
             ]
         );
+
+        if (! $recipient && $share->wasRecentlyCreated) {
+            Mail::to($this->shareEmail)->send(new ShareInvitation(
+                ownerName: auth()->user()->name,
+                contentDescription: "a meal plan: \"{$this->mealPlan->name}\"",
+                registerUrl: route('register'),
+            ));
+        }
 
         session()->flash('success', "Shared with {$this->shareEmail}");
 

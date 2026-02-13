@@ -162,16 +162,16 @@
 
 ### Tests for User Story 5
 
-- [ ] T051 [P] [US5] Write tests for invitation system: invitation email sent for non-registered email, email not sent for registered user, pending shares resolved on registration, multiple pending shares all resolve at once, registration with different email does not resolve shares in `tests/Feature/Sharing/ShareInvitationTest.php`
+- [x] T051 [P] [US5] Write tests for invitation system: invitation email sent for non-registered email, email not sent for registered user, pending shares resolved on registration, multiple pending shares all resolve at once, registration with different email does not resolve shares in `tests/Feature/Sharing/ShareInvitationTest.php`
 
 ### Implementation for User Story 5
 
-- [ ] T052 [US5] Create `ShareInvitation` mailable with `ownerName`, `contentDescription`, `registerUrl` properties in `app/Mail/ShareInvitation.php`
-- [ ] T053 [US5] Create invitation email Blade template with personalized message and registration link in `resources/views/mail/share-invitation.blade.php`
-- [ ] T054 [US5] Add invitation sending logic to `shareWith()` in Show components and `shareAll()` in Settings\Sharing: if `User::where('email', $email)->doesntExist()`, send `ShareInvitation` mailable
-- [ ] T055 [US5] Create `ResolvePendingShares` event listener on `Illuminate\Auth\Events\Registered` — query `ContentShare::whereNull('recipient_id')->where('recipient_email', $user->email)` and set `recipient_id` in `app/Listeners/ResolvePendingShares.php`
-- [ ] T056 [US5] Register `ResolvePendingShares` listener in `app/Providers/AppServiceProvider.php` or via `Event::listen()` in `bootstrap/app.php`
-- [ ] T057 [US5] Run US5 tests: `php artisan test tests/Feature/Sharing/ShareInvitationTest.php`
+- [x] T052 [US5] Create `ShareInvitation` mailable with `ownerName`, `contentDescription`, `registerUrl` properties in `app/Mail/ShareInvitation.php`
+- [x] T053 [US5] Create invitation email Blade template with personalized message and registration link in `resources/views/mail/share-invitation.blade.php`
+- [x] T054 [US5] Add invitation sending logic to `shareWith()` in Show components and `shareAll()` in Settings\Sharing: if `User::where('email', $email)->doesntExist()`, send `ShareInvitation` mailable
+- [x] T055 [US5] Create `ResolvePendingShares` event listener on `Illuminate\Auth\Events\Registered` — query `ContentShare::whereNull('recipient_id')->where('recipient_email', $user->email)` and set `recipient_id` in `app/Listeners/ResolvePendingShares.php`
+- [x] T056 [US5] Register `ResolvePendingShares` listener in `app/Providers/AppServiceProvider.php` or via `Event::listen()` in `bootstrap/app.php`
+- [x] T057 [US5] Run US5 tests: `php artisan test tests/Feature/Sharing/ShareInvitationTest.php`
 
 **Checkpoint**: Full invitation flow works. Non-registered users can be invited, and their shares activate upon registration.
 

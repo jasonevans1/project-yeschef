@@ -5,6 +5,7 @@ namespace App\Livewire\GroceryLists;
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Enums\SharePermission;
+use App\Mail\ShareInvitation;
 use App\Models\ContentShare;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
@@ -13,6 +14,7 @@ use App\Services\GroceryListGenerator;
 use App\Services\ItemAutoCompleteService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -497,7 +499,7 @@ class Show extends Component
 
         $recipient = User::where('email', $this->shareEmail)->first();
 
-        ContentShare::updateOrCreate(
+        $share = ContentShare::updateOrCreate(
             [
                 'owner_id' => auth()->id(),
                 'recipient_email' => $this->shareEmail,
@@ -510,6 +512,14 @@ class Show extends Component
                 'share_all' => false,
             ]
         );
+
+        if (! $recipient && $share->wasRecentlyCreated) {
+            Mail::to($this->shareEmail)->send(new ShareInvitation(
+                ownerName: auth()->user()->name,
+                contentDescription: "a grocery list: \"{$this->groceryList->name}\"",
+                registerUrl: route('register'),
+            ));
+        }
 
         session()->flash('success', "Shared with {$this->shareEmail}");
 

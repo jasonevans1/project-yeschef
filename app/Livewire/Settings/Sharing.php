@@ -4,9 +4,11 @@ namespace App\Livewire\Settings;
 
 use App\Enums\ShareableType;
 use App\Enums\SharePermission;
+use App\Mail\ShareInvitation;
 use App\Models\ContentShare;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
 
@@ -48,6 +50,8 @@ class Sharing extends Component
             ->whereNull('shareable_id')
             ->first();
 
+        $isNew = false;
+
         if ($existing) {
             $existing->update([
                 'recipient_id' => $recipient?->id,
@@ -63,6 +67,15 @@ class Sharing extends Component
                 'permission' => SharePermission::from($this->shareAllPermission),
                 'share_all' => true,
             ]);
+            $isNew = true;
+        }
+
+        if (! $recipient && $isNew) {
+            Mail::to($this->shareAllEmail)->send(new ShareInvitation(
+                ownerName: auth()->user()->name,
+                contentDescription: "all {$shareableType->label()}s",
+                registerUrl: route('register'),
+            ));
         }
 
         session()->flash('success', "Shared all {$shareableType->label()}s with {$this->shareAllEmail}");
