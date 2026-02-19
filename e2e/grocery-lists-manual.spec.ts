@@ -328,7 +328,7 @@ test.describe('Manual Grocery List Item Management', () => {
       // Change quantity to a different value
       const quantityInput = page.locator('input[wire\\:model\\.live="itemQuantity"]');
       const originalQuantity = await quantityInput.inputValue();
-      const newQuantity = (parseFloat(originalQuantity || '1') + 5).toString();
+      const newQuantity = String(Math.round(parseFloat(originalQuantity || '1') + 5));
 
       await quantityInput.fill(newQuantity);
       await page.click('button:has-text("Save")');
