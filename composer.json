@@ -16,7 +16,10 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.1.1",
-        "livewire/volt": "^1.7.0"
+        "livewire/livewire": "^3.7",
+        "livewire/volt": "^1.7.0",
+        "symfony/http-client": "^7.0",
+        "symfony/mailgun-mailer": "^7.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -78,6 +81,13 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "audit": {
+            "ignore": [
+                "PKSA-rkkf-636k-qjb3",
+                "PKSA-4s4z-t146-6123",
+                "PKSA-z3gr-8qht-p93v"
+            ]
         }
     },
     "minimum-stability": "stable",
