@@ -26,7 +26,7 @@ class IngredientParser
             return [
                 'quantity' => null,
                 'unit' => null,
-                'name' => $original,
+                'name' => $this->stripPreparationNotes($original),
                 'original' => $original,
             ];
         }
@@ -49,9 +49,17 @@ class IngredientParser
         return [
             'quantity' => $this->parseQuantity($quantityString),
             'unit' => $unit ? $unit['enum'] : null,
-            'name' => $name ?: $original,
+            'name' => $this->stripPreparationNotes($name) ?: $this->stripPreparationNotes($original),
             'original' => $original,
         ];
+    }
+
+    private function stripPreparationNotes(string $name): string
+    {
+        $stripped = preg_replace('/\s*\([^)]*\)\s*/u', ' ', $name);
+        $stripped = preg_replace('/\s+([,;])/u', '$1', (string) $stripped);
+
+        return trim(preg_replace('/\s{2,}/u', ' ', (string) $stripped));
     }
 
     /**
