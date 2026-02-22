@@ -20,11 +20,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T001 Create migration `add_excluded_categories_to_grocery_lists_table` with nullable JSON column `excluded_categories` in `database/migrations/`
-- [ ] T002 [P] Create migration `add_grocery_category_exclusions_to_users_table` with nullable JSON column `grocery_category_exclusions` in `database/migrations/`
-- [ ] T003 [P] Add `excluded_categories` to `$fillable` and `'excluded_categories' => 'array'` to `casts()` in `app/Models/GroceryList.php`
-- [ ] T004 [P] Add `grocery_category_exclusions` to `$fillable` and `'grocery_category_exclusions' => 'array'` to `casts()` in `app/Models/User.php`
-- [ ] T005 Run `php artisan migrate` to apply both new migrations (depends on T001 + T002)
+- [x] T001 Create migration `add_excluded_categories_to_grocery_lists_table` with nullable JSON column `excluded_categories` in `database/migrations/`
+- [x] T002 [P] Create migration `add_grocery_category_exclusions_to_users_table` with nullable JSON column `grocery_category_exclusions` in `database/migrations/`
+- [x] T003 [P] Add `excluded_categories` to `$fillable` and `'excluded_categories' => 'array'` to `casts()` in `app/Models/GroceryList.php`
+- [x] T004 [P] Add `grocery_category_exclusions` to `$fillable` and `'grocery_category_exclusions' => 'array'` to `casts()` in `app/Models/User.php`
+- [x] T005 Run `php artisan migrate` to apply both new migrations (depends on T001 + T002)
 
 **Checkpoint**: Both JSON columns exist in the database; models cast them to arrays. Foundation ready.
 
