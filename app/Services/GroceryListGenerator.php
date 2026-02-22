@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Enums\IngredientCategory;
 use App\Enums\SourceType;
+use App\Models\CommonItemTemplate;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
+use App\Models\UserItemTemplate;
 use Illuminate\Support\Collection;
 
 class GroceryListGenerator
@@ -188,9 +190,8 @@ class GroceryListGenerator
     }
 
     /**
-     * Collect all ingredients from a meal plan's assigned recipes
-     *
-     * @param  int  $userId  Reserved for template-based categorization (US2)
+     * Collect all ingredients from a meal plan's assigned recipes.
+     * Applies template-based category resolution for OTHER-categorized ingredients.
      */
     private function collectIngredientsFromMealPlan(MealPlan $mealPlan, int $userId = 0): Collection
     {
@@ -216,13 +217,51 @@ class GroceryListGenerator
             }
         }
 
-        // Scale all ingredients by their serving multipliers
-        return $allIngredients->map(function ($ingredient) {
+        // Scale all ingredients by their serving multipliers and resolve categories via templates
+        return $allIngredients->map(function ($ingredient) use ($userId) {
             $multiplier = $ingredient['serving_multiplier'];
             unset($ingredient['serving_multiplier']);
 
-            return $this->processIngredients(collect([$ingredient]), $multiplier)->first();
+            $scaled = $this->processIngredients(collect([$ingredient]), $multiplier)->first();
+            $scaled['category'] = $this->resolveIngredientCategory($scaled['name'], $scaled['category'], $userId);
+
+            return $scaled;
         });
+    }
+
+    /**
+     * Resolve the category for an ingredient, upgrading OTHER via user and common templates.
+     *
+     * Returns the original category immediately when it is not OTHER.
+     * Checks the user's personal templates first, then the shared common templates.
+     * Falls back to OTHER when no template match is found.
+     */
+    private function resolveIngredientCategory(string $name, IngredientCategory $currentCategory, int $userId): IngredientCategory
+    {
+        if ($currentCategory !== IngredientCategory::OTHER) {
+            return $currentCategory;
+        }
+
+        $lowerName = strtolower($name);
+
+        if ($userId > 0) {
+            $userTemplate = UserItemTemplate::where('user_id', $userId)
+                ->whereRaw('LOWER(name) = ?', [$lowerName])
+                ->first();
+
+            if ($userTemplate !== null) {
+                return $userTemplate->category;
+            }
+        }
+
+        $commonTemplate = CommonItemTemplate::whereRaw('LOWER(name) = ?', [$lowerName])
+            ->first();
+
+        if ($commonTemplate !== null) {
+            return $commonTemplate->category;
+        }
+
+        return IngredientCategory::OTHER;
     }
 
     /**

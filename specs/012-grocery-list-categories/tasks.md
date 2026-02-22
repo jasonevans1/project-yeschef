@@ -67,14 +67,14 @@
 
 ### Tests for User Story 2 ⚠️ Write these FIRST — ensure they FAIL before implementation
 
-- [ ] T019 [US2] Write failing unit tests for `resolveIngredientCategory()` in `tests/Unit/GroceryListGeneratorTest.php`: returns original category when not OTHER; returns UserItemTemplate category when ingredient is OTHER and user template matches; returns CommonItemTemplate category when no user template exists; returns OTHER when no template matches; matching is case-insensitive
-- [ ] T020 [P] [US2] Write failing feature tests for end-to-end template-based categorization in `tests/Feature/GroceryLists/CategoryLookupTest.php`: ingredient with OTHER category + matching UserItemTemplate → grocery item gets template category; ingredient with OTHER + no user template + matching CommonItemTemplate → gets common template category; ingredient with existing non-OTHER category → category unchanged regardless of templates
+- [x] T019 [US2] Write failing unit tests for `resolveIngredientCategory()` in `tests/Unit/GroceryListGeneratorTest.php`: returns original category when not OTHER; returns UserItemTemplate category when ingredient is OTHER and user template matches; returns CommonItemTemplate category when no user template exists; returns OTHER when no template matches; matching is case-insensitive
+- [x] T020 [P] [US2] Write failing feature tests for end-to-end template-based categorization in `tests/Feature/GroceryLists/CategoryLookupTest.php`: ingredient with OTHER category + matching UserItemTemplate → grocery item gets template category; ingredient with OTHER + no user template + matching CommonItemTemplate → gets common template category; ingredient with existing non-OTHER category → category unchanged regardless of templates
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Add private `resolveIngredientCategory(string $name, IngredientCategory $currentCategory, int $userId): IngredientCategory` method to `app/Services/GroceryListGenerator.php` — returns `$currentCategory` immediately if not `OTHER`; queries `UserItemTemplate` by `user_id` + case-insensitive name match; falls back to `CommonItemTemplate` by case-insensitive name; returns `OTHER` if no match
-- [ ] T022 [US2] Update private `collectIngredientsFromMealPlan(MealPlan $mealPlan, int $userId): Collection` in `app/Services/GroceryListGenerator.php` — add `int $userId` parameter; after scaling each ingredient, apply `resolveIngredientCategory($item['name'], $item['category'], $userId)` and update the `category` key (depends on T021)
-- [ ] T023 [US2] Update `getCategoryItemCounts()` in `app/Services/GroceryListGenerator.php` — pass `$userId` to `collectIngredientsFromMealPlan()` so category counts reflect template-resolved categories (depends on T022)
+- [x] T021 [US2] Add private `resolveIngredientCategory(string $name, IngredientCategory $currentCategory, int $userId): IngredientCategory` method to `app/Services/GroceryListGenerator.php` — returns `$currentCategory` immediately if not `OTHER`; queries `UserItemTemplate` by `user_id` + case-insensitive name match; falls back to `CommonItemTemplate` by case-insensitive name; returns `OTHER` if no match
+- [x] T022 [US2] Update private `collectIngredientsFromMealPlan(MealPlan $mealPlan, int $userId): Collection` in `app/Services/GroceryListGenerator.php` — add `int $userId` parameter; after scaling each ingredient, apply `resolveIngredientCategory($item['name'], $item['category'], $userId)` and update the `category` key (depends on T021)
+- [x] T023 [US2] Update `getCategoryItemCounts()` in `app/Services/GroceryListGenerator.php` — pass `$userId` to `collectIngredientsFromMealPlan()` so category counts reflect template-resolved categories (depends on T022)
 
 **Checkpoint**: User Story 2 fully functional. Ingredients previously stuck in "Other" are now correctly categorized via user and common templates. Exclusion counts on the Generate page reflect accurate template-resolved categories.
 
@@ -105,9 +105,9 @@
 
 **Purpose**: Regression safety, code style, and final validation.
 
-- [ ] T029 [P] Add test to `tests/Feature/GroceryLists/RegenerateWithManualChangesTest.php` confirming that manually added items are never removed during regeneration even when their category is in the excluded categories list
-- [ ] T030 Run `vendor/bin/pint --dirty` and fix all code style violations across all modified files
-- [ ] T031 Run `php artisan test` (full suite) and confirm all existing and new tests pass with zero failures
+- [x] T029 [P] Add test to `tests/Feature/GroceryLists/RegenerateWithManualChangesTest.php` confirming that manually added items are never removed during regeneration even when their category is in the excluded categories list
+- [x] T030 Run `vendor/bin/pint --dirty` and fix all code style violations across all modified files
+- [x] T031 Run `php artisan test` (full suite) and confirm all existing and new tests pass with zero failures
 
 ---
 
