@@ -784,6 +784,8 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux 2.10, Tailwind CSS 4.x (010-meal-plan-notes)
 - PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Laravel Fortify (auth) (011-share-content)
 - SQLite (dev/test), MariaDB (production via DDEV) (011-share-content)
+- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux 2 (UI components), Pest 4 (tests) (012-grocery-list-categories)
+- SQLite (test), MariaDB (DDEV) — two new nullable JSON columns (012-grocery-list-categories)
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
