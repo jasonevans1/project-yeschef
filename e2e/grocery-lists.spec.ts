@@ -72,7 +72,6 @@ test.describe('Grocery List Generation', () => {
     await firstRecipe.click();
 
     // Wait for modal to close and Livewire to update
-    await page.waitForLoadState('networkidle');
     await expect(firstDinnerSlot).toContainText(firstRecipeName || '', { timeout: 10000 });
 
     // Recipe 2: Assign to second day's Lunch slot
@@ -224,7 +223,6 @@ test.describe('Grocery List Generation', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -235,7 +233,9 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for the Generate Grocery List button to appear (confirms recipe was added)
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -243,8 +243,9 @@ test.describe('Grocery List Generation', () => {
     await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
 
-    // Should show source meal plan information
-    await expect(page.locator('text=/From/i')).toBeVisible();
+    // Should show source meal plan information - target the specific span in the header
+    // that contains "From" followed by the meal plan name as a link
+    await expect(page.locator('span', { hasText: 'From Meal Plan Link Test' }).first()).toBeVisible();
 
     // Should have link to meal plan
     const mealPlanLink = page.locator('a[href*="/meal-plans/"]');
@@ -283,7 +284,6 @@ test.describe('Grocery List Generation', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -294,7 +294,9 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -340,16 +342,15 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
     await page.waitForURL(/\/grocery-lists\/generate\/\d+/);
     await page.click('button:has-text("Generate List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
-
-    // Wait for page to fully load
-    await page.waitForLoadState('networkidle');
 
     // Verify grocery list has items from the recipe
     await expect(page.locator('.bg-white.rounded-lg.shadow').first()).toBeVisible();
@@ -358,11 +359,17 @@ test.describe('Grocery List Generation', () => {
     const itemCountBefore = await page.locator('button[wire\\:click^="togglePurchased"]').count();
     expect(itemCountBefore).toBeGreaterThan(0);
 
-    // Regenerate the list
-    await page.click('button:has-text("Regenerate")');
+    // Regenerate the list - click the Regenerate button to open confirmation modal
+    await page.click('button[wire\\:click="showRegenerateConfirmation"]');
+
+    // Wait for the modal to open and the confirm Regenerate button to be visible
+    await expect(page.locator('button[wire\\:click="regenerate"]')).toBeVisible({ timeout: 5000 });
+
+    // Click the confirm Regenerate button in the modal
+    await page.click('button[wire\\:click="regenerate"]');
 
     // Wait for Livewire to process the regeneration
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2000);
 
     // Verify items are still present after regeneration
     const itemCountAfter = await page.locator('button[wire\\:click^="togglePurchased"]').count();
@@ -412,7 +419,9 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for recipe to be assigned before clicking next slot
+    await page.waitForTimeout(1000);
 
     // Assign second recipe to Day 2 Lunch
     const secondLunchSlot = page.locator('tbody tr').nth(1).locator('[data-meal-type="lunch"]');
@@ -423,7 +432,9 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').nth(1).click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipes were assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -475,7 +486,9 @@ test.describe('Grocery List Generation', () => {
 
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');

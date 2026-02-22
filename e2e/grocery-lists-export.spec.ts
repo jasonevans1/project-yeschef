@@ -77,7 +77,6 @@ test.describe('Grocery List Export and Sharing', () => {
     await firstRecipe.click();
 
     // Wait for modal to close and assignment to appear
-    await page.waitForLoadState('networkidle');
     await expect(firstDinnerSlot).toContainText(firstRecipeName || '', { timeout: 10000 });
 
     // Step 3: Generate grocery list from meal plan
@@ -87,14 +86,14 @@ test.describe('Grocery List Export and Sharing', () => {
     await page.waitForURL(/\/grocery-lists\/generate/);
 
     // Confirm grocery list generation
-    await page.click('button:has-text("Generate")');
+    await page.click('button:has-text("Generate List")');
 
     // Wait for redirect to grocery list show page
     await page.waitForURL(/\/grocery-lists\/\d+/);
     await expect(page.locator('h1')).toContainText(/Grocery List|Export & Share Test Plan/);
 
-    // Wait for page to fully load
-    await page.waitForLoadState('networkidle');
+    // Wait for the page heading to be visible before proceeding
+    await expect(page.locator('h1')).toBeVisible();
 
     // Verify we have some items in the list (check for category sections or items)
     // Look for category headers or the "no items" message
@@ -146,8 +145,8 @@ test.describe('Grocery List Export and Sharing', () => {
     await page.waitForTimeout(1000);
 
     // Step 6: Test Share Functionality
-    // Click the "Share" button
-    await page.click('button:has-text("Share")');
+    // Click the "Share Link" button
+    await page.click('button:has-text("Share Link")');
 
     // Wait for share dialog to appear by looking for the heading
     await expect(page.locator('text=Share Grocery List')).toBeVisible({ timeout: 10000 });
@@ -182,11 +181,8 @@ test.describe('Grocery List Export and Sharing', () => {
     // This verifies the share URL structure and that it loads correctly
     await page.goto(shareUrl);
 
-    // Wait for the shared list page to load
-    await page.waitForLoadState('networkidle');
-
     // Step 9: Verify we can see the shared grocery list
-    await expect(page.locator('h1')).toContainText(/Grocery List|Export & Share Test Plan/, { timeout: 5000 });
+    await expect(page.locator('h1')).toContainText(/Grocery List|Export & Share Test Plan/, { timeout: 10000 });
 
     // Step 10: Verify shared view has "Shared by" indicator
     await expect(page.locator('text=/Shared by/i')).toBeVisible();

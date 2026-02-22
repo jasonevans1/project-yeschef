@@ -35,7 +35,6 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Step 1: Navigate to grocery lists
     await page.goto('/grocery-lists');
-    await page.waitForLoadState('networkidle');
 
     // Verify we're on the grocery lists index page (Flux headings render as divs)
     await expect(page.locator('[data-flux-heading]:has-text("Grocery Lists")').first()).toBeVisible();
@@ -64,7 +63,6 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Wait for redirect to grocery list show page
     await page.waitForURL(/\/grocery-lists\/\d+/);
-    await page.waitForLoadState('networkidle');
 
     // Step 4: Verify we're on the show page with the correct name
     // Use data-flux-heading to avoid matching the delete modal text
@@ -102,10 +100,6 @@ test.describe('Standalone Grocery List Management', () => {
       // Save the item
       await page.locator('button[wire\\:click="addManualItem"]').click();
 
-      // Wait for Livewire to process
-      await page.waitForLoadState('networkidle');
-      await page.waitForTimeout(2000); // Allow Livewire to re-render
-
       // Verify the item appears in the list
       await expect(page.locator(`text=${item.name}`)).toBeVisible({ timeout: 15000 });
     }
@@ -121,7 +115,6 @@ test.describe('Standalone Grocery List Management', () => {
     await applesText.waitFor({ state: 'visible' });
     const applesToggle = applesText.locator('xpath=ancestor::div[contains(@class, "px-6")]').locator('button[wire\\:click^="togglePurchased"]').first();
     await applesToggle.click();
-    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
     // Find and click the toggle button for "Whole Milk"
@@ -129,7 +122,6 @@ test.describe('Standalone Grocery List Management', () => {
     await milkText.waitFor({ state: 'visible' });
     const milkToggle = milkText.locator('xpath=ancestor::div[contains(@class, "px-6")]').locator('button[wire\\:click^="togglePurchased"]').first();
     await milkToggle.click();
-    await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
     // Step 10: Verify completion progress shows 2 of 3 items completed (67%)
@@ -145,7 +137,6 @@ test.describe('Standalone Grocery List Management', () => {
     // Step 13: Navigate back to the grocery lists index
     await page.click('a:has-text("Back to Lists")');
     await page.waitForURL(/\/grocery-lists$/);
-    await page.waitForLoadState('networkidle');
 
     // Verify the list appears on the index page (all lists are shown together, not in separate sections)
     await expect(page.locator(`[data-flux-heading]:has-text("${listName}")`).first()).toBeVisible();
@@ -158,7 +149,6 @@ test.describe('Standalone Grocery List Management', () => {
   test('standalone list creation form has proper validation', async ({ page }) => {
     // Navigate to grocery lists
     await page.goto('/grocery-lists');
-    await page.waitForLoadState('networkidle');
 
     // Click "Create Standalone List"
     const createButton = page.locator('button:has-text("Create Standalone List")').or(
@@ -175,7 +165,7 @@ test.describe('Standalone Grocery List Management', () => {
 
     // Flux components use Livewire validation - check if we stay on the same page
     // If validation works, we should still be on the create page
-    await expect(page.url()).toContain('/grocery-lists/create');
+    expect(page.url()).toContain('/grocery-lists/create');
 
     // Now enter a valid name
     await page.fill('input[name="name"]', 'Valid List Name');
@@ -190,7 +180,6 @@ test.describe('Standalone Grocery List Management', () => {
   test('cancel button returns to grocery lists index', async ({ page }) => {
     // Navigate to create form
     await page.goto('/grocery-lists');
-    await page.waitForLoadState('networkidle');
 
     const createButton = page.locator('button:has-text("Create Standalone List")').or(
       page.locator('a:has-text("Create Standalone List")')
@@ -210,7 +199,6 @@ test.describe('Standalone Grocery List Management', () => {
   test('standalone list shows all items organized by category', async ({ page }) => {
     // Create a standalone list
     await page.goto('/grocery-lists');
-    await page.waitForLoadState('networkidle');
 
     const createButton = page.locator('button:has-text("Create Standalone List")').or(
       page.locator('a:has-text("Create Standalone List")')
@@ -221,7 +209,6 @@ test.describe('Standalone Grocery List Management', () => {
     await page.fill('input[name="name"]', 'Category Test List');
     await page.click('button:has-text("Create List")');
     await page.waitForURL(/\/grocery-lists\/\d+/);
-    await page.waitForLoadState('networkidle');
 
     // Add items in different categories
     const items = [
@@ -240,7 +227,6 @@ test.describe('Standalone Grocery List Management', () => {
       await page.waitForTimeout(300);
 
       await page.locator('button[wire\\:click="addManualItem"]').click();
-      await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
     }
 
