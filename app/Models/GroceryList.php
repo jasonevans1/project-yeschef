@@ -20,6 +20,7 @@ class GroceryList extends Model
         'name',
         'generated_at',
         'regenerated_at',
+        'excluded_categories',
         'share_token',
         'share_expires_at',
     ];
@@ -27,6 +28,7 @@ class GroceryList extends Model
     protected $casts = [
         'generated_at' => 'datetime',
         'regenerated_at' => 'datetime',
+        'excluded_categories' => 'array',
         'share_expires_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];

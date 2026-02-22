@@ -128,14 +128,12 @@
 
                     @if($groceryList->is_meal_plan_linked)
                         <flux:button
-                            wire:click="regenerate"
-                            wire:confirm="Regenerate grocery list? This will update items from the meal plan while preserving your manual changes."
+                            wire:click="showRegenerateConfirmation"
                             variant="ghost"
                             size="sm"
                             icon="arrow-path"
                         >
-                            <span wire:loading.remove wire:target="regenerate">Regenerate</span>
-                            <span wire:loading wire:target="regenerate">Regenerating...</span>
+                            Regenerate
                         </flux:button>
                     @endif
                 @endcan
@@ -291,6 +289,32 @@
         </div>
     @endif
 
+    {{-- Excluded Categories Callout --}}
+    @if($groceryList->excluded_categories && count($groceryList->excluded_categories) > 0)
+        <div class="mb-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+            <div class="flex items-start justify-between gap-3">
+                <div class="flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div>
+                        <flux:text class="font-medium text-amber-800 dark:text-amber-100">
+                            Some categories excluded
+                        </flux:text>
+                        <flux:text class="text-sm text-amber-700 dark:text-amber-300 mt-0.5">
+                            {{ count($groceryList->excluded_categories) === 1 ? 'This list was generated without' : 'This list was generated without' }}
+                            <strong>{{ implode(', ', array_map('ucfirst', $groceryList->excluded_categories)) }}</strong>
+                            {{ count($groceryList->excluded_categories) === 1 ? 'items — these categories excluded' : 'items — these categories excluded' }}.
+                            @if($groceryList->is_meal_plan_linked)
+                                <button wire:click="showRegenerateConfirmation" class="underline hover:no-underline ml-1">Regenerate with different categories</button>
+                            @endif
+                        </flux:text>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- Empty State --}}
     @if($groceryList->total_items === 0)
         <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
@@ -341,6 +365,42 @@
     {{-- Share Dialog Modal (US8 - T132) --}}
     @if($showShareDialog)
         @include('livewire.grocery-lists.partials.share-dialog')
+    @endif
+
+    {{-- Regenerate Confirmation Modal with Category Exclusions (012) --}}
+    @if($groceryList->is_meal_plan_linked)
+    <flux:modal wire:model="showRegenerateConfirm">
+        <flux:heading size="lg" class="mb-2">Regenerate Grocery List</flux:heading>
+        <flux:text class="text-gray-600 dark:text-zinc-400 mb-4">
+            Update items from the meal plan while preserving your manual changes and edits.
+        </flux:text>
+
+        {{-- Category Exclusion Checkboxes --}}
+        <div class="mb-6">
+            <flux:text class="font-medium text-gray-900 dark:text-white mb-3 block">
+                Exclude categories (optional):
+            </flux:text>
+            <div class="grid grid-cols-2 gap-2">
+                @foreach(\App\Enums\IngredientCategory::cases() as $category)
+                    <flux:checkbox
+                        wire:model="regenerateExcludedCategories"
+                        value="{{ $category->value }}"
+                        label="{{ $category->label() }}"
+                    />
+                @endforeach
+            </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3">
+            <flux:button wire:click="cancelRegenerate" variant="ghost">
+                Cancel
+            </flux:button>
+            <flux:button wire:click="regenerate" variant="primary" icon="arrow-path">
+                <span wire:loading.remove wire:target="regenerate">Regenerate</span>
+                <span wire:loading wire:target="regenerate">Regenerating...</span>
+            </flux:button>
+        </div>
+    </flux:modal>
     @endif
 
     {{-- Delete Confirmation Modal (US1) --}}

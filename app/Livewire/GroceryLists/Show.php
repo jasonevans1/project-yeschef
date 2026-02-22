@@ -50,6 +50,9 @@ class Show extends Component
 
     public array $regenerateDiff = [];
 
+    /** @var array<int, string> */
+    public array $regenerateExcludedCategories = [];
+
     // Properties for share dialog (US8 - T131)
     public bool $showShareDialog = false;
 
@@ -250,7 +253,7 @@ class Show extends Component
     /**
      * Show regenerate confirmation dialog with diff preview (US4 - T090)
      */
-    public function showRegenerateConfirmation()
+    public function showRegenerateConfirmation(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -261,6 +264,9 @@ class Show extends Component
             return;
         }
 
+        // Pre-populate exclusions from the existing list
+        $this->regenerateExcludedCategories = $this->groceryList->excluded_categories ?? [];
+
         // Calculate diff preview
         $this->regenerateDiff = $this->calculateRegenerateDiff();
         $this->showRegenerateConfirm = true;
@@ -269,10 +275,11 @@ class Show extends Component
     /**
      * Cancel regeneration
      */
-    public function cancelRegenerate()
+    public function cancelRegenerate(): void
     {
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
+        $this->regenerateExcludedCategories = [];
     }
 
     /**
@@ -370,7 +377,7 @@ class Show extends Component
     /**
      * Regenerate the grocery list from meal plan (US4 - T090)
      */
-    public function regenerate()
+    public function regenerate(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -381,13 +388,20 @@ class Show extends Component
             return;
         }
 
+        // Convert string values to IngredientCategory enum cases
+        $excludedEnums = array_filter(array_map(
+            fn (string $value) => IngredientCategory::tryFrom($value),
+            $this->regenerateExcludedCategories
+        ));
+
         $generator = app(GroceryListGenerator::class);
-        $generator->regenerate($this->groceryList);
+        $generator->regenerate($this->groceryList, array_values($excludedEnums));
 
         session()->flash('message', 'Grocery list regenerated successfully');
 
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
+        $this->regenerateExcludedCategories = [];
         $this->groceryList->refresh();
     }
 

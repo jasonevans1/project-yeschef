@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Enums\IngredientCategory;
 use App\Enums\SourceType;
+use App\Models\CommonItemTemplate;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
+use App\Models\UserItemTemplate;
 use Illuminate\Support\Collection;
 
 class GroceryListGenerator
@@ -20,20 +23,24 @@ class GroceryListGenerator
      * Generate a new grocery list from a meal plan
      *
      * @param  MealPlan  $mealPlan  The meal plan to generate from
+     * @param  array<int, IngredientCategory>  $excludedCategories  Categories to exclude from the list
      * @return GroceryList The generated grocery list
      */
-    public function generate(MealPlan $mealPlan): GroceryList
+    public function generate(MealPlan $mealPlan, array $excludedCategories = []): GroceryList
     {
+        $excludedValues = array_map(fn (IngredientCategory $c) => $c->value, $excludedCategories);
+
         // Create the grocery list
         $groceryList = GroceryList::create([
             'user_id' => $mealPlan->user_id,
             'meal_plan_id' => $mealPlan->id,
             'name' => "Grocery List for {$mealPlan->name}",
             'generated_at' => now(),
+            'excluded_categories' => $excludedValues ?: null,
         ]);
 
         // Collect and process all ingredients from meal plan
-        $allIngredients = $this->collectIngredientsFromMealPlan($mealPlan);
+        $allIngredients = $this->collectIngredientsFromMealPlan($mealPlan, $mealPlan->user_id);
 
         // Aggregate ingredients
         $aggregatedIngredients = $this->aggregateIngredients($allIngredients);
@@ -44,6 +51,11 @@ class GroceryListGenerator
         // Create grocery items
         $sortOrder = 0;
         foreach ($organizedIngredients as $category => $ingredients) {
+            // Skip excluded categories
+            if (in_array($category, $excludedValues, true)) {
+                continue;
+            }
+
             foreach ($ingredients as $ingredient) {
                 GroceryItem::create([
                     'grocery_list_id' => $groceryList->id,
@@ -65,13 +77,16 @@ class GroceryListGenerator
      * Preserves manual items and user edits
      *
      * @param  GroceryList  $groceryList  The grocery list to regenerate
+     * @param  array<int, IngredientCategory>  $excludedCategories  Categories to exclude from the list
      * @return GroceryList The updated grocery list
      */
-    public function regenerate(GroceryList $groceryList): GroceryList
+    public function regenerate(GroceryList $groceryList, array $excludedCategories = []): GroceryList
     {
         if ($groceryList->meal_plan_id === null) {
             throw new \InvalidArgumentException('Cannot regenerate a standalone grocery list');
         }
+
+        $excludedValues = array_map(fn (IngredientCategory $c) => $c->value, $excludedCategories);
 
         $mealPlan = $groceryList->mealPlan;
 
@@ -87,7 +102,7 @@ class GroceryListGenerator
         });
 
         // Generate fresh ingredient list from meal plan
-        $freshIngredients = $this->collectIngredientsFromMealPlan($mealPlan);
+        $freshIngredients = $this->collectIngredientsFromMealPlan($mealPlan, $groceryList->user_id);
         $aggregatedIngredients = $this->aggregateIngredients($freshIngredients);
 
         // Delete unmodified generated items that are no longer in meal plan
@@ -96,10 +111,16 @@ class GroceryListGenerator
             ->whereNull('deleted_at')
             ->each->delete();
 
-        // Add new generated items (skip if user deleted or manually edited)
+        // Add new generated items (skip if user deleted or manually edited, or in excluded category)
         $sortOrder = $existingItems->max('sort_order') ?? 0;
         foreach ($aggregatedIngredients as $ingredient) {
             $ingredientName = strtolower($ingredient['name']);
+            $categoryValue = $ingredient['category']->value;
+
+            // Skip excluded categories (never affects manual items — they are handled separately)
+            if (in_array($categoryValue, $excludedValues, true)) {
+                continue;
+            }
 
             // Check if user manually deleted this ingredient
             $wasDeleted = $deletedGeneratedItems->contains(function ($item) use ($ingredientName) {
@@ -142,15 +163,37 @@ class GroceryListGenerator
 
         $groceryList->update([
             'regenerated_at' => now(),
+            'excluded_categories' => $excludedValues ?: null,
         ]);
 
         return $groceryList->fresh('groceryItems');
     }
 
     /**
-     * Collect all ingredients from a meal plan's assigned recipes
+     * Get item counts per category for a meal plan (before generation)
+     * Used to populate the exclusion checkboxes with context on the Generate page.
+     *
+     * @return array<string, int> Category value => count
      */
-    private function collectIngredientsFromMealPlan(MealPlan $mealPlan): Collection
+    public function getCategoryItemCounts(MealPlan $mealPlan, int $userId): array
+    {
+        $allIngredients = $this->collectIngredientsFromMealPlan($mealPlan, $userId);
+        $aggregated = $this->aggregateIngredients($allIngredients);
+
+        $counts = [];
+        foreach ($aggregated as $ingredient) {
+            $value = $ingredient['category']->value;
+            $counts[$value] = ($counts[$value] ?? 0) + 1;
+        }
+
+        return $counts;
+    }
+
+    /**
+     * Collect all ingredients from a meal plan's assigned recipes.
+     * Applies template-based category resolution for OTHER-categorized ingredients.
+     */
+    private function collectIngredientsFromMealPlan(MealPlan $mealPlan, int $userId = 0): Collection
     {
         $allIngredients = collect();
 
@@ -174,13 +217,51 @@ class GroceryListGenerator
             }
         }
 
-        // Scale all ingredients by their serving multipliers
-        return $allIngredients->map(function ($ingredient) {
+        // Scale all ingredients by their serving multipliers and resolve categories via templates
+        return $allIngredients->map(function ($ingredient) use ($userId) {
             $multiplier = $ingredient['serving_multiplier'];
             unset($ingredient['serving_multiplier']);
 
-            return $this->processIngredients(collect([$ingredient]), $multiplier)->first();
+            $scaled = $this->processIngredients(collect([$ingredient]), $multiplier)->first();
+            $scaled['category'] = $this->resolveIngredientCategory($scaled['name'], $scaled['category'], $userId);
+
+            return $scaled;
         });
+    }
+
+    /**
+     * Resolve the category for an ingredient, upgrading OTHER via user and common templates.
+     *
+     * Returns the original category immediately when it is not OTHER.
+     * Checks the user's personal templates first, then the shared common templates.
+     * Falls back to OTHER when no template match is found.
+     */
+    private function resolveIngredientCategory(string $name, IngredientCategory $currentCategory, int $userId): IngredientCategory
+    {
+        if ($currentCategory !== IngredientCategory::OTHER) {
+            return $currentCategory;
+        }
+
+        $lowerName = strtolower($name);
+
+        if ($userId > 0) {
+            $userTemplate = UserItemTemplate::where('user_id', $userId)
+                ->whereRaw('LOWER(name) = ?', [$lowerName])
+                ->first();
+
+            if ($userTemplate !== null) {
+                return $userTemplate->category;
+            }
+        }
+
+        $commonTemplate = CommonItemTemplate::whereRaw('LOWER(name) = ?', [$lowerName])
+            ->first();
+
+        if ($commonTemplate !== null) {
+            return $commonTemplate->category;
+        }
+
+        return IngredientCategory::OTHER;
     }
 
     /**

@@ -3,6 +3,7 @@
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Enums\SourceType;
+use App\Models\CommonItemTemplate;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\Ingredient;
@@ -11,6 +12,7 @@ use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\User;
+use App\Models\UserItemTemplate;
 use App\Services\GroceryListGenerator;
 use App\Services\IngredientAggregator;
 use App\Services\ServingSizeScaler;
@@ -467,6 +469,200 @@ test('regenerate updates regenerated_at timestamp', function () {
     expect($groceryList->fresh()->regenerated_at)->not->toBeNull();
 });
 
+// ──────────────────────────────────────────────────────────
+// T006: generate() with $excludedCategories + getCategoryItemCounts()
+// ──────────────────────────────────────────────────────────
+
+test('generate excludes items in excluded categories', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $dairyItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = $generator->generate($mealPlan, [IngredientCategory::PANTRY]);
+
+    $itemCategories = $groceryList->groceryItems->pluck('category');
+    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
+    expect($itemCategories)->toContain(IngredientCategory::DAIRY);
+    expect($groceryList->groceryItems)->toHaveCount(1);
+});
+
+test('generate stores excluded_categories on list', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $pantryItem = Ingredient::factory()->create(['name' => 'Flour', 'category' => IngredientCategory::PANTRY]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = $generator->generate($mealPlan, [IngredientCategory::PANTRY]);
+
+    expect($groceryList->excluded_categories)->toBe(['pantry']);
+});
+
+test('generate stores null for excluded_categories when empty array passed', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $dairyItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = $generator->generate($mealPlan, []);
+
+    expect($groceryList->excluded_categories)->toBeNull();
+});
+
+test('getCategoryItemCounts returns map of category value to item count', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $pantryItem1 = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $pantryItem2 = Ingredient::factory()->create(['name' => 'Pepper', 'category' => IngredientCategory::PANTRY]);
+    $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem1->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem2->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $dairyItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $counts = $generator->getCategoryItemCounts($mealPlan, $user->id);
+
+    expect($counts)->toBeArray();
+    expect($counts)->toHaveKey(IngredientCategory::PANTRY->value);
+    expect($counts)->toHaveKey(IngredientCategory::DAIRY->value);
+    expect($counts[IngredientCategory::PANTRY->value])->toBe(2);
+    expect($counts[IngredientCategory::DAIRY->value])->toBe(1);
+});
+
+// ──────────────────────────────────────────────────────────
+// T007: regenerate() with $excludedCategories
+// ──────────────────────────────────────────────────────────
+
+test('regenerate excludes items in excluded categories', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $dairyItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = GroceryList::factory()->create(['user_id' => $user->id, 'meal_plan_id' => $mealPlan->id]);
+
+    $generator->regenerate($groceryList, [IngredientCategory::PANTRY]);
+
+    $items = $groceryList->fresh()->groceryItems;
+    $itemCategories = $items->pluck('category');
+    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
+    expect($itemCategories)->toContain(IngredientCategory::DAIRY);
+});
+
+test('regenerate preserves manual items even when category is excluded', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $groceryList = GroceryList::factory()->create(['user_id' => $user->id, 'meal_plan_id' => $mealPlan->id]);
+
+    // Manual item in a category that will be excluded
+    GroceryItem::factory()->create([
+        'grocery_list_id' => $groceryList->id,
+        'name' => 'Paper Towels',
+        'category' => IngredientCategory::OTHER,
+        'source_type' => SourceType::MANUAL,
+    ]);
+
+    $generator->regenerate($groceryList, [IngredientCategory::OTHER]);
+
+    // Manual item must always be preserved regardless of exclusion
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
+    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('Paper Towels');
+});
+
+test('regenerate updates excluded_categories on list', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $groceryList = GroceryList::factory()->create([
+        'user_id' => $user->id,
+        'meal_plan_id' => $mealPlan->id,
+        'excluded_categories' => null,
+    ]);
+
+    $generator->regenerate($groceryList, [IngredientCategory::PANTRY, IngredientCategory::DAIRY]);
+
+    expect($groceryList->fresh()->excluded_categories)->toBe(['pantry', 'dairy']);
+});
+
+test('regenerate sets excluded_categories to null when empty array passed', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $groceryList = GroceryList::factory()->create([
+        'user_id' => $user->id,
+        'meal_plan_id' => $mealPlan->id,
+        'excluded_categories' => ['pantry'],
+    ]);
+
+    $generator->regenerate($groceryList, []);
+
+    expect($groceryList->fresh()->excluded_categories)->toBeNull();
+});
+
+// ──────────────────────────────────────────────────────────
+// Existing test (preserved below)
+// ──────────────────────────────────────────────────────────
+
 test('regenerate does not override manual items with same name', function () {
     $unitConverter = new UnitConverter;
     $scaler = new ServingSizeScaler;
@@ -508,4 +704,172 @@ test('regenerate does not override manual items with same name', function () {
     expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
     expect((float) $groceryList->fresh()->groceryItems->first()->quantity)->toBe(2.0);
     expect($groceryList->fresh()->groceryItems->first()->source_type)->toBe(SourceType::MANUAL);
+});
+
+// ──────────────────────────────────────────────────────────
+// T019: resolveIngredientCategory() via generate() (US2)
+// ──────────────────────────────────────────────────────────
+
+test('generate preserves non-OTHER ingredient category even when user template exists', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient already has DAIRY — template must not override a non-OTHER category
+    $ingredient = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // User template says PANTRY — must NOT override because DAIRY is not OTHER
+    UserItemTemplate::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Milk',
+        'category' => IngredientCategory::PANTRY,
+    ]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::DAIRY);
+});
+
+test('generate upgrades OTHER ingredient to user template category', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient categorized as OTHER
+    $ingredient = Ingredient::factory()->create(['name' => 'Cumin', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // User template resolves Cumin to PANTRY
+    UserItemTemplate::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'Cumin',
+        'category' => IngredientCategory::PANTRY,
+    ]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::PANTRY);
+});
+
+test('generate upgrades OTHER ingredient to common template category when no user template', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient categorized as OTHER
+    $ingredient = Ingredient::factory()->create(['name' => 'Paprika', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // No user template — common template resolves Paprika to PANTRY
+    CommonItemTemplate::create([
+        'name' => 'Paprika',
+        'category' => IngredientCategory::PANTRY,
+        'unit' => MeasurementUnit::TSP,
+        'default_quantity' => 1.0,
+        'usage_count' => 0,
+    ]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::PANTRY);
+});
+
+test('generate returns OTHER when no template matches OTHER ingredient', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient with OTHER category, no templates exist
+    $ingredient = Ingredient::factory()->create(['name' => 'Mystery Powder', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::OTHER);
+});
+
+test('generate matches ingredient names case-insensitively against templates', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient name stored as uppercase
+    $ingredient = Ingredient::factory()->create(['name' => 'CUMIN', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // Template stored in lowercase — case-insensitive match must succeed
+    UserItemTemplate::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'cumin',
+        'category' => IngredientCategory::PANTRY,
+    ]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::PANTRY);
+});
+
+test('generate does not use another users template for ingredient resolution', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter);
+
+    $user = User::factory()->create();
+    $otherUser = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Cumin', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // Template belongs to a DIFFERENT user — must not be applied
+    UserItemTemplate::factory()->create([
+        'user_id' => $otherUser->id,
+        'name' => 'Cumin',
+        'category' => IngredientCategory::PANTRY,
+    ]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    // Must stay OTHER — other user's template must not be used
+    expect($item->category)->toBe(IngredientCategory::OTHER);
 });

@@ -59,13 +59,21 @@ test.describe('Item Templates Management', () => {
   });
 
   test('can view all personal item templates', async ({ page }) => {
-    await page.goto('/settings/item-templates');
-    await page.waitForLoadState('networkidle');
+    // First create a template so the list is non-empty (use a unique name to avoid conflicts)
+    const uniqueName = `View Template ${Date.now()}`;
+    await page.goto('/settings/item-templates/create');
+    await page.waitForLoadState('domcontentloaded');
+    await page.getByLabel('Item Name').fill(uniqueName);
+    await page.getByLabel('Category').selectOption('pantry');
+    await page.getByLabel('Unit').selectOption('lb');
+    await page.getByLabel('Default Quantity').fill('1');
+    await page.getByRole('button', { name: 'Create Template' }).click();
+    await page.waitForURL('/settings/item-templates');
 
     // Should see page heading and subheading (subheading is unique to this page)
     await expect(page.getByText('Manage your grocery item autocomplete templates')).toBeVisible();
 
-    // Should see a list of templates (assuming user has some)
+    // Should see a list of templates now that one has been created
     const templateList = page.locator('table[data-test="template-list"]');
     await expect(templateList).toBeVisible();
   });
@@ -73,20 +81,25 @@ test.describe('Item Templates Management', () => {
   test('template autocomplete populates form fields', async ({ page }) => {
     // This test verifies that selecting an autocomplete suggestion from user templates
     // correctly populates the form fields with the template's saved values.
-    //
-    // It uses the existing "almond milk" template that should exist in the test database.
 
-    // First, verify we have a template to work with
-    await page.goto('/settings/item-templates');
-    await page.waitForLoadState('networkidle');
+    // Create a uniquely named template so the test is self-contained and avoids duplicate conflicts
+    const uniqueTemplateName = `sparkling water ${Date.now()}`;
+    await page.goto('/settings/item-templates/create');
+    await page.waitForLoadState('domcontentloaded');
+    await page.getByLabel('Item Name').fill(uniqueTemplateName);
+    await page.getByLabel('Category').selectOption('beverages');
+    await page.getByLabel('Unit').selectOption('gallon');
+    await page.getByLabel('Default Quantity').fill('1');
+    await page.getByRole('button', { name: 'Create Template' }).click();
+    await page.waitForURL('/settings/item-templates');
 
-    // Check for "almond milk" template (should exist from seeder/previous tests)
-    const almondMilkRow = page.locator('tr:has-text("almond milk")');
-    await expect(almondMilkRow).toBeVisible();
+    // Verify the template exists in the list
+    const templateRow = page.locator(`tr:has-text("${uniqueTemplateName}")`);
+    await expect(templateRow).toBeVisible();
 
     // Create a grocery list to test autocomplete
     await page.goto('/grocery-lists/create');
-    await page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await page.getByLabel('List Name').fill('Template Autocomplete Test');
     await page.getByRole('button', { name: 'Create List' }).click();
     await page.waitForURL(/\/grocery-lists\/\d+/);
@@ -94,11 +107,11 @@ test.describe('Item Templates Management', () => {
     // Open add item form and type to trigger autocomplete
     await page.getByRole('button', { name: 'Add Item' }).click();
     const itemNameInput = page.locator('#searchQuery');
-    await itemNameInput.fill('almond');
+    await itemNameInput.fill('sparkling');
     await page.waitForTimeout(500);
 
-    // Should see the suggestion
-    const suggestion = page.locator('[role="option"]:has-text("almond milk")');
+    // Should see the suggestion for our uniquely named template
+    const suggestion = page.locator(`[role="option"]:has-text("${uniqueTemplateName}")`);
     await expect(suggestion).toBeVisible();
 
     // Click the suggestion
@@ -109,8 +122,7 @@ test.describe('Item Templates Management', () => {
     const categorySelect = page.locator('#itemCategory');
     const unitSelect = page.locator('#itemUnit');
 
-    // Check that category matches what we saw in the template
-    // "almond milk" template has "Beverages" category and "gallon" unit
+    // Check that category and unit match what was saved in the template
     await expect(categorySelect).toHaveValue('beverages');
     await expect(unitSelect).toHaveValue('gallon');
   });

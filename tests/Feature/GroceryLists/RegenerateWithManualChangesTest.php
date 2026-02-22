@@ -384,3 +384,43 @@ test('cannot regenerate standalone grocery list', function () {
     expect(fn () => $generator->regenerate($standaloneList))
         ->toThrow(\InvalidArgumentException::class, 'Cannot regenerate a standalone grocery list');
 });
+
+// ──────────────────────────────────────────────────────────
+// T029: Manual items never removed even when category is excluded
+// ──────────────────────────────────────────────────────────
+
+test('manual items are never removed during regeneration even when their category is excluded', function () {
+    actingAs($this->user);
+
+    // Add a manual item in the DAIRY category
+    $manualItem = GroceryItem::create([
+        'grocery_list_id' => $this->groceryList->id,
+        'name' => 'Almond Milk',
+        'quantity' => 1.0,
+        'unit' => MeasurementUnit::WHOLE,
+        'category' => IngredientCategory::DAIRY,
+        'source_type' => SourceType::MANUAL,
+        'sort_order' => 100,
+    ]);
+
+    // Regenerate while excluding the DAIRY category
+    $generator = app(GroceryListGenerator::class);
+    $updatedList = $generator->regenerate($this->groceryList, [IngredientCategory::DAIRY]);
+
+    // Manual item must always be preserved regardless of category exclusion
+    $preserved = $updatedList->groceryItems()
+        ->where('source_type', SourceType::MANUAL)
+        ->where('name', 'Almond Milk')
+        ->first();
+
+    expect($preserved)->not->toBeNull();
+    expect($preserved->category)->toBe(IngredientCategory::DAIRY);
+
+    // Generated DAIRY items (Milk) must be excluded
+    $generatedDairyItem = $updatedList->groceryItems()
+        ->where('source_type', SourceType::GENERATED)
+        ->where('name', 'Milk')
+        ->first();
+
+    expect($generatedDairyItem)->toBeNull();
+});

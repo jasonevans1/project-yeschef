@@ -2,6 +2,7 @@
 
 namespace App\Livewire\GroceryLists;
 
+use App\Enums\IngredientCategory;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
 use App\Services\GroceryListGenerator;
@@ -22,7 +23,16 @@ class Generate extends Component
 
     public int $estimatedItemCount = 0;
 
-    public function mount(MealPlan $mealPlan)
+    /** @var array<int, string> */
+    public array $excludedCategories = [];
+
+    /** @var array<string, int> */
+    public array $categoryItemCounts = [];
+
+    /** @var array<int, string> */
+    public array $savedPreferences = [];
+
+    public function mount(MealPlan $mealPlan): void
     {
         // Check if user owns this meal plan
         $this->authorize('view', $mealPlan);
@@ -37,22 +47,41 @@ class Generate extends Component
 
         // Estimate item count (rough estimate based on average ingredients per recipe)
         $this->estimatedItemCount = $this->recipeCount * 8; // Assume ~8 ingredients per recipe
+
+        // Load saved preferences
+        $this->savedPreferences = auth()->user()->grocery_category_exclusions ?? [];
+
+        // Pre-populate exclusions: existing list takes precedence over saved preferences
+        $this->excludedCategories = $this->existingList?->excluded_categories
+            ?? $this->savedPreferences;
+
+        // Load category item counts for the exclusion checkboxes
+        if ($this->recipeCount > 0) {
+            $generator = app(GroceryListGenerator::class);
+            $this->categoryItemCounts = $generator->getCategoryItemCounts($mealPlan, auth()->id());
+        }
     }
 
-    public function generate()
+    public function generate(): mixed
     {
         // Authorize that user can create grocery lists
         $this->authorize('create', GroceryList::class);
 
         $generator = app(GroceryListGenerator::class);
 
+        // Convert string values to IngredientCategory enum cases
+        $excludedEnums = array_filter(array_map(
+            fn (string $value) => IngredientCategory::tryFrom($value),
+            $this->excludedCategories
+        ));
+
         // If list exists, regenerate it
         if ($this->existingList) {
-            $groceryList = $generator->regenerate($this->existingList);
+            $groceryList = $generator->regenerate($this->existingList, array_values($excludedEnums));
             session()->flash('message', 'Grocery list regenerated successfully!');
         } else {
             // Generate new list
-            $groceryList = $generator->generate($this->mealPlan);
+            $groceryList = $generator->generate($this->mealPlan, array_values($excludedEnums));
             session()->flash('message', 'Grocery list generated successfully!');
         }
 
@@ -60,14 +89,34 @@ class Generate extends Component
         return redirect()->route('grocery-lists.show', $groceryList);
     }
 
-    public function cancel()
+    public function savePreferences(): void
+    {
+        auth()->user()->update([
+            'grocery_category_exclusions' => $this->excludedCategories ?: null,
+        ]);
+
+        $this->savedPreferences = $this->excludedCategories;
+    }
+
+    public function clearPreferences(): void
+    {
+        auth()->user()->update([
+            'grocery_category_exclusions' => null,
+        ]);
+
+        $this->savedPreferences = [];
+    }
+
+    public function cancel(): mixed
     {
         // Return to meal plan
         return redirect()->route('meal-plans.show', $this->mealPlan);
     }
 
-    public function render()
+    public function render(): mixed
     {
-        return view('livewire.grocery-lists.generate');
+        return view('livewire.grocery-lists.generate', [
+            'categories' => IngredientCategory::cases(),
+        ]);
     }
 }

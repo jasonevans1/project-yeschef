@@ -97,6 +97,37 @@
             </div>
         </div>
 
+        {{-- Category Exclusion Panel --}}
+        @if($recipeCount > 0 && count($categoryItemCounts) > 0)
+            <div class="mb-6 bg-gray-50 dark:bg-zinc-800 rounded-lg p-4">
+                <flux:heading size="md" class="mb-1">Exclude categories (optional)</flux:heading>
+                <flux:text class="text-sm text-gray-600 dark:text-zinc-400 mb-3">
+                    Skip ingredient categories you already have at home.
+                </flux:text>
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+                    @foreach($categories as $category)
+                        @if(isset($categoryItemCounts[$category->value]) && $categoryItemCounts[$category->value] > 0)
+                            <flux:checkbox
+                                wire:model="excludedCategories"
+                                value="{{ $category->value }}"
+                                label="{{ $category->label() }} ({{ $categoryItemCounts[$category->value] }})"
+                            />
+                        @endif
+                    @endforeach
+                </div>
+                <div class="flex items-center gap-2">
+                    <flux:button wire:click="savePreferences" variant="ghost" size="sm">
+                        Save as default
+                    </flux:button>
+                    @if(count($savedPreferences) > 0)
+                        <flux:button wire:click="clearPreferences" variant="ghost" size="sm">
+                            Clear saved defaults
+                        </flux:button>
+                    @endif
+                </div>
+            </div>
+        @endif
+
         {{-- Action Buttons --}}
         <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
             <flux:button

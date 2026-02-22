@@ -55,7 +55,6 @@ test.describe('Manual Grocery List Item Management', () => {
 
     // Wait for redirect to meal plan show page
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
     await expect(page.locator('h1')).toContainText('Manual Items Test Plan');
 
     // Step 2: Assign at least one recipe to the meal plan
@@ -72,8 +71,8 @@ test.describe('Manual Grocery List Item Management', () => {
     // Select first available recipe
     await page.locator('[data-recipe-card]').first().click();
 
-    // Wait for modal to close and Livewire to update
-    await page.waitForLoadState('networkidle');
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Step 3: Generate grocery list from meal plan
     await page.click('a:has-text("Generate Grocery List")');
@@ -120,10 +119,6 @@ test.describe('Manual Grocery List Item Management', () => {
     // Step 6: Save the new item
     await page.locator('button[wire\\:click="addManualItem"]').click();
 
-    // Wait for Livewire to process - wait for wire:loading to disappear
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500); // Additional time for Livewire to re-render
-
     // Verify the item appears in the list
     await expect(page.locator('text=Paper Towels')).toBeVisible({ timeout: 10000 });
 
@@ -154,10 +149,6 @@ test.describe('Manual Grocery List Item Management', () => {
     // Save the edit - use wire:click to be more specific
     await page.locator('button[wire\\:click="saveEdit"]').click();
 
-    // Wait for Livewire to process
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
-
     // Verify the quantity changed (should show "3 whole")
     // Search within the Paper Towels item context to avoid matching other items
     const paperTowelsContainer = page.locator('text=Paper Towels').locator('..');
@@ -177,10 +168,6 @@ test.describe('Manual Grocery List Item Management', () => {
     page.once('dialog', dialog => dialog.accept());
     await deleteButton.click();
 
-    // Wait for Livewire to process deletion
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
-
     // Verify the item is removed from the list
     await expect(page.locator('text=Paper Towels')).not.toBeVisible({ timeout: 10000 });
 
@@ -195,21 +182,22 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.waitForTimeout(500);
 
     await page.locator('button[wire\\:click="addManualItem"]').click();
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
 
     // Verify "Trash Bags" appears
     await expect(page.locator('text=Trash Bags')).toBeVisible({ timeout: 10000 });
 
     // Step 11: Regenerate the grocery list
-    const regenerateButton = page.locator('button:has-text("Regenerate")');
+    const regenerateButton = page.locator('button[wire\\:click="showRegenerateConfirmation"]');
 
     // Check if regenerate button exists (it should for meal plan-linked lists)
     if (await regenerateButton.isVisible()) {
       await regenerateButton.click();
 
+      // Wait for the modal to open and click the confirm Regenerate button
+      await expect(page.locator('button[wire\\:click="regenerate"]')).toBeVisible({ timeout: 5000 });
+      await page.click('button[wire\\:click="regenerate"]');
+
       // Wait for Livewire to process regeneration
-      await page.waitForLoadState('networkidle');
       await page.waitForTimeout(2000);
 
       // Step 12: Verify manually added item "Trash Bags" is still present
@@ -236,7 +224,6 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -245,7 +232,9 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -266,8 +255,6 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.waitForTimeout(500);
 
     await page.locator('button[wire\\:click="addManualItem"]').click();
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1500);
 
     // Verify the item appears in the Produce category
     // Find the Produce category section
@@ -292,7 +279,6 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -301,7 +287,9 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -332,19 +320,23 @@ test.describe('Manual Grocery List Item Management', () => {
 
       await quantityInput.fill(newQuantity);
       await page.click('button:has-text("Save")');
-      await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1500);
 
       // Regenerate the list
-      const regenerateButton = page.locator('button:has-text("Regenerate")');
+      const regenerateButton = page.locator('button[wire\\:click="showRegenerateConfirmation"]');
       if (await regenerateButton.isVisible()) {
         await regenerateButton.click();
-        await page.waitForLoadState('networkidle');
+
+        // Wait for modal and click confirm
+        await expect(page.locator('button[wire\\:click="regenerate"]')).toBeVisible({ timeout: 5000 });
+        await page.click('button[wire\\:click="regenerate"]');
         await page.waitForTimeout(2000);
 
         // Verify the edited item still shows the user's edited quantity
-        // The edited value should be preserved
-        await expect(page.locator(`text=/${newQuantity}/`)).toBeVisible();
+        // The edited value should be preserved - scope to the item row that has the "Edited" badge
+        // to avoid strict mode violations from other items that may contain the same digit
+        const editedItemRow = page.locator('div.px-6.py-4', { has: page.getByText('Edited', { exact: true }) }).first();
+        await expect(editedItemRow.locator('p', { hasText: new RegExp(`^${newQuantity}\\b`) })).toBeVisible();
       }
     }
   });
@@ -364,7 +356,6 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -373,7 +364,9 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
@@ -414,7 +407,6 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.fill('input[name="end_date"]', endDate);
     await page.click('button:has-text("Create Meal Plan")');
     await page.waitForURL(/\/meal-plans\/\d+/, { timeout: 30000 });
-    await page.waitForLoadState('networkidle');
 
     // Assign a recipe
     const firstDinnerSlot = page.locator('tbody tr').first().locator('[data-meal-type="dinner"]');
@@ -423,7 +415,9 @@ test.describe('Manual Grocery List Item Management', () => {
     await page.getByRole('menuitem', { name: 'Add Recipe' }).click();
     await page.waitForSelector('[data-recipe-card]', { timeout: 5000 });
     await page.locator('[data-recipe-card]').first().click();
-    await page.waitForLoadState('networkidle');
+
+    // Wait for Generate Grocery List button to confirm recipe was assigned
+    await expect(page.locator('a:has-text("Generate Grocery List")')).toBeVisible({ timeout: 10000 });
 
     // Generate grocery list
     await page.click('a:has-text("Generate Grocery List")');
