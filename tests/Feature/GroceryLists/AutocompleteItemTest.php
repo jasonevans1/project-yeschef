@@ -104,6 +104,28 @@ test('user can override suggested values', function () {
         ->and($item->category)->toBe(IngredientCategory::BEVERAGES);
 });
 
+// Test: Selecting a template populates the visible item name field
+test('selecting a template from autocomplete populates the visible item name field', function () {
+    $user = User::factory()->create();
+    $groceryList = \App\Models\GroceryList::factory()->for($user)->create();
+
+    $this->actingAs($user);
+
+    \Livewire\Livewire::test(\App\Livewire\GroceryLists\Show::class, ['groceryList' => $groceryList])
+        ->call('openAddItemForm')
+        ->call('selectGroceryItem', [
+            'id' => 1,
+            'name' => 'milk',
+            'category' => 'dairy',
+            'unit' => 'gallon',
+            'default_quantity' => '1',
+            'is_user_template' => false,
+        ])
+        ->assertSet('searchQuery', 'milk')
+        ->assertSet('itemName', 'milk')
+        ->assertSet('suggestions', []);
+});
+
 // Test: User can add custom item not in autocomplete
 test('user can add custom item that does not match autocomplete', function () {
     $user = User::factory()->create();
