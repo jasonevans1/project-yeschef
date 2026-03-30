@@ -97,7 +97,7 @@ test('observer does not track generated items', function () {
         'name' => 'olive oil',
         'quantity' => 2,
         'unit' => MeasurementUnit::TBSP,
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'source_type' => SourceType::GENERATED,
         'sort_order' => 1,
     ]);

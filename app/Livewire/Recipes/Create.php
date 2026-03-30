@@ -51,7 +51,6 @@ class Create extends Component
 
     public function mount(): void
     {
-        // Initialize with one empty ingredient row
         $this->ingredients = [
             [
                 'ingredient_name' => '',
@@ -83,11 +82,8 @@ class Create extends Component
     public function save(): void
     {
         $this->validate();
-
-        // Additional validation for ingredients
         $this->validateIngredients();
 
-        // Create the recipe
         $recipe = auth()->user()->recipes()->create([
             'name' => $this->name,
             'description' => $this->description,
@@ -102,19 +98,16 @@ class Create extends Component
             'image_url' => $this->image_url,
         ]);
 
-        // Handle ingredients
         foreach ($this->ingredients as $index => $ingredientData) {
             if (empty($ingredientData['ingredient_name'])) {
                 continue;
             }
 
-            // Find or create ingredient (case-insensitive)
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
                 ['category' => $this->guessIngredientCategory($ingredientData['ingredient_name'])]
             );
 
-            // Create recipe ingredient pivot record
             $recipe->recipeIngredients()->create([
                 'ingredient_id' => $ingredient->id,
                 'quantity' => $ingredientData['quantity'] ?? 1,
@@ -141,7 +134,6 @@ class Create extends Component
             }
         }
 
-        // Check that at least one ingredient has a name
         $hasValidIngredient = collect($this->ingredients)
             ->filter(fn ($ing) => ! empty($ing['ingredient_name']))
             ->isNotEmpty();
@@ -155,13 +147,14 @@ class Create extends Component
     {
         $name = strtolower($name);
 
-        // Simple category guessing based on keywords
         $categoryKeywords = [
             IngredientCategory::PRODUCE->value => ['lettuce', 'tomato', 'onion', 'garlic', 'pepper', 'carrot', 'celery', 'potato', 'spinach', 'broccoli', 'cucumber', 'apple', 'banana', 'orange', 'lemon', 'lime', 'herb', 'basil', 'parsley', 'cilantro'],
             IngredientCategory::DAIRY->value => ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'sour cream', 'ricotta', 'mozzarella', 'parmesan', 'cheddar'],
             IngredientCategory::MEAT->value => ['chicken', 'beef', 'pork', 'turkey', 'lamb', 'bacon', 'sausage', 'ground beef', 'steak'],
             IngredientCategory::SEAFOOD->value => ['fish', 'salmon', 'tuna', 'shrimp', 'crab', 'lobster', 'cod', 'tilapia'],
-            IngredientCategory::PANTRY->value => ['flour', 'sugar', 'salt', 'pepper', 'oil', 'olive oil', 'vinegar', 'rice', 'pasta', 'beans', 'sauce', 'spice', 'cumin', 'paprika', 'oregano'],
+            IngredientCategory::COOKING_AND_BAKING->value => ['flour', 'sugar', 'salt', 'oil', 'olive oil', 'vinegar', 'spice', 'cumin', 'paprika', 'oregano'],
+            IngredientCategory::GRAINS_AND_PASTA->value => ['rice', 'pasta', 'beans'],
+            IngredientCategory::SOUPS_AND_CANNED_GOODS->value => ['sauce'],
             IngredientCategory::FROZEN->value => ['frozen'],
             IngredientCategory::BAKERY->value => ['bread', 'bun', 'roll', 'tortilla', 'pita', 'bagel'],
             IngredientCategory::BEVERAGES->value => ['juice', 'soda', 'water', 'coffee', 'tea', 'wine', 'beer'],

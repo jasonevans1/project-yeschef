@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
@@ -116,7 +118,7 @@ test('text export includes item names with quantities and units', function () {
         'name' => 'Flour',
         'quantity' => 2.5,
         'unit' => \App\Enums\MeasurementUnit::CUP,
-        'category' => \App\Enums\IngredientCategory::PANTRY,
+        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $response = $this->actingAs($user)
@@ -252,13 +254,13 @@ test('text export shows purchased items differently', function () {
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Purchased Item',
         'purchased' => true,
-        'category' => \App\Enums\IngredientCategory::PANTRY,
+        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Unpurchased Item',
         'purchased' => false,
-        'category' => \App\Enums\IngredientCategory::PANTRY,
+        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $response = $this->actingAs($user)

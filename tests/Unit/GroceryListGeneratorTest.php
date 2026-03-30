@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Enums\SourceType;
@@ -42,14 +44,14 @@ test('processes ingredients with serving multiplier', function () {
             'name' => 'flour',
             'quantity' => 2.0,
             'unit' => MeasurementUnit::CUP,
-            'category' => IngredientCategory::PANTRY,
+            'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         ],
     ]);
 
     $scaled = $generator->processIngredients($ingredients, 1.5);
 
-    expect($scaled)->toHaveCount(1);
-    expect($scaled->first()['quantity'])->toBe(3.0);
+    expect($scaled)->toHaveCount(1)
+        ->and($scaled->first()['quantity'])->toBe(3.0);
 });
 
 test('aggregates duplicate ingredients across recipes', function () {
@@ -76,8 +78,8 @@ test('aggregates duplicate ingredients across recipes', function () {
 
     $aggregated = $generator->aggregateIngredients($allIngredients);
 
-    expect($aggregated)->toHaveCount(1);
-    expect($aggregated->first()['quantity'])->toBe(2.0);
+    expect($aggregated)->toHaveCount(1)
+        ->and($aggregated->first()['quantity'])->toBe(2.0);
 });
 
 test('organizes ingredients by category', function () {
@@ -98,14 +100,14 @@ test('organizes ingredients by category', function () {
             'name' => 'flour',
             'quantity' => 2.0,
             'unit' => MeasurementUnit::CUP,
-            'category' => IngredientCategory::PANTRY,
+            'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         ],
     ]);
 
     $organized = $generator->organizeByCategory($ingredients);
 
-    expect($organized)->toHaveKey(IngredientCategory::DAIRY->value);
-    expect($organized)->toHaveKey(IngredientCategory::PANTRY->value);
+    expect($organized)->toHaveKey(IngredientCategory::DAIRY->value)
+        ->and($organized)->toHaveKey(IngredientCategory::SOUPS_AND_CANNED_GOODS->value);
 });
 
 test('generate creates grocery list from meal plan', function () {
@@ -122,7 +124,7 @@ test('generate creates grocery list from meal plan', function () {
 
     $ingredient1 = Ingredient::factory()->create([
         'name' => 'Flour',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
     $ingredient2 = Ingredient::factory()->create([
         'name' => 'Milk',
@@ -151,12 +153,12 @@ test('generate creates grocery list from meal plan', function () {
     // Generate grocery list
     $groceryList = $generator->generate($mealPlan);
 
-    expect($groceryList)->toBeInstanceOf(GroceryList::class);
-    expect($groceryList->user_id)->toBe($user->id);
-    expect($groceryList->meal_plan_id)->toBe($mealPlan->id);
-    expect($groceryList->name)->toBe("Grocery List for {$mealPlan->name}");
-    expect($groceryList->generated_at)->not->toBeNull();
-    expect($groceryList->groceryItems)->toHaveCount(2);
+    expect($groceryList)->toBeInstanceOf(GroceryList::class)
+        ->and($groceryList->user_id)->toBe($user->id)
+        ->and($groceryList->meal_plan_id)->toBe($mealPlan->id)
+        ->and($groceryList->name)->toBe("Grocery List for {$mealPlan->name}")
+        ->and($groceryList->generated_at)->not->toBeNull()
+        ->and($groceryList->groceryItems)->toHaveCount(2);
 });
 
 test('generate creates grocery items with correct data', function () {
@@ -172,7 +174,7 @@ test('generate creates grocery items with correct data', function () {
 
     $ingredient = Ingredient::factory()->create([
         'name' => 'sugar',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     RecipeIngredient::factory()->create([
@@ -191,12 +193,12 @@ test('generate creates grocery items with correct data', function () {
     $groceryList = $generator->generate($mealPlan);
     $groceryItem = $groceryList->groceryItems->first();
 
-    expect($groceryItem->name)->toBe('Sugar');
-    expect((float) $groceryItem->quantity)->toBe(7.0); // 3.5 * 2.0
-    expect($groceryItem->unit)->toBe(MeasurementUnit::CUP);
-    expect($groceryItem->category)->toBe(IngredientCategory::PANTRY);
-    expect($groceryItem->source_type)->toBe(SourceType::GENERATED);
-    expect($groceryItem->sort_order)->toBe(0);
+    expect($groceryItem->name)->toBe('Sugar')
+        ->and((float) $groceryItem->quantity)->toBe(7.0) // 3.5 * 2.0
+        ->and($groceryItem->unit)->toBe(MeasurementUnit::CUP)
+        ->and($groceryItem->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($groceryItem->source_type)->toBe(SourceType::GENERATED)
+        ->and($groceryItem->sort_order)->toBe(0);
 });
 
 test('generate aggregates duplicate ingredients from multiple recipes', function () {
@@ -240,8 +242,8 @@ test('generate aggregates duplicate ingredients from multiple recipes', function
 
     $groceryList = $generator->generate($mealPlan);
 
-    expect($groceryList->groceryItems)->toHaveCount(1);
-    expect((float) $groceryList->groceryItems->first()->quantity)->toBe(5.0);
+    expect($groceryList->groceryItems)->toHaveCount(1)
+        ->and((float) $groceryList->groceryItems->first()->quantity)->toBe(5.0);
 });
 
 test('generate organizes items by category with sort order', function () {
@@ -254,7 +256,7 @@ test('generate organizes items by category with sort order', function () {
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryItem = Ingredient::factory()->create(['category' => IngredientCategory::PANTRY]);
+    $pantryItem = Ingredient::factory()->create(['category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyItem = Ingredient::factory()->create(['category' => IngredientCategory::DAIRY]);
 
     RecipeIngredient::factory()->create([
@@ -278,9 +280,9 @@ test('generate organizes items by category with sort order', function () {
     $groceryList = $generator->generate($mealPlan);
     $items = $groceryList->groceryItems->sortBy('sort_order');
 
-    expect($items)->toHaveCount(2);
-    expect($items->first()->sort_order)->toBe(0);
-    expect($items->last()->sort_order)->toBe(1);
+    expect($items)->toHaveCount(2)
+        ->and($items->first()->sort_order)->toBe(0)
+        ->and($items->last()->sort_order)->toBe(1);
 });
 
 test('regenerate throws exception for standalone grocery list', function () {
@@ -345,8 +347,8 @@ test('regenerate preserves manual items', function () {
 
     $generator->regenerate($groceryList);
 
-    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('Paper Towels');
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1)
+        ->and($groceryList->fresh()->groceryItems->first()->name)->toBe('Paper Towels');
 });
 
 test('regenerate preserves edited generated items', function () {
@@ -372,8 +374,8 @@ test('regenerate preserves edited generated items', function () {
 
     $generator->regenerate($groceryList);
 
-    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect((float) $groceryList->fresh()->groceryItems->first()->quantity)->toBe(5.0);
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1)
+        ->and((float) $groceryList->fresh()->groceryItems->first()->quantity)->toBe(5.0);
 });
 
 test('regenerate respects user deletions', function () {
@@ -446,8 +448,8 @@ test('regenerate adds new items from updated meal plan', function () {
 
     $generator->regenerate($groceryList);
 
-    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('Pepper');
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1)
+        ->and($groceryList->fresh()->groceryItems->first()->name)->toBe('Pepper');
 });
 
 test('regenerate updates regenerated_at timestamp', function () {
@@ -483,7 +485,7 @@ test('generate excludes items in excluded categories', function () {
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
 
     RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
@@ -491,12 +493,12 @@ test('generate excludes items in excluded categories', function () {
 
     MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
 
-    $groceryList = $generator->generate($mealPlan, [IngredientCategory::PANTRY]);
+    $groceryList = $generator->generate($mealPlan, [IngredientCategory::SOUPS_AND_CANNED_GOODS]);
 
     $itemCategories = $groceryList->groceryItems->pluck('category');
-    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
-    expect($itemCategories)->toContain(IngredientCategory::DAIRY);
-    expect($groceryList->groceryItems)->toHaveCount(1);
+    expect($itemCategories)->not->toContain(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($itemCategories)->toContain(IngredientCategory::DAIRY)
+        ->and($groceryList->groceryItems)->toHaveCount(1);
 });
 
 test('generate stores excluded_categories on list', function () {
@@ -509,13 +511,13 @@ test('generate stores excluded_categories on list', function () {
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryItem = Ingredient::factory()->create(['name' => 'Flour', 'category' => IngredientCategory::PANTRY]);
+    $pantryItem = Ingredient::factory()->create(['name' => 'Flour', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
     MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
 
-    $groceryList = $generator->generate($mealPlan, [IngredientCategory::PANTRY]);
+    $groceryList = $generator->generate($mealPlan, [IngredientCategory::SOUPS_AND_CANNED_GOODS]);
 
-    expect($groceryList->excluded_categories)->toBe(['pantry']);
+    expect($groceryList->excluded_categories)->toBe(['soups-and-canned-goods']);
 });
 
 test('generate stores null for excluded_categories when empty array passed', function () {
@@ -547,8 +549,8 @@ test('getCategoryItemCounts returns map of category value to item count', functi
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryItem1 = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
-    $pantryItem2 = Ingredient::factory()->create(['name' => 'Pepper', 'category' => IngredientCategory::PANTRY]);
+    $pantryItem1 = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
+    $pantryItem2 = Ingredient::factory()->create(['name' => 'Pepper', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
 
     RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem1->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
@@ -558,11 +560,11 @@ test('getCategoryItemCounts returns map of category value to item count', functi
 
     $counts = $generator->getCategoryItemCounts($mealPlan, $user->id);
 
-    expect($counts)->toBeArray();
-    expect($counts)->toHaveKey(IngredientCategory::PANTRY->value);
-    expect($counts)->toHaveKey(IngredientCategory::DAIRY->value);
-    expect($counts[IngredientCategory::PANTRY->value])->toBe(2);
-    expect($counts[IngredientCategory::DAIRY->value])->toBe(1);
+    expect($counts)->toBeArray()
+        ->and($counts)->toHaveKey(IngredientCategory::SOUPS_AND_CANNED_GOODS->value)
+        ->and($counts)->toHaveKey(IngredientCategory::DAIRY->value)
+        ->and($counts[IngredientCategory::SOUPS_AND_CANNED_GOODS->value])->toBe(2)
+        ->and($counts[IngredientCategory::DAIRY->value])->toBe(1);
 });
 
 // ──────────────────────────────────────────────────────────
@@ -579,7 +581,7 @@ test('regenerate excludes items in excluded categories', function () {
     $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $pantryItem = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyItem = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
 
     RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $pantryItem->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
@@ -588,12 +590,12 @@ test('regenerate excludes items in excluded categories', function () {
 
     $groceryList = GroceryList::factory()->create(['user_id' => $user->id, 'meal_plan_id' => $mealPlan->id]);
 
-    $generator->regenerate($groceryList, [IngredientCategory::PANTRY]);
+    $generator->regenerate($groceryList, [IngredientCategory::SOUPS_AND_CANNED_GOODS]);
 
     $items = $groceryList->fresh()->groceryItems;
     $itemCategories = $items->pluck('category');
-    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
-    expect($itemCategories)->toContain(IngredientCategory::DAIRY);
+    expect($itemCategories)->not->toContain(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($itemCategories)->toContain(IngredientCategory::DAIRY);
 });
 
 test('regenerate preserves manual items even when category is excluded', function () {
@@ -617,8 +619,8 @@ test('regenerate preserves manual items even when category is excluded', functio
     $generator->regenerate($groceryList, [IngredientCategory::OTHER]);
 
     // Manual item must always be preserved regardless of exclusion
-    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect($groceryList->fresh()->groceryItems->first()->name)->toBe('Paper Towels');
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1)
+        ->and($groceryList->fresh()->groceryItems->first()->name)->toBe('Paper Towels');
 });
 
 test('regenerate updates excluded_categories on list', function () {
@@ -635,9 +637,9 @@ test('regenerate updates excluded_categories on list', function () {
         'excluded_categories' => null,
     ]);
 
-    $generator->regenerate($groceryList, [IngredientCategory::PANTRY, IngredientCategory::DAIRY]);
+    $generator->regenerate($groceryList, [IngredientCategory::SOUPS_AND_CANNED_GOODS, IngredientCategory::DAIRY]);
 
-    expect($groceryList->fresh()->excluded_categories)->toBe(['pantry', 'dairy']);
+    expect($groceryList->fresh()->excluded_categories)->toBe(['soups-and-canned-goods', 'dairy']);
 });
 
 test('regenerate sets excluded_categories to null when empty array passed', function () {
@@ -651,7 +653,7 @@ test('regenerate sets excluded_categories to null when empty array passed', func
     $groceryList = GroceryList::factory()->create([
         'user_id' => $user->id,
         'meal_plan_id' => $mealPlan->id,
-        'excluded_categories' => ['pantry'],
+        'excluded_categories' => ['soups-and-canned-goods'],
     ]);
 
     $generator->regenerate($groceryList, []);
@@ -701,9 +703,9 @@ test('regenerate does not override manual items with same name', function () {
     $generator->regenerate($groceryList);
 
     // Should still have only 1 bread item (the manual one)
-    expect($groceryList->fresh()->groceryItems()->count())->toBe(1);
-    expect((float) $groceryList->fresh()->groceryItems->first()->quantity)->toBe(2.0);
-    expect($groceryList->fresh()->groceryItems->first()->source_type)->toBe(SourceType::MANUAL);
+    expect($groceryList->fresh()->groceryItems()->count())->toBe(1)
+        ->and((float) $groceryList->fresh()->groceryItems->first()->quantity)->toBe(2.0)
+        ->and($groceryList->fresh()->groceryItems->first()->source_type)->toBe(SourceType::MANUAL);
 });
 
 // ──────────────────────────────────────────────────────────
@@ -729,7 +731,7 @@ test('generate preserves non-OTHER ingredient category even when user template e
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'Milk',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $groceryList = $generator->generate($mealPlan);
@@ -757,13 +759,13 @@ test('generate upgrades OTHER ingredient to user template category', function ()
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'Cumin',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $groceryList = $generator->generate($mealPlan);
     $item = $groceryList->groceryItems->first();
 
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
+    expect($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('generate upgrades OTHER ingredient to common template category when no user template', function () {
@@ -784,7 +786,7 @@ test('generate upgrades OTHER ingredient to common template category when no use
     // No user template — common template resolves Paprika to PANTRY
     CommonItemTemplate::create([
         'name' => 'Paprika',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'unit' => MeasurementUnit::TSP,
         'default_quantity' => 1.0,
         'usage_count' => 0,
@@ -793,7 +795,7 @@ test('generate upgrades OTHER ingredient to common template category when no use
     $groceryList = $generator->generate($mealPlan);
     $item = $groceryList->groceryItems->first();
 
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
+    expect($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('generate returns OTHER when no template matches OTHER ingredient', function () {
@@ -836,13 +838,13 @@ test('generate matches ingredient names case-insensitively against templates', f
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'cumin',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $groceryList = $generator->generate($mealPlan);
     $item = $groceryList->groceryItems->first();
 
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
+    expect($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('generate does not use another users template for ingredient resolution', function () {
@@ -864,7 +866,7 @@ test('generate does not use another users template for ingredient resolution', f
     UserItemTemplate::factory()->create([
         'user_id' => $otherUser->id,
         'name' => 'Cumin',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $groceryList = $generator->generate($mealPlan);

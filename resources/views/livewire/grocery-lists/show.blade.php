@@ -244,7 +244,7 @@
                     >
                         <option value="">Select unit...</option>
                         @foreach($units as $unit)
-                            <option value="{{ $unit->value }}">{{ ucfirst(str_replace('_', ' ', $unit->value)) }}</option>
+                            <option wire:key="unit-{{ $unit->value }}" value="{{ $unit->value }}">{{ ucfirst(str_replace('_', ' ', $unit->value)) }}</option>
                         @endforeach
                     </select>
                     @error('itemUnit') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
@@ -259,7 +259,7 @@
                     >
                         <option value="">Select category...</option>
                         @foreach($categories as $category)
-                            <option value="{{ $category->value }}">{{ ucfirst($category->value) }}</option>
+                            <option wire:key="cat-{{ $category->value }}" value="{{ $category->value }}">{{ $category->label() }}</option>
                         @endforeach
                     </select>
                     @error('itemCategory') <span class="text-red-600 text-sm mt-1">{{ $message }}</span> @enderror
@@ -341,7 +341,7 @@
         {{-- Grocery Items by Category --}}
         <div class="space-y-6">
             @foreach($itemsByCategory as $categoryValue => $items)
-                <x-grocery-category
+                <x-grocery-category wire:key="show-category-{{ $categoryValue }}"
                     :category="$categoryValue"
                     :items="$items"
                     :groceryList="$groceryList"
@@ -382,7 +382,7 @@
             </flux:text>
             <div class="grid grid-cols-2 gap-2">
                 @foreach(\App\Enums\IngredientCategory::cases() as $category)
-                    <flux:checkbox
+                    <flux:checkbox wire:key="exclude-cat-{{ $category->value }}"
                         wire:model="regenerateExcludedCategories"
                         value="{{ $category->value }}"
                         label="{{ $category->label() }}"

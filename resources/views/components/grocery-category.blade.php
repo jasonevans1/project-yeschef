@@ -8,7 +8,7 @@
         $category = IngredientCategory::from($category);
     }
 
-    $categoryName = ucfirst($category->value);
+    $categoryName = $category->label();
     $itemCount = $items->count();
     $completedCount = $items->where('purchased', true)->count();
 @endphp
@@ -32,7 +32,7 @@
     {{-- Category Items --}}
     <div class="divide-y divide-gray-100 dark:divide-zinc-700">
         @foreach($items as $item)
-            <div class="px-6 py-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition {{ $item->purchased ? 'bg-gray-50/50 dark:bg-zinc-800/50' : '' }}">
+            <div wire:key="category-item-{{ $item->id }}" class="px-6 py-4 hover:bg-gray-50 dark:hover:bg-zinc-800 transition {{ $item->purchased ? 'bg-gray-50/50 dark:bg-zinc-800/50' : '' }}">
                 <div class="flex items-start gap-4">
                     {{-- Checkbox --}}
                     <div class="flex-shrink-0 pt-1">
@@ -76,7 +76,7 @@
                                     >
                                         <option value="">Select unit...</option>
                                         @foreach($units as $unit)
-                                            <option value="{{ $unit->value }}">{{ ucfirst(str_replace('_', ' ', $unit->value)) }}</option>
+                                            <option wire:key="edit-unit-{{ $unit->value }}" value="{{ $unit->value }}">{{ ucfirst(str_replace('_', ' ', $unit->value)) }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -85,7 +85,7 @@
                                     class="w-full px-3 py-2 border border-gray-300 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                                 >
                                     @foreach($categories as $cat)
-                                        <option value="{{ $cat->value }}">{{ ucfirst($cat->value) }}</option>
+                                        <option wire:key="edit-cat-{{ $cat->value }}" value="{{ $cat->value }}">{{ $cat->label() }}</option>
                                     @endforeach
                                 </select>
                             </div>

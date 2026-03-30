@@ -57,9 +57,9 @@ test('user can delete generated item with soft delete', function () {
 
     // Generated item should be soft deleted (exists but has deleted_at)
     $deletedItem = GroceryItem::withTrashed()->find($generatedItem->id);
-    expect($deletedItem)->not->toBeNull();
-    expect($deletedItem->deleted_at)->not->toBeNull();
-    expect($deletedItem->trashed())->toBeTrue();
+    expect($deletedItem)->not->toBeNull()
+        ->and($deletedItem->deleted_at)->not->toBeNull()
+        ->and($deletedItem->trashed())->toBeTrue();
 });
 
 test('deleted generated item not shown in list view', function () {
@@ -119,7 +119,7 @@ test('deleting manual item removes it completely from database', function () {
         ->create([
             'name' => 'Snacks',
             'quantity' => 3,
-            'category' => IngredientCategory::PANTRY,
+            'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
             'source_type' => SourceType::MANUAL,
         ]);
 
@@ -164,14 +164,14 @@ test('deleting generated item preserves data with soft delete', function () {
     $deletedItem = GroceryItem::withTrashed()->find($itemId);
 
     // Verify all data is preserved
-    expect($deletedItem)->not->toBeNull();
-    expect($deletedItem->deleted_at)->not->toBeNull();
-    expect($deletedItem->name)->toBe('Chicken Breast');
-    expect((float) $deletedItem->quantity)->toBe(2.5);
-    expect($deletedItem->category)->toBe(IngredientCategory::MEAT);
-    expect($deletedItem->source_type)->toBe(SourceType::GENERATED);
-    expect($deletedItem->original_values)->toBeArray();
-    expect($deletedItem->original_values['quantity'])->toBe(2);
+    expect($deletedItem)->not->toBeNull()
+        ->and($deletedItem->deleted_at)->not->toBeNull()
+        ->and($deletedItem->name)->toBe('Chicken Breast')
+        ->and((float) $deletedItem->quantity)->toBe(2.5)
+        ->and($deletedItem->category)->toBe(IngredientCategory::MEAT)
+        ->and($deletedItem->source_type)->toBe(SourceType::GENERATED)
+        ->and($deletedItem->original_values)->toBeArray()
+        ->and($deletedItem->original_values['quantity'])->toBe(2);
 });
 
 test('multiple items can be deleted from same list', function () {
@@ -205,12 +205,12 @@ test('multiple items can be deleted from same list', function () {
         ->assertRedirect();
 
     // Verify deletion behavior
-    expect(GroceryItem::withTrashed()->find($manualItem->id))->toBeNull(); // Hard deleted
-    expect(GroceryItem::withTrashed()->find($generatedItem1->id)->trashed())->toBeTrue(); // Soft deleted
-    expect(GroceryItem::withTrashed()->find($generatedItem2->id)->trashed())->toBeTrue(); // Soft deleted
+    expect(GroceryItem::withTrashed()->find($manualItem->id))->toBeNull() // Hard deleted
+        ->and(GroceryItem::withTrashed()->find($generatedItem1->id)->trashed())->toBeTrue() // Soft deleted
+        ->and(GroceryItem::withTrashed()->find($generatedItem2->id)->trashed())->toBeTrue(); // Soft deleted
 
     // Verify none show in normal queries
-    expect(GroceryItem::find($manualItem->id))->toBeNull();
-    expect(GroceryItem::find($generatedItem1->id))->toBeNull();
-    expect(GroceryItem::find($generatedItem2->id))->toBeNull();
+    expect(GroceryItem::find($manualItem->id))->toBeNull()
+        ->and(GroceryItem::find($generatedItem1->id))->toBeNull()
+        ->and(GroceryItem::find($generatedItem2->id))->toBeNull();
 });

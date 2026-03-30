@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Models\GroceryList;
@@ -32,7 +34,7 @@ test('user can generate grocery list from meal plan', function () {
 
     $pasta = Ingredient::factory()->create([
         'name' => 'pasta',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $recipe->recipeIngredients()->create([

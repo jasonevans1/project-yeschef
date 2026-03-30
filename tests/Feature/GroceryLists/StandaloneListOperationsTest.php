@@ -96,7 +96,7 @@ test('user can edit items in standalone list', function () {
         'name' => 'Updated Name',
         'quantity' => 3.0,
         'unit' => MeasurementUnit::TBSP->value,
-        'category' => IngredientCategory::PANTRY->value,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS->value,
     ]);
 
     $response->assertRedirect();
@@ -105,7 +105,7 @@ test('user can edit items in standalone list', function () {
     expect($item->name)->toBe('Updated Name')
         ->and((float) $item->quantity)->toBe(3.0)
         ->and($item->unit)->toBe(MeasurementUnit::TBSP)
-        ->and($item->category)->toBe(IngredientCategory::PANTRY);
+        ->and($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('user can edit item name only', function () {
@@ -142,8 +142,8 @@ test('user can delete items from standalone list', function () {
     $response->assertRedirect();
 
     // Manual items are hard deleted
-    expect(GroceryItem::withTrashed()->find($item->id))->toBeNull();
-    expect($this->standaloneList->groceryItems()->count())->toBe(0);
+    expect(GroceryItem::withTrashed()->find($item->id))->toBeNull()
+        ->and($this->standaloneList->groceryItems()->count())->toBe(0);
 });
 
 test('deleting item from standalone list reduces item count', function () {
@@ -270,13 +270,9 @@ test('standalone list has no regenerate option due to null meal_plan_id', functi
 
 test('standalone list does not have regenerate capability', function () {
     // Since standalone lists have no meal plan, they cannot be regenerated
-    expect($this->standaloneList->meal_plan_id)->toBeNull();
-
-    // Attempting to access the meal plan relationship returns null
-    expect($this->standaloneList->mealPlan)->toBeNull();
-
-    // This confirms that regeneration logic (which depends on meal plan) cannot apply
-    expect($this->standaloneList->is_meal_plan_linked)->toBeFalse();
+    expect($this->standaloneList->meal_plan_id)->toBeNull()
+        ->and($this->standaloneList->mealPlan)->toBeNull()
+        ->and($this->standaloneList->is_meal_plan_linked)->toBeFalse();
 });
 
 // Test: User can delete standalone list
@@ -288,8 +284,8 @@ test('user can delete standalone list using model deletion', function () {
         'source_type' => SourceType::MANUAL->value,
     ]);
 
-    expect($this->standaloneList->groceryItems()->count())->toBe(3);
-    expect(GroceryList::find($this->standaloneList->id))->not->toBeNull();
+    expect($this->standaloneList->groceryItems()->count())->toBe(3)
+        ->and(GroceryList::find($this->standaloneList->id))->not->toBeNull();
 
     $listId = $this->standaloneList->id;
 
