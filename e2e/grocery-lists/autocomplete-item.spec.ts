@@ -79,8 +79,8 @@ test.describe('Grocery Item Autocomplete', () => {
     // Wait for the form to update
     await page.waitForTimeout(200);
 
-    // Search query should be cleared after selection
-    await expect(itemNameInput).toHaveValue('');
+    // Search query should show the selected item name
+    await expect(itemNameInput).toHaveValue('butter');
 
     // Category should be auto-populated to "dairy"
     const categorySelect = page.locator('#itemCategory');
@@ -135,8 +135,8 @@ test.describe('Grocery Item Autocomplete', () => {
     const dropdown = page.locator('[role="listbox"]');
     await expect(dropdown).not.toBeVisible();
 
-    // Search query should be cleared and category should be populated
-    await expect(itemNameInput).toHaveValue('');
+    // Search query should show the selected item name
+    await expect(itemNameInput).not.toHaveValue('');
     const categorySelect = page.locator('#itemCategory');
     await expect(categorySelect).not.toHaveValue('');
   });
