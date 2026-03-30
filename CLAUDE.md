@@ -789,3 +789,33 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 
 ## Recent Changes
 - 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
+
+## Feature Development
+
+For simple fixes and quick changes, use TDD (when at all possible).
+
+For any feature or request beyond simple ones, use the `hcf:plan-create` skill to trigger the autonomous development workflow. NEVER use Claude Code's built-in plan mode. After writing a plan, ask user if they would like to execute it. Also provide the command to run it later with the `hcf:plan-orchestrate` skill.
+
+Use this workflow for new features, multi-file changes, or anything requiring multiple steps or tests.
+
+## Project Details
+
+<project-overview>
+@.claude/project-overview.md
+</project-overview>
+
+<architecture>
+@.claude/architecture.md
+</architecture>
+
+<testing>
+@.claude/testing.md
+</testing>
+
+<code-standards>
+@.claude/code-standards.md
+</code-standards>
+
+<pipeline>
+@.claude/pipeline.md
+</pipeline>
