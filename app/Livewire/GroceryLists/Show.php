@@ -617,8 +617,8 @@ class Show extends Component
         $this->itemUnit = $item['unit'];
         $this->itemQuantity = $item['default_quantity'] ? (string) $item['default_quantity'] : null;
 
-        // Clear search query after selection so user can search again
-        $this->searchQuery = '';
+        // Show selected item name in the visible search input
+        $this->searchQuery = $item['name'];
 
         // Clear suggestions after selection
         $this->suggestions = [];
