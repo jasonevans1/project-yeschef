@@ -21,7 +21,7 @@ test.describe('Item Templates Management', () => {
     await page.waitForURL('/settings/item-templates/create');
 
     await page.getByLabel('Item Name').fill('Organic Honey');
-    await page.getByLabel('Category').selectOption('pantry');
+    await page.getByLabel('Category').selectOption('soups-and-canned-goods');
     await page.getByLabel('Unit').selectOption('jar');
     await page.getByLabel('Default Quantity').fill('1');
 
@@ -33,7 +33,7 @@ test.describe('Item Templates Management', () => {
 
     // READ: Verify template is displayed correctly
     const templateRow = page.locator('tr:has-text("Organic Honey")');
-    await expect(templateRow).toContainText('Pantry');
+    await expect(templateRow).toContainText('Soups And Canned Goods');
     await expect(templateRow).toContainText('jar');
 
     // UPDATE: Edit the template (Edit is a link, not a button)
@@ -64,7 +64,7 @@ test.describe('Item Templates Management', () => {
     await page.goto('/settings/item-templates/create');
     await page.waitForLoadState('domcontentloaded');
     await page.getByLabel('Item Name').fill(uniqueName);
-    await page.getByLabel('Category').selectOption('pantry');
+    await page.getByLabel('Category').selectOption('soups-and-canned-goods');
     await page.getByLabel('Unit').selectOption('lb');
     await page.getByLabel('Default Quantity').fill('1');
     await page.getByRole('button', { name: 'Create Template' }).click();
