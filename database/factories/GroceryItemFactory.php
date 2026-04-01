@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\IngredientCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,7 +22,7 @@ class GroceryItemFactory extends Factory
             'name' => fake()->word(),
             'quantity' => fake()->randomFloat(2, 0.5, 10),
             'unit' => fake()->randomElement(['tsp', 'tbsp', 'cup', 'oz', 'lb', 'gram', 'whole', 'piece']),
-            'category' => fake()->randomElement(['produce', 'dairy', 'meat', 'seafood', 'pantry', 'frozen', 'bakery', 'deli', 'beverages', 'other']),
+            'category' => fake()->randomElement(IngredientCategory::cases())->value,
             'source_type' => 'manual',
             'original_values' => null,
             'purchased' => false,

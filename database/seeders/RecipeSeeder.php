@@ -16,16 +16,14 @@ class RecipeSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create common ingredients first to avoid duplicates
         $this->createCommonIngredients();
 
-        // Seed system recipes with realistic data
         $recipeCount = rand(50, 100);
 
         for ($i = 0; $i < $recipeCount; $i++) {
             Recipe::factory()
-                ->system() // user_id = null
-                ->withIngredients(rand(3, 12)) // 3-12 ingredients per recipe
+                ->system()
+                ->withIngredients(rand(3, 12))
                 ->create();
         }
 
@@ -38,7 +36,6 @@ class RecipeSeeder extends Seeder
     private function createCommonIngredients(): void
     {
         $commonIngredients = [
-            // Produce
             ['name' => 'onion', 'category' => 'produce'],
             ['name' => 'garlic', 'category' => 'produce'],
             ['name' => 'tomato', 'category' => 'produce'],
@@ -57,7 +54,6 @@ class RecipeSeeder extends Seeder
             ['name' => 'parsley', 'category' => 'produce'],
             ['name' => 'basil', 'category' => 'produce'],
 
-            // Dairy
             ['name' => 'butter', 'category' => 'dairy'],
             ['name' => 'milk', 'category' => 'dairy'],
             ['name' => 'heavy cream', 'category' => 'dairy'],
@@ -69,7 +65,6 @@ class RecipeSeeder extends Seeder
             ['name' => 'yogurt', 'category' => 'dairy'],
             ['name' => 'eggs', 'category' => 'dairy'],
 
-            // Meat
             ['name' => 'chicken breast', 'category' => 'meat'],
             ['name' => 'chicken thighs', 'category' => 'meat'],
             ['name' => 'ground beef', 'category' => 'meat'],
@@ -79,65 +74,61 @@ class RecipeSeeder extends Seeder
             ['name' => 'sausage', 'category' => 'meat'],
             ['name' => 'ground turkey', 'category' => 'meat'],
 
-            // Seafood
             ['name' => 'salmon', 'category' => 'seafood'],
             ['name' => 'shrimp', 'category' => 'seafood'],
             ['name' => 'tuna', 'category' => 'seafood'],
             ['name' => 'cod', 'category' => 'seafood'],
             ['name' => 'tilapia', 'category' => 'seafood'],
 
-            // Pantry
-            ['name' => 'olive oil', 'category' => 'pantry'],
-            ['name' => 'vegetable oil', 'category' => 'pantry'],
-            ['name' => 'salt', 'category' => 'pantry'],
-            ['name' => 'black pepper', 'category' => 'pantry'],
-            ['name' => 'flour', 'category' => 'pantry'],
-            ['name' => 'sugar', 'category' => 'pantry'],
-            ['name' => 'brown sugar', 'category' => 'pantry'],
-            ['name' => 'rice', 'category' => 'pantry'],
-            ['name' => 'pasta', 'category' => 'pantry'],
-            ['name' => 'soy sauce', 'category' => 'pantry'],
-            ['name' => 'worcestershire sauce', 'category' => 'pantry'],
-            ['name' => 'balsamic vinegar', 'category' => 'pantry'],
-            ['name' => 'red wine vinegar', 'category' => 'pantry'],
-            ['name' => 'chicken broth', 'category' => 'pantry'],
-            ['name' => 'beef broth', 'category' => 'pantry'],
-            ['name' => 'vegetable broth', 'category' => 'pantry'],
-            ['name' => 'canned tomatoes', 'category' => 'pantry'],
-            ['name' => 'tomato paste', 'category' => 'pantry'],
-            ['name' => 'tomato sauce', 'category' => 'pantry'],
-            ['name' => 'beans', 'category' => 'pantry'],
-            ['name' => 'chickpeas', 'category' => 'pantry'],
-            ['name' => 'lentils', 'category' => 'pantry'],
+            ['name' => 'olive oil', 'category' => 'cooking-and-baking'],
+            ['name' => 'vegetable oil', 'category' => 'cooking-and-baking'],
+            ['name' => 'salt', 'category' => 'cooking-and-baking'],
+            ['name' => 'black pepper', 'category' => 'cooking-and-baking'],
+            ['name' => 'flour', 'category' => 'cooking-and-baking'],
+            ['name' => 'sugar', 'category' => 'cooking-and-baking'],
+            ['name' => 'brown sugar', 'category' => 'cooking-and-baking'],
+            ['name' => 'cumin', 'category' => 'cooking-and-baking'],
+            ['name' => 'paprika', 'category' => 'cooking-and-baking'],
+            ['name' => 'chili powder', 'category' => 'cooking-and-baking'],
+            ['name' => 'cayenne pepper', 'category' => 'cooking-and-baking'],
+            ['name' => 'oregano', 'category' => 'cooking-and-baking'],
+            ['name' => 'thyme', 'category' => 'cooking-and-baking'],
+            ['name' => 'rosemary', 'category' => 'cooking-and-baking'],
+            ['name' => 'bay leaves', 'category' => 'cooking-and-baking'],
+            ['name' => 'cinnamon', 'category' => 'cooking-and-baking'],
+            ['name' => 'nutmeg', 'category' => 'cooking-and-baking'],
+            ['name' => 'ginger', 'category' => 'cooking-and-baking'],
+            ['name' => 'garlic powder', 'category' => 'cooking-and-baking'],
+            ['name' => 'onion powder', 'category' => 'cooking-and-baking'],
+            ['name' => 'italian seasoning', 'category' => 'cooking-and-baking'],
 
-            // Spices (Pantry)
-            ['name' => 'cumin', 'category' => 'pantry'],
-            ['name' => 'paprika', 'category' => 'pantry'],
-            ['name' => 'chili powder', 'category' => 'pantry'],
-            ['name' => 'cayenne pepper', 'category' => 'pantry'],
-            ['name' => 'oregano', 'category' => 'pantry'],
-            ['name' => 'thyme', 'category' => 'pantry'],
-            ['name' => 'rosemary', 'category' => 'pantry'],
-            ['name' => 'bay leaves', 'category' => 'pantry'],
-            ['name' => 'cinnamon', 'category' => 'pantry'],
-            ['name' => 'nutmeg', 'category' => 'pantry'],
-            ['name' => 'ginger', 'category' => 'pantry'],
-            ['name' => 'garlic powder', 'category' => 'pantry'],
-            ['name' => 'onion powder', 'category' => 'pantry'],
-            ['name' => 'italian seasoning', 'category' => 'pantry'],
+            ['name' => 'rice', 'category' => 'grains-and-pasta'],
+            ['name' => 'pasta', 'category' => 'grains-and-pasta'],
+            ['name' => 'beans', 'category' => 'grains-and-pasta'],
+            ['name' => 'chickpeas', 'category' => 'grains-and-pasta'],
+            ['name' => 'lentils', 'category' => 'grains-and-pasta'],
 
-            // Bakery
+            ['name' => 'soy sauce', 'category' => 'condiments-and-dressings'],
+            ['name' => 'worcestershire sauce', 'category' => 'condiments-and-dressings'],
+            ['name' => 'balsamic vinegar', 'category' => 'condiments-and-dressings'],
+            ['name' => 'red wine vinegar', 'category' => 'condiments-and-dressings'],
+
+            ['name' => 'chicken broth', 'category' => 'soups-and-canned-goods'],
+            ['name' => 'beef broth', 'category' => 'soups-and-canned-goods'],
+            ['name' => 'vegetable broth', 'category' => 'soups-and-canned-goods'],
+            ['name' => 'canned tomatoes', 'category' => 'soups-and-canned-goods'],
+            ['name' => 'tomato paste', 'category' => 'soups-and-canned-goods'],
+            ['name' => 'tomato sauce', 'category' => 'soups-and-canned-goods'],
+
             ['name' => 'bread', 'category' => 'bakery'],
             ['name' => 'tortillas', 'category' => 'bakery'],
             ['name' => 'buns', 'category' => 'bakery'],
             ['name' => 'pita bread', 'category' => 'bakery'],
 
-            // Frozen
             ['name' => 'frozen peas', 'category' => 'frozen'],
             ['name' => 'frozen corn', 'category' => 'frozen'],
             ['name' => 'frozen mixed vegetables', 'category' => 'frozen'],
 
-            // Beverages
             ['name' => 'white wine', 'category' => 'beverages'],
             ['name' => 'red wine', 'category' => 'beverages'],
             ['name' => 'beer', 'category' => 'beverages'],

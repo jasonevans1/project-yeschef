@@ -27,12 +27,12 @@ test('generate component mounts with excluded categories pre-populated from exis
     $existingList = GroceryList::factory()->create([
         'user_id' => $user->id,
         'meal_plan_id' => $mealPlan->id,
-        'excluded_categories' => ['pantry', 'dairy'],
+        'excluded_categories' => ['soups-and-canned-goods', 'dairy'],
     ]);
 
     Livewire::actingAs($user)
         ->test(Generate::class, ['mealPlan' => $mealPlan])
-        ->assertSet('excludedCategories', ['pantry', 'dairy']);
+        ->assertSet('excludedCategories', ['soups-and-canned-goods', 'dairy']);
 });
 
 test('generate component mounts with empty excluded categories when no existing list', function () {
@@ -49,7 +49,7 @@ test('generate component has category item counts when recipes exist', function 
     $mealPlan = MealPlan::factory()->for($user)->create();
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $ingredient = Ingredient::factory()->create(['name' => 'Flour', 'category' => IngredientCategory::PANTRY]);
+    $ingredient = Ingredient::factory()->create(['name' => 'Flour', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $recipe->recipeIngredients()->create([
         'ingredient_id' => $ingredient->id,
         'quantity' => 2.0,
@@ -67,8 +67,8 @@ test('generate component has category item counts when recipes exist', function 
         ->test(Generate::class, ['mealPlan' => $mealPlan]);
 
     $counts = $component->get('categoryItemCounts');
-    expect($counts)->toBeArray();
-    expect($counts)->toHaveKey(IngredientCategory::PANTRY->value);
+    expect($counts)->toBeArray()
+        ->and($counts)->toHaveKey(IngredientCategory::SOUPS_AND_CANNED_GOODS->value);
 });
 
 test('generate action passes excluded categories to generator and stores on list', function () {
@@ -76,7 +76,7 @@ test('generate action passes excluded categories to generator and stores on list
     $mealPlan = MealPlan::factory()->for($user)->create();
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
 
-    $pantryIngredient = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $pantryIngredient = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyIngredient = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
 
     $recipe->recipeIngredients()->createMany([
@@ -93,16 +93,16 @@ test('generate action passes excluded categories to generator and stores on list
 
     Livewire::actingAs($user)
         ->test(Generate::class, ['mealPlan' => $mealPlan])
-        ->set('excludedCategories', ['pantry'])
+        ->set('excludedCategories', ['soups-and-canned-goods'])
         ->call('generate');
 
     $groceryList = GroceryList::where('meal_plan_id', $mealPlan->id)->first();
-    expect($groceryList)->not->toBeNull();
-    expect($groceryList->excluded_categories)->toBe(['pantry']);
+    expect($groceryList)->not->toBeNull()
+        ->and($groceryList->excluded_categories)->toBe(['soups-and-canned-goods']);
 
     $itemCategories = $groceryList->groceryItems->pluck('category');
-    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
-    expect($itemCategories)->toContain(IngredientCategory::DAIRY);
+    expect($itemCategories)->not->toContain(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($itemCategories)->toContain(IngredientCategory::DAIRY);
 });
 
 // --- Show component ---
@@ -111,12 +111,12 @@ test('show component displays exclusion callout when excluded_categories is set'
     $user = User::factory()->create();
     $groceryList = GroceryList::factory()->create([
         'user_id' => $user->id,
-        'excluded_categories' => ['pantry'],
+        'excluded_categories' => ['soups-and-canned-goods'],
     ]);
 
     Livewire::actingAs($user)
         ->test(Show::class, ['groceryList' => $groceryList])
-        ->assertSee('Pantry'); // Excluded category should be visible in the callout
+        ->assertSee('Soups And Canned Goods'); // Excluded category should be visible in the callout
 });
 
 test('show component does not display exclusion callout when excluded_categories is null', function () {
@@ -137,13 +137,13 @@ test('show component showRegenerateConfirmation pre-populates regenerateExcluded
     $groceryList = GroceryList::factory()->create([
         'user_id' => $user->id,
         'meal_plan_id' => $mealPlan->id,
-        'excluded_categories' => ['pantry', 'dairy'],
+        'excluded_categories' => ['soups-and-canned-goods', 'dairy'],
     ]);
 
     Livewire::actingAs($user)
         ->test(Show::class, ['groceryList' => $groceryList])
         ->call('showRegenerateConfirmation')
-        ->assertSet('regenerateExcludedCategories', ['pantry', 'dairy'])
+        ->assertSet('regenerateExcludedCategories', ['soups-and-canned-goods', 'dairy'])
         ->assertSet('showRegenerateConfirm', true);
 });
 
@@ -152,7 +152,7 @@ test('show regenerate action passes excluded categories to generator', function 
     $mealPlan = MealPlan::factory()->for($user)->create();
 
     $recipe = Recipe::factory()->create(['user_id' => $user->id]);
-    $pantryIngredient = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::PANTRY]);
+    $pantryIngredient = Ingredient::factory()->create(['name' => 'Salt', 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS]);
     $dairyIngredient = Ingredient::factory()->create(['name' => 'Butter', 'category' => IngredientCategory::DAIRY]);
 
     $recipe->recipeIngredients()->createMany([
@@ -176,14 +176,14 @@ test('show regenerate action passes excluded categories to generator', function 
 
     Livewire::actingAs($user)
         ->test(Show::class, ['groceryList' => $groceryList])
-        ->set('regenerateExcludedCategories', ['pantry'])
+        ->set('regenerateExcludedCategories', ['soups-and-canned-goods'])
         ->call('regenerate');
 
     $updatedList = $groceryList->fresh();
-    expect($updatedList->excluded_categories)->toBe(['pantry']);
+    expect($updatedList->excluded_categories)->toBe(['soups-and-canned-goods']);
 
     $itemCategories = $updatedList->groceryItems->pluck('category');
-    expect($itemCategories)->not->toContain(IngredientCategory::PANTRY);
+    expect($itemCategories)->not->toContain(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 // ──────────────────────────────────────────────────────────
@@ -196,14 +196,14 @@ test('savePreferences stores selection on users grocery_category_exclusions', fu
 
     Livewire::actingAs($user)
         ->test(Generate::class, ['mealPlan' => $mealPlan])
-        ->set('excludedCategories', ['pantry', 'dairy'])
+        ->set('excludedCategories', ['soups-and-canned-goods', 'dairy'])
         ->call('savePreferences');
 
-    expect($user->fresh()->grocery_category_exclusions)->toBe(['pantry', 'dairy']);
+    expect($user->fresh()->grocery_category_exclusions)->toBe(['soups-and-canned-goods', 'dairy']);
 });
 
 test('clearPreferences sets grocery_category_exclusions to null', function () {
-    $user = User::factory()->create(['grocery_category_exclusions' => ['pantry']]);
+    $user = User::factory()->create(['grocery_category_exclusions' => ['soups-and-canned-goods']]);
     $mealPlan = MealPlan::factory()->for($user)->create();
 
     Livewire::actingAs($user)
@@ -229,11 +229,11 @@ test('existing list excluded_categories takes precedence over saved preferences'
     GroceryList::factory()->create([
         'user_id' => $user->id,
         'meal_plan_id' => $mealPlan->id,
-        'excluded_categories' => ['pantry'],
+        'excluded_categories' => ['soups-and-canned-goods'],
     ]);
 
     // The list's exclusions (pantry) should override the user's saved preference (dairy)
     Livewire::actingAs($user)
         ->test(Generate::class, ['mealPlan' => $mealPlan])
-        ->assertSet('excludedCategories', ['pantry']);
+        ->assertSet('excludedCategories', ['soups-and-canned-goods']);
 });

@@ -56,12 +56,10 @@ class Edit extends Component
 
     public function mount(Recipe $recipe): void
     {
-        // Check authorization
         $this->authorize('update', $recipe);
 
         $this->recipe = $recipe;
 
-        // Pre-populate form fields
         $this->name = $recipe->name;
         $this->description = $recipe->description;
         $this->prep_time = $recipe->prep_time;
@@ -74,7 +72,6 @@ class Edit extends Component
         $this->instructions = $recipe->instructions;
         $this->image_url = $recipe->image_url;
 
-        // Load existing ingredients
         $this->ingredients = $recipe->recipeIngredients()
             ->with('ingredient')
             ->orderBy('sort_order')
@@ -87,7 +84,6 @@ class Edit extends Component
             ])
             ->toArray();
 
-        // Ensure at least one ingredient row
         if (empty($this->ingredients)) {
             $this->ingredients = [
                 [
@@ -121,11 +117,8 @@ class Edit extends Component
     public function update(): void
     {
         $this->validate();
-
-        // Additional validation for ingredients
         $this->validateIngredients();
 
-        // Update the recipe
         $this->recipe->update([
             'name' => $this->name,
             'description' => $this->description,
@@ -140,22 +133,18 @@ class Edit extends Component
             'image_url' => $this->image_url,
         ]);
 
-        // Sync ingredients - delete all existing and recreate
         $this->recipe->recipeIngredients()->delete();
 
-        // Handle ingredients
         foreach ($this->ingredients as $index => $ingredientData) {
             if (empty($ingredientData['ingredient_name'])) {
                 continue;
             }
 
-            // Find or create ingredient (case-insensitive)
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
                 ['category' => $this->guessIngredientCategory($ingredientData['ingredient_name'])]
             );
 
-            // Create recipe ingredient pivot record
             $this->recipe->recipeIngredients()->create([
                 'ingredient_id' => $ingredient->id,
                 'quantity' => $ingredientData['quantity'] ?? 1,
@@ -182,7 +171,6 @@ class Edit extends Component
             }
         }
 
-        // Check that at least one ingredient has a name
         $hasValidIngredient = collect($this->ingredients)
             ->filter(fn ($ing) => ! empty($ing['ingredient_name']))
             ->isNotEmpty();
@@ -196,13 +184,14 @@ class Edit extends Component
     {
         $name = strtolower($name);
 
-        // Simple category guessing based on keywords
         $categoryKeywords = [
             IngredientCategory::PRODUCE->value => ['lettuce', 'tomato', 'onion', 'garlic', 'pepper', 'carrot', 'celery', 'potato', 'spinach', 'broccoli', 'cucumber', 'apple', 'banana', 'orange', 'lemon', 'lime', 'herb', 'basil', 'parsley', 'cilantro'],
             IngredientCategory::DAIRY->value => ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'sour cream', 'ricotta', 'mozzarella', 'parmesan', 'cheddar'],
             IngredientCategory::MEAT->value => ['chicken', 'beef', 'pork', 'turkey', 'lamb', 'bacon', 'sausage', 'ground beef', 'steak'],
             IngredientCategory::SEAFOOD->value => ['fish', 'salmon', 'tuna', 'shrimp', 'crab', 'lobster', 'cod', 'tilapia'],
-            IngredientCategory::PANTRY->value => ['flour', 'sugar', 'salt', 'pepper', 'oil', 'olive oil', 'vinegar', 'rice', 'pasta', 'beans', 'sauce', 'spice', 'cumin', 'paprika', 'oregano'],
+            IngredientCategory::COOKING_AND_BAKING->value => ['flour', 'sugar', 'salt', 'oil', 'olive oil', 'vinegar', 'spice', 'cumin', 'paprika', 'oregano'],
+            IngredientCategory::GRAINS_AND_PASTA->value => ['rice', 'pasta', 'beans'],
+            IngredientCategory::SOUPS_AND_CANNED_GOODS->value => ['sauce'],
             IngredientCategory::FROZEN->value => ['frozen'],
             IngredientCategory::BAKERY->value => ['bread', 'bun', 'roll', 'tortilla', 'pita', 'bagel'],
             IngredientCategory::BEVERAGES->value => ['juice', 'soda', 'water', 'coffee', 'tea', 'wine', 'beer'],

@@ -105,7 +105,7 @@
 
     @forelse($itemsByCategory as $category => $items)
         <div class="category">
-            <h2>{{ ucfirst(str_replace('_', ' ', $category)) }}</h2>
+            <h2>{{ \App\Enums\IngredientCategory::from($category)->label() }}</h2>
 
             @foreach($items as $item)
                 <div class="item">

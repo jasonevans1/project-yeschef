@@ -11,6 +11,7 @@ use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;
 
 class DevelopmentSeeder extends Seeder
@@ -27,15 +28,12 @@ class DevelopmentSeeder extends Seeder
      */
     public function run(): void
     {
-        // First, seed common ingredients and system recipes
         $this->call([
             RecipeSeeder::class,
         ]);
 
-        // Create 5 test users
         $users = collect();
 
-        // Create the main test user (or get if exists)
         $users->push(User::firstOrCreate(
             ['email' => 'test@example.com'],
             [
@@ -45,7 +43,6 @@ class DevelopmentSeeder extends Seeder
             ]
         ));
 
-        // Create 4 additional test users
         for ($i = 1; $i <= 4; $i++) {
             $users->push(User::firstOrCreate(
                 ['email' => "test{$i}@example.com"],
@@ -59,8 +56,7 @@ class DevelopmentSeeder extends Seeder
 
         $this->command->info("Created {$users->count()} test users.");
 
-        // For each user, create personal recipes, meal plans, and grocery lists
-        $users->each(function (User $user, $index) {
+        $users->each(function (User $user, int $index) {
             $this->seedUserData($user, $index);
         });
 
@@ -72,7 +68,6 @@ class DevelopmentSeeder extends Seeder
      */
     private function seedUserData(User $user, int $userIndex): void
     {
-        // Create 10 personal recipes for this user
         $personalRecipes = Recipe::factory()
             ->count(10)
             ->state(['user_id' => $user->id])
@@ -81,7 +76,6 @@ class DevelopmentSeeder extends Seeder
 
         $this->command->info("Created 10 personal recipes for {$user->name}.");
 
-        // Get all available recipes (system + personal) for meal plan assignments
         $allRecipes = Recipe::query()
             ->where(function ($query) use ($user) {
                 $query->whereNull('user_id')
@@ -89,11 +83,9 @@ class DevelopmentSeeder extends Seeder
             })
             ->get();
 
-        // Create 3 meal plans for this user
         for ($planIndex = 0; $planIndex < 3; $planIndex++) {
             $mealPlan = $this->createMealPlanWithAssignments($user, $allRecipes, $planIndex);
 
-            // Create a grocery list for the first 3 meal plans (1 per user from different users)
             if ($userIndex < 3) {
                 $this->createGroceryListFromMealPlan($user, $mealPlan, $planIndex);
             }
@@ -101,7 +93,6 @@ class DevelopmentSeeder extends Seeder
 
         $this->command->info("Created 3 meal plans with assignments for {$user->name}.");
 
-        // Create 2 standalone grocery lists for the first 2 users
         if ($userIndex < 2) {
             for ($i = 0; $i < 2; $i++) {
                 $this->createStandaloneGroceryList($user, $i);
@@ -113,16 +104,15 @@ class DevelopmentSeeder extends Seeder
     /**
      * Create a meal plan with recipe assignments.
      */
-    private function createMealPlanWithAssignments(User $user, $recipes, int $planIndex): MealPlan
+    private function createMealPlanWithAssignments(User $user, Collection $recipes, int $planIndex): MealPlan
     {
-        // Create meal plans with different time ranges
         $startDate = match ($planIndex) {
-            0 => now()->addDays(1), // Tomorrow (future)
-            1 => now()->subDays(7), // Last week (past)
-            2 => now()->addDays(7), // Next week (future)
+            0 => now()->addDays(1),
+            1 => now()->subDays(7),
+            2 => now()->addDays(7),
         };
 
-        $endDate = $startDate->copy()->addDays(6); // 7-day meal plans
+        $endDate = $startDate->copy()->addDays(6);
 
         $mealPlan = MealPlan::factory()->create([
             'user_id' => $user->id,
@@ -136,20 +126,18 @@ class DevelopmentSeeder extends Seeder
             'description' => "Meal plan {$planIndex} for {$user->name}",
         ]);
 
-        // Assign recipes to various meal slots (ensuring no duplicates)
         $mealTypes = ['breakfast', 'lunch', 'dinner', 'snack'];
-        $assignmentCount = rand(5, 10); // Random number of assignments per plan
-        $usedSlots = []; // Track used date+mealType combinations
+        $assignmentCount = rand(5, 10);
+        $usedSlots = [];
 
         $attempts = 0;
-        $maxAttempts = 100; // Prevent infinite loop
+        $maxAttempts = 100;
 
         while (count($usedSlots) < $assignmentCount && $attempts < $maxAttempts) {
             $date = $startDate->copy()->addDays(rand(0, 6));
             $mealType = $mealTypes[array_rand($mealTypes)];
             $slotKey = $date->format('Y-m-d').'-'.$mealType;
 
-            // Skip if this slot is already assigned
             if (in_array($slotKey, $usedSlots)) {
                 $attempts++;
 
@@ -186,7 +174,6 @@ class DevelopmentSeeder extends Seeder
             'generated_at' => now(),
         ]);
 
-        // Add items from the meal plan's recipes
         $recipes = $mealPlan->recipes()->with('recipeIngredients.ingredient')->get();
 
         foreach ($recipes as $recipe) {
@@ -195,10 +182,10 @@ class DevelopmentSeeder extends Seeder
                     'grocery_list_id' => $groceryList->id,
                     'name' => $recipeIngredient->ingredient->name,
                     'quantity' => $recipeIngredient->quantity,
-                    'unit' => $recipeIngredient->unit, // Already a MeasurementUnit enum
+                    'unit' => $recipeIngredient->unit,
                     'category' => $recipeIngredient->ingredient->category ?? IngredientCategory::OTHER,
                     'source_type' => SourceType::GENERATED,
-                    'purchased' => rand(0, 1) === 1, // Random purchased status
+                    'purchased' => rand(0, 1) === 1,
                     'notes' => rand(0, 1) ? 'Organic preferred' : null,
                 ]);
             }
@@ -212,16 +199,16 @@ class DevelopmentSeeder extends Seeder
     {
         $groceryList = GroceryList::create([
             'user_id' => $user->id,
-            'meal_plan_id' => null, // Standalone
+            'meal_plan_id' => null,
             'name' => $listIndex === 0 ? 'Quick Shopping Trip' : 'Weekly Staples',
             'generated_at' => now(),
         ]);
 
-        // Add some random grocery items
         $categories = [
             IngredientCategory::PRODUCE->value => ['apples', 'bananas', 'oranges', 'lettuce', 'tomatoes'],
             IngredientCategory::DAIRY->value => ['milk', 'eggs', 'cheese', 'yogurt', 'butter'],
-            IngredientCategory::PANTRY->value => ['bread', 'rice', 'pasta', 'olive oil', 'flour'],
+            IngredientCategory::GRAINS_AND_PASTA->value => ['bread', 'rice', 'pasta'],
+            IngredientCategory::COOKING_AND_BAKING->value => ['olive oil', 'flour'],
             IngredientCategory::MEAT->value => ['chicken breast', 'ground beef', 'bacon'],
         ];
 

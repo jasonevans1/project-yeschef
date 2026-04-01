@@ -33,7 +33,7 @@ beforeEach(function () {
     ]);
     $this->ingredient2 = Ingredient::factory()->create([
         'name' => 'Flour',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     RecipeIngredient::create([
@@ -88,10 +88,10 @@ test('manual items preserved after regeneration', function () {
         ->where('name', 'Paper Towels')
         ->first();
 
-    expect($manualItemExists)->not->toBeNull();
-    expect($manualItemExists->name)->toBe('Paper Towels');
-    expect((float) $manualItemExists->quantity)->toBe(2.0);
-    expect($manualItemExists->unit)->toBe(MeasurementUnit::WHOLE);
+    expect($manualItemExists)->not->toBeNull()
+        ->and($manualItemExists->name)->toBe('Paper Towels')
+        ->and((float) $manualItemExists->quantity)->toBe(2.0)
+        ->and($manualItemExists->unit)->toBe(MeasurementUnit::WHOLE);
 });
 
 test('edited generated items preserved with users values', function () {
@@ -128,12 +128,12 @@ test('edited generated items preserved with users values', function () {
         ->where('name', 'Whole Milk')
         ->first();
 
-    expect($editedItem)->not->toBeNull();
-    expect($editedItem->name)->toBe('Whole Milk');
-    expect((float) $editedItem->quantity)->toBe(3.0);
-    expect($editedItem->unit)->toBe(MeasurementUnit::PINT);
-    expect($editedItem->original_values)->not->toBeNull();
-    expect($editedItem->original_values['name'])->toBe('Milk');
+    expect($editedItem)->not->toBeNull()
+        ->and($editedItem->name)->toBe('Whole Milk')
+        ->and((float) $editedItem->quantity)->toBe(3.0)
+        ->and($editedItem->unit)->toBe(MeasurementUnit::PINT)
+        ->and($editedItem->original_values)->not->toBeNull()
+        ->and($editedItem->original_values['name'])->toBe('Milk');
 });
 
 test('soft-deleted generated items not re-added', function () {
@@ -167,8 +167,8 @@ test('soft-deleted generated items not re-added', function () {
         ->where('name', 'Flour')
         ->first();
 
-    expect($softDeletedFlour)->not->toBeNull();
-    expect($softDeletedFlour->trashed())->toBeTrue();
+    expect($softDeletedFlour)->not->toBeNull()
+        ->and($softDeletedFlour->trashed())->toBeTrue();
 });
 
 test('unmodified generated items updated to reflect meal plan changes', function () {
@@ -177,7 +177,7 @@ test('unmodified generated items updated to reflect meal plan changes', function
     // Add a new ingredient to the recipe
     $newIngredient = Ingredient::factory()->create([
         'name' => 'Sugar',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     RecipeIngredient::create([
@@ -202,9 +202,9 @@ test('unmodified generated items updated to reflect meal plan changes', function
         ->where('name', 'Milk')
         ->first();
 
-    expect($milkItem)->not->toBeNull();
-    expect((float) $milkItem->quantity)->toBe(4.0); // Updated quantity
-    expect($milkItem->original_values)->toBeNull(); // Not edited by user
+    expect($milkItem)->not->toBeNull()
+        ->and((float) $milkItem->quantity)->toBe(4.0) // Updated quantity
+        ->and($milkItem->original_values)->toBeNull(); // Not edited by user
 });
 
 test('new ingredients from meal plan added as generated items', function () {
@@ -232,12 +232,12 @@ test('new ingredients from meal plan added as generated items', function () {
         ->where('name', 'Eggs')
         ->first();
 
-    expect($eggsItem)->not->toBeNull();
-    expect($eggsItem->name)->toBe('Eggs');
-    expect((float) $eggsItem->quantity)->toBe(6.0);
-    expect($eggsItem->unit)->toBe(MeasurementUnit::WHOLE);
-    expect($eggsItem->source_type)->toBe(SourceType::GENERATED);
-    expect($eggsItem->original_values)->toBeNull();
+    expect($eggsItem)->not->toBeNull()
+        ->and($eggsItem->name)->toBe('Eggs')
+        ->and((float) $eggsItem->quantity)->toBe(6.0)
+        ->and($eggsItem->unit)->toBe(MeasurementUnit::WHOLE)
+        ->and($eggsItem->source_type)->toBe(SourceType::GENERATED)
+        ->and($eggsItem->original_values)->toBeNull();
 });
 
 test('regenerated_at timestamp updated after regeneration', function () {
@@ -254,8 +254,8 @@ test('regenerated_at timestamp updated after regeneration', function () {
     $updatedList = $generator->regenerate($this->groceryList);
 
     // Verify regenerated_at was set
-    expect($updatedList->regenerated_at)->not->toBeNull();
-    expect($updatedList->regenerated_at->greaterThan($this->groceryList->generated_at))->toBeTrue();
+    expect($updatedList->regenerated_at)->not->toBeNull()
+        ->and($updatedList->regenerated_at->greaterThan($this->groceryList->generated_at))->toBeTrue();
 });
 
 test('ingredients removed from meal plan are removed from unmodified generated items', function () {
@@ -342,16 +342,16 @@ test('complex scenario with multiple types of changes', function () {
     $trashBags = $updatedList->groceryItems()
         ->where('name', 'Trash Bags')
         ->first();
-    expect($trashBags)->not->toBeNull();
-    expect($trashBags->source_type)->toBe(SourceType::MANUAL);
+    expect($trashBags)->not->toBeNull()
+        ->and($trashBags->source_type)->toBe(SourceType::MANUAL);
 
     // - Edited item (Milk) preserved with edited values
     $milk = $updatedList->groceryItems()
         ->where('name', 'Milk')
         ->first();
-    expect($milk)->not->toBeNull();
-    expect((float) $milk->quantity)->toBe(5.0);
-    expect($milk->original_values)->not->toBeNull();
+    expect($milk)->not->toBeNull()
+        ->and((float) $milk->quantity)->toBe(5.0)
+        ->and($milk->original_values)->not->toBeNull();
 
     // - Soft-deleted item (Flour) not re-added
     $flour = $updatedList->groceryItems()
@@ -363,9 +363,9 @@ test('complex scenario with multiple types of changes', function () {
     $butter = $updatedList->groceryItems()
         ->where('name', 'Butter')
         ->first();
-    expect($butter)->not->toBeNull();
-    expect($butter->source_type)->toBe(SourceType::GENERATED);
-    expect((float) $butter->quantity)->toBe(0.5);
+    expect($butter)->not->toBeNull()
+        ->and($butter->source_type)->toBe(SourceType::GENERATED)
+        ->and((float) $butter->quantity)->toBe(0.5);
 });
 
 test('cannot regenerate standalone grocery list', function () {
@@ -413,8 +413,8 @@ test('manual items are never removed during regeneration even when their categor
         ->where('name', 'Almond Milk')
         ->first();
 
-    expect($preserved)->not->toBeNull();
-    expect($preserved->category)->toBe(IngredientCategory::DAIRY);
+    expect($preserved)->not->toBeNull()
+        ->and($preserved->category)->toBe(IngredientCategory::DAIRY);
 
     // Generated DAIRY items (Milk) must be excluded
     $generatedDairyItem = $updatedList->groceryItems()

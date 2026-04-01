@@ -34,19 +34,19 @@ test('user can edit manual item (all fields)', function () {
         'name' => 'Updated Name',
         'quantity' => 2.5,
         'unit' => MeasurementUnit::TBSP->value,
-        'category' => IngredientCategory::PANTRY->value,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS->value,
         'notes' => 'Updated notes',
     ]);
 
     $response->assertRedirect();
 
     $item->refresh();
-    expect($item->name)->toBe('Updated Name');
-    expect((float) $item->quantity)->toBe(2.5);
-    expect($item->unit)->toBe(MeasurementUnit::TBSP);
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
-    expect($item->notes)->toBe('Updated notes');
-    expect($item->source_type)->toBe(SourceType::MANUAL);
+    expect($item->name)->toBe('Updated Name')
+        ->and((float) $item->quantity)->toBe(2.5)
+        ->and($item->unit)->toBe(MeasurementUnit::TBSP)
+        ->and($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($item->notes)->toBe('Updated notes')
+        ->and($item->source_type)->toBe(SourceType::MANUAL);
 });
 
 test('user can edit generated item (tracks original_values in JSON)', function () {
@@ -66,24 +66,24 @@ test('user can edit generated item (tracks original_values in JSON)', function (
         'name' => 'Edited Generated Item',
         'quantity' => 5.0,
         'unit' => MeasurementUnit::TBSP->value,
-        'category' => IngredientCategory::PANTRY->value,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS->value,
     ]);
 
     $response->assertRedirect();
 
     $item->refresh();
-    expect($item->name)->toBe('Edited Generated Item');
-    expect((float) $item->quantity)->toBe(5.0);
-    expect($item->unit)->toBe(MeasurementUnit::TBSP);
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
-    expect($item->source_type)->toBe(SourceType::GENERATED);
+    expect($item->name)->toBe('Edited Generated Item')
+        ->and((float) $item->quantity)->toBe(5.0)
+        ->and($item->unit)->toBe(MeasurementUnit::TBSP)
+        ->and($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($item->source_type)->toBe(SourceType::GENERATED);
 
     // Verify original values were stored
-    expect($item->original_values)->not->toBeNull();
-    expect($item->original_values['name'])->toBe('Generated Item');
-    expect((float) $item->original_values['quantity'])->toBe(3.0);
-    expect($item->original_values['unit'])->toBe(MeasurementUnit::CUP->value);
-    expect($item->original_values['category'])->toBe(IngredientCategory::PRODUCE->value);
+    expect($item->original_values)->not->toBeNull()
+        ->and($item->original_values['name'])->toBe('Generated Item')
+        ->and((float) $item->original_values['quantity'])->toBe(3.0)
+        ->and($item->original_values['unit'])->toBe(MeasurementUnit::CUP->value)
+        ->and($item->original_values['category'])->toBe(IngredientCategory::PRODUCE->value);
 });
 
 test('edited generated item marked as edited (original_values not null)', function () {
@@ -103,8 +103,8 @@ test('edited generated item marked as edited (original_values not null)', functi
     ]);
 
     $item->refresh();
-    expect($item->is_edited)->toBeTrue();
-    expect($item->original_values)->not->toBeNull();
+    expect($item->is_edited)->toBeTrue()
+        ->and($item->original_values)->not->toBeNull();
 });
 
 test('user cannot edit item in another users list', function () {

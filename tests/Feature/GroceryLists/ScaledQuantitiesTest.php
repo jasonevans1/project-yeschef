@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\IngredientCategory;
 use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
@@ -68,7 +70,7 @@ test('multiple recipes with different multipliers aggregate correctly', function
 
     $flour = Ingredient::factory()->create([
         'name' => 'flour',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     // Recipe 1 uses 2 cups flour for 4 servings
@@ -127,7 +129,7 @@ test('fractional results are handled correctly with decimals', function () {
 
     $sugar = Ingredient::factory()->create([
         'name' => 'sugar',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     // Original recipe uses 1 cup sugar for 3 servings
@@ -214,7 +216,7 @@ test('very small fractional multipliers produce correct small quantities', funct
 
     $salt = Ingredient::factory()->create([
         'name' => 'salt',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     // Original recipe uses 2 teaspoons salt for 8 servings
@@ -300,7 +302,7 @@ test('aggregation works correctly with scaled quantities from same recipe used m
 
     $rice = Ingredient::factory()->create([
         'name' => 'rice',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     // Original recipe uses 1 cup rice for 4 servings

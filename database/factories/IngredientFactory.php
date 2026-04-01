@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\IngredientCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -18,7 +19,7 @@ class IngredientFactory extends Factory
     {
         return [
             'name' => fake()->unique()->word(),
-            'category' => fake()->randomElement(['produce', 'dairy', 'meat', 'seafood', 'pantry', 'frozen', 'bakery', 'deli', 'beverages', 'other']),
+            'category' => fake()->randomElement(IngredientCategory::cases())->value,
         ];
     }
 }

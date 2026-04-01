@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Services\IngredientAggregator;
@@ -16,10 +18,10 @@ test('aggregates identical ingredients with same unit', function () {
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['name'])->toBe('milk');
-    expect($result->first()['quantity'])->toBe(3.0);
-    expect($result->first()['unit'])->toBe(MeasurementUnit::CUP);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['name'])->toBe('milk')
+        ->and($result->first()['quantity'])->toBe(3.0)
+        ->and($result->first()['unit'])->toBe(MeasurementUnit::CUP);
 });
 
 test('aggregates identical ingredients with different compatible units', function () {
@@ -33,11 +35,11 @@ test('aggregates identical ingredients with different compatible units', functio
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['name'])->toBe('milk');
-    // 1 cup + 1 pint = 1 cup + 2 cups = 3 cups
-    expect($result->first()['quantity'])->toBe(3.0);
-    expect($result->first()['unit'])->toBe(MeasurementUnit::CUP);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['name'])->toBe('milk')
+        // 1 cup + 1 pint = 1 cup + 2 cups = 3 cups
+        ->and($result->first()['quantity'])->toBe(3.0)
+        ->and($result->first()['unit'])->toBe(MeasurementUnit::CUP);
 });
 
 test('keeps separate ingredients with incompatible units', function () {
@@ -45,8 +47,8 @@ test('keeps separate ingredients with incompatible units', function () {
     $aggregator = new IngredientAggregator($converter);
 
     $items = collect([
-        ['name' => 'flour', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::PANTRY],
-        ['name' => 'flour', 'quantity' => 4.0, 'unit' => MeasurementUnit::OZ, 'category' => IngredientCategory::PANTRY],
+        ['name' => 'flour', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
+        ['name' => 'flour', 'quantity' => 4.0, 'unit' => MeasurementUnit::OZ, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
     ]);
 
     $result = $aggregator->aggregate($items);
@@ -60,15 +62,15 @@ test('handles non-standard measurements', function () {
     $aggregator = new IngredientAggregator($converter);
 
     $items = collect([
-        ['name' => 'salt', 'quantity' => 1.0, 'unit' => MeasurementUnit::PINCH, 'category' => IngredientCategory::PANTRY],
-        ['name' => 'salt', 'quantity' => 2.0, 'unit' => MeasurementUnit::PINCH, 'category' => IngredientCategory::PANTRY],
+        ['name' => 'salt', 'quantity' => 1.0, 'unit' => MeasurementUnit::PINCH, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
+        ['name' => 'salt', 'quantity' => 2.0, 'unit' => MeasurementUnit::PINCH, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
     ]);
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['quantity'])->toBe(3.0);
-    expect($result->first()['unit'])->toBe(MeasurementUnit::PINCH);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['quantity'])->toBe(3.0)
+        ->and($result->first()['unit'])->toBe(MeasurementUnit::PINCH);
 });
 
 test('preserves category information', function () {
@@ -82,11 +84,11 @@ test('preserves category information', function () {
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['category'])->toBe(IngredientCategory::MEAT);
-    // 1 lb + 8 oz = 16 oz + 8 oz = 24 oz = 1.5 lb
-    expect($result->first()['quantity'])->toBe(1.5);
-    expect($result->first()['unit'])->toBe(MeasurementUnit::LB);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['category'])->toBe(IngredientCategory::MEAT)
+        // 1 lb + 8 oz = 16 oz + 8 oz = 24 oz = 1.5 lb
+        ->and($result->first()['quantity'])->toBe(1.5)
+        ->and($result->first()['unit'])->toBe(MeasurementUnit::LB);
 });
 
 test('handles empty input', function () {
@@ -110,8 +112,8 @@ test('handles single item', function () {
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['quantity'])->toBe(2.0);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['quantity'])->toBe(2.0);
 });
 
 test('aggregates multiple different ingredients', function () {
@@ -120,7 +122,7 @@ test('aggregates multiple different ingredients', function () {
 
     $items = collect([
         ['name' => 'milk', 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::DAIRY],
-        ['name' => 'flour', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::PANTRY],
+        ['name' => 'flour', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
         ['name' => 'eggs', 'quantity' => 3.0, 'unit' => MeasurementUnit::WHOLE, 'category' => IngredientCategory::DAIRY],
         ['name' => 'milk', 'quantity' => 0.5, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::DAIRY],
     ]);
@@ -151,8 +153,8 @@ test('handles case-insensitive ingredient names', function () {
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    expect($result->first()['quantity'])->toBe(3.0);
+    expect($result)->toHaveCount(1)
+        ->and($result->first()['quantity'])->toBe(3.0);
 });
 
 test('aggregates complex unit conversions', function () {
@@ -160,15 +162,15 @@ test('aggregates complex unit conversions', function () {
     $aggregator = new IngredientAggregator($converter);
 
     $items = collect([
-        ['name' => 'broth', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::PANTRY],
-        ['name' => 'broth', 'quantity' => 1.0, 'unit' => MeasurementUnit::PINT, 'category' => IngredientCategory::PANTRY],
-        ['name' => 'broth', 'quantity' => 8.0, 'unit' => MeasurementUnit::FL_OZ, 'category' => IngredientCategory::PANTRY],
+        ['name' => 'broth', 'quantity' => 2.0, 'unit' => MeasurementUnit::CUP, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
+        ['name' => 'broth', 'quantity' => 1.0, 'unit' => MeasurementUnit::PINT, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
+        ['name' => 'broth', 'quantity' => 8.0, 'unit' => MeasurementUnit::FL_OZ, 'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS],
     ]);
 
     $result = $aggregator->aggregate($items);
 
-    expect($result)->toHaveCount(1);
-    // 2 cups + 1 pint + 8 fl oz = 2 cups + 2 cups + 1 cup = 5 cups
-    expect($result->first()['quantity'])->toBe(5.0);
-    expect($result->first()['unit'])->toBe(MeasurementUnit::CUP);
+    expect($result)->toHaveCount(1)
+        // 2 cups + 1 pint + 8 fl oz = 2 cups + 2 cups + 1 cup = 5 cups
+        ->and($result->first()['quantity'])->toBe(5.0)
+        ->and($result->first()['unit'])->toBe(MeasurementUnit::CUP);
 });

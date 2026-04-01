@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Enums\SourceType;
@@ -338,24 +340,24 @@ test('items display in correct sort order within category', function () {
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Item C',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'sort_order' => 2,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Item A',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'sort_order' => 0,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Item B',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'sort_order' => 1,
     ]);
 
     $items = $groceryList->groceryItems()
-        ->where('category', IngredientCategory::PANTRY)
+        ->where('category', IngredientCategory::SOUPS_AND_CANNED_GOODS)
         ->orderBy('sort_order')
         ->get();
 
@@ -440,7 +442,7 @@ test('inline edit form displays select box for unit field', function () {
         'name' => 'Test Item',
         'quantity' => 2.0,
         'unit' => MeasurementUnit::CUP,
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $component = Livewire::actingAs($this->user)

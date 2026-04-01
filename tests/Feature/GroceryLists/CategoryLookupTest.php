@@ -42,7 +42,7 @@ test('ingredient with OTHER category gets resolved to user template category on 
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'Cumin',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     Livewire::actingAs($user)
@@ -52,7 +52,7 @@ test('ingredient with OTHER category gets resolved to user template category on 
     $groceryList = GroceryList::where('meal_plan_id', $mealPlan->id)->first();
     $item = $groceryList->groceryItems->first();
 
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
+    expect($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('ingredient with OTHER category falls back to common template category when no user template', function () {
@@ -76,7 +76,7 @@ test('ingredient with OTHER category falls back to common template category when
     // No user template — common template resolves to PANTRY
     CommonItemTemplate::create([
         'name' => 'Paprika',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
         'unit' => MeasurementUnit::TSP,
         'default_quantity' => 1.0,
         'usage_count' => 0,
@@ -89,7 +89,7 @@ test('ingredient with OTHER category falls back to common template category when
     $groceryList = GroceryList::where('meal_plan_id', $mealPlan->id)->first();
     $item = $groceryList->groceryItems->first();
 
-    expect($item->category)->toBe(IngredientCategory::PANTRY);
+    expect($item->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS);
 });
 
 test('ingredient with non-OTHER category is unchanged regardless of templates', function () {
@@ -114,7 +114,7 @@ test('ingredient with non-OTHER category is unchanged regardless of templates', 
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'Milk',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     Livewire::actingAs($user)
@@ -149,7 +149,7 @@ test('getCategoryItemCounts reflects template-resolved categories', function () 
     UserItemTemplate::factory()->create([
         'user_id' => $user->id,
         'name' => 'Cumin',
-        'category' => IngredientCategory::PANTRY,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $component = Livewire::actingAs($user)
@@ -158,6 +158,6 @@ test('getCategoryItemCounts reflects template-resolved categories', function () 
     $counts = $component->get('categoryItemCounts');
 
     // Should be counted under PANTRY (not OTHER) after template resolution
-    expect($counts)->toHaveKey(IngredientCategory::PANTRY->value);
-    expect($counts)->not->toHaveKey(IngredientCategory::OTHER->value);
+    expect($counts)->toHaveKey(IngredientCategory::SOUPS_AND_CANNED_GOODS->value)
+        ->and($counts)->not->toHaveKey(IngredientCategory::OTHER->value);
 });

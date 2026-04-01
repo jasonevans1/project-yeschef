@@ -110,7 +110,7 @@ test('user can manually create a new template', function () {
     Livewire::actingAs($user)
         ->test(ItemTemplatesEdit::class)
         ->set('name', 'organic honey')
-        ->set('category', IngredientCategory::PANTRY->value)
+        ->set('category', IngredientCategory::SOUPS_AND_CANNED_GOODS->value)
         ->set('unit', MeasurementUnit::JAR->value)
         ->set('default_quantity', 1)
         ->call('save')
@@ -122,7 +122,7 @@ test('user can manually create a new template', function () {
         ->first();
 
     expect($template)->not->toBeNull()
-        ->and($template->category)->toBe(IngredientCategory::PANTRY)
+        ->and($template->category)->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS)
         ->and($template->unit)->toBe(MeasurementUnit::JAR)
         ->and($template->default_quantity)->toBe('1.000')
         ->and($template->usage_count)->toBe(0); // Manually created, not used yet
