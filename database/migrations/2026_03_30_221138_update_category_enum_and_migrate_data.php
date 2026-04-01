@@ -59,8 +59,17 @@ return new class extends Migration
     {
         $driver = DB::getDriverName();
 
+        // Remap pantry -> soups-and-canned-goods BEFORE altering the ENUM so MariaDB
+        // does not reject rows with values absent from the new constraint.
+        foreach (['grocery_items', 'ingredients', 'common_item_templates', 'user_item_templates'] as $table) {
+            DB::table($table)->where('category', 'pantry')
+                ->update(['category' => 'soups-and-canned-goods']);
+        }
+
+        // Now safe to alter the ENUM — no rows contain 'pantry' any more.
         if ($driver !== 'sqlite') {
-            // MariaDB/MySQL: use raw ALTER TABLE MODIFY COLUMN for ENUM changes
+            // MariaDB/MySQL: use raw ALTER TABLE MODIFY COLUMN for ENUM changes.
+            // Note: briefly locks each table.
             $enumList = implode("','", $this->newCategories);
 
             DB::statement("ALTER TABLE grocery_items MODIFY COLUMN category ENUM('{$enumList}') NOT NULL DEFAULT 'other'");
@@ -68,7 +77,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE common_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
             DB::statement("ALTER TABLE user_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
         } else {
-            // SQLite: use Schema Blueprint to rebuild tables with new CHECK constraints
+            // SQLite: use Schema Blueprint to rebuild tables with new CHECK constraints.
             Schema::table('grocery_items', function (Blueprint $table) {
                 $table->enum('category', $this->newCategories)->default('other')->change();
             });
@@ -84,12 +93,6 @@ return new class extends Migration
             Schema::table('user_item_templates', function (Blueprint $table) {
                 $table->enum('category', $this->newCategories)->change();
             });
-        }
-
-        // Remap pantry -> soups-and-canned-goods in all four category columns
-        foreach (['grocery_items', 'ingredients', 'common_item_templates', 'user_item_templates'] as $table) {
-            DB::table($table)->where('category', 'pantry')
-                ->update(['category' => 'soups-and-canned-goods']);
         }
 
         // Migrate JSON column grocery_lists.excluded_categories
@@ -132,7 +135,7 @@ return new class extends Migration
     {
         $driver = DB::getDriverName();
 
-        // Map new-only categories back to 'other' (valid in both ENUM sets)
+        // Map new-only categories to 'other' (valid in both ENUM sets).
         $newOnlyCategories = [
             'breakfast',
             'condiments-and-dressings',
@@ -148,6 +151,39 @@ return new class extends Migration
         foreach (['grocery_items', 'ingredients', 'common_item_templates', 'user_item_templates'] as $table) {
             DB::table($table)->whereIn('category', $newOnlyCategories)
                 ->update(['category' => 'other']);
+        }
+
+        // Remap soups-and-canned-goods -> pantry BEFORE reverting the ENUM so MariaDB
+        // does not reject rows with values absent from the old constraint.
+        foreach (['grocery_items', 'ingredients', 'common_item_templates', 'user_item_templates'] as $table) {
+            DB::table($table)->where('category', 'soups-and-canned-goods')
+                ->update(['category' => 'pantry']);
+        }
+
+        // Now safe to revert the ENUM — no rows contain new-only values any more.
+        if ($driver !== 'sqlite') {
+            $enumList = implode("','", $this->oldCategories);
+
+            DB::statement("ALTER TABLE grocery_items MODIFY COLUMN category ENUM('{$enumList}') NOT NULL DEFAULT 'other'");
+            DB::statement("ALTER TABLE ingredients MODIFY COLUMN category ENUM('{$enumList}') NOT NULL DEFAULT 'other'");
+            DB::statement("ALTER TABLE common_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
+            DB::statement("ALTER TABLE user_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
+        } else {
+            Schema::table('grocery_items', function (Blueprint $table) {
+                $table->enum('category', $this->oldCategories)->default('other')->change();
+            });
+
+            Schema::table('ingredients', function (Blueprint $table) {
+                $table->enum('category', $this->oldCategories)->default('other')->change();
+            });
+
+            Schema::table('common_item_templates', function (Blueprint $table) {
+                $table->enum('category', $this->oldCategories)->change();
+            });
+
+            Schema::table('user_item_templates', function (Blueprint $table) {
+                $table->enum('category', $this->oldCategories)->change();
+            });
         }
 
         // Revert JSON column grocery_lists.excluded_categories
@@ -181,39 +217,5 @@ return new class extends Migration
                     }
                 }
             });
-
-        if ($driver !== 'sqlite') {
-            // MariaDB/MySQL: use raw ALTER TABLE MODIFY COLUMN for ENUM revert
-            $enumList = implode("','", $this->oldCategories);
-
-            DB::statement("ALTER TABLE grocery_items MODIFY COLUMN category ENUM('{$enumList}') NOT NULL DEFAULT 'other'");
-            DB::statement("ALTER TABLE ingredients MODIFY COLUMN category ENUM('{$enumList}') NOT NULL DEFAULT 'other'");
-            DB::statement("ALTER TABLE common_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
-            DB::statement("ALTER TABLE user_item_templates MODIFY COLUMN category ENUM('{$enumList}') NOT NULL");
-        } else {
-            // SQLite: use Schema Blueprint to rebuild tables with old CHECK constraints
-            Schema::table('grocery_items', function (Blueprint $table) {
-                $table->enum('category', $this->oldCategories)->default('other')->change();
-            });
-
-            Schema::table('ingredients', function (Blueprint $table) {
-                $table->enum('category', $this->oldCategories)->default('other')->change();
-            });
-
-            Schema::table('common_item_templates', function (Blueprint $table) {
-                $table->enum('category', $this->oldCategories)->change();
-            });
-
-            Schema::table('user_item_templates', function (Blueprint $table) {
-                $table->enum('category', $this->oldCategories)->change();
-            });
-        }
-
-        // Remap soups-and-canned-goods back to pantry in all four tables
-        // (must happen after ENUM allows 'pantry' again)
-        foreach (['grocery_items', 'ingredients', 'common_item_templates', 'user_item_templates'] as $table) {
-            DB::table($table)->where('category', 'soups-and-canned-goods')
-                ->update(['category' => 'pantry']);
-        }
     }
 };
