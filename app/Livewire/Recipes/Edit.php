@@ -7,6 +7,7 @@ use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Services\IngredientCategorizationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
@@ -114,7 +115,7 @@ class Edit extends Component
         }
     }
 
-    public function update(): void
+    public function update(IngredientCategorizationService $categorizationService): void
     {
         $this->validate();
         $this->validateIngredients();
@@ -142,7 +143,7 @@ class Edit extends Component
 
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
-                ['category' => $this->guessIngredientCategory($ingredientData['ingredient_name'])]
+                ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
             );
 
             $this->recipe->recipeIngredients()->create([
@@ -178,34 +179,6 @@ class Edit extends Component
         if (! $hasValidIngredient) {
             $this->addError('ingredients', 'At least one ingredient is required.');
         }
-    }
-
-    protected function guessIngredientCategory(string $name): IngredientCategory
-    {
-        $name = strtolower($name);
-
-        $categoryKeywords = [
-            IngredientCategory::PRODUCE->value => ['lettuce', 'tomato', 'onion', 'garlic', 'pepper', 'carrot', 'celery', 'potato', 'spinach', 'broccoli', 'cucumber', 'apple', 'banana', 'orange', 'lemon', 'lime', 'herb', 'basil', 'parsley', 'cilantro'],
-            IngredientCategory::DAIRY->value => ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'sour cream', 'ricotta', 'mozzarella', 'parmesan', 'cheddar'],
-            IngredientCategory::MEAT->value => ['chicken', 'beef', 'pork', 'turkey', 'lamb', 'bacon', 'sausage', 'ground beef', 'steak'],
-            IngredientCategory::SEAFOOD->value => ['fish', 'salmon', 'tuna', 'shrimp', 'crab', 'lobster', 'cod', 'tilapia'],
-            IngredientCategory::COOKING_AND_BAKING->value => ['flour', 'sugar', 'salt', 'oil', 'olive oil', 'vinegar', 'spice', 'cumin', 'paprika', 'oregano'],
-            IngredientCategory::GRAINS_AND_PASTA->value => ['rice', 'pasta', 'beans'],
-            IngredientCategory::SOUPS_AND_CANNED_GOODS->value => ['sauce'],
-            IngredientCategory::FROZEN->value => ['frozen'],
-            IngredientCategory::BAKERY->value => ['bread', 'bun', 'roll', 'tortilla', 'pita', 'bagel'],
-            IngredientCategory::BEVERAGES->value => ['juice', 'soda', 'water', 'coffee', 'tea', 'wine', 'beer'],
-        ];
-
-        foreach ($categoryKeywords as $category => $keywords) {
-            foreach ($keywords as $keyword) {
-                if (str_contains($name, $keyword)) {
-                    return IngredientCategory::from($category);
-                }
-            }
-        }
-
-        return IngredientCategory::OTHER;
     }
 
     public function render(): View

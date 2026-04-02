@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Livewire\Recipes;
 
-use App\Enums\IngredientCategory;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Services\IngredientCategorizationService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -38,10 +38,10 @@ class ImportPreview extends Component
         }
     }
 
-    public function confirmImport(): void
+    public function confirmImport(IngredientCategorizationService $categorizationService): void
     {
         try {
-            DB::transaction(function () {
+            DB::transaction(function () use ($categorizationService) {
                 // Create recipe
                 $recipe = auth()->user()->recipes()->create([
                     'name' => $this->recipeData['name'],
@@ -57,7 +57,7 @@ class ImportPreview extends Component
                 ]);
 
                 // Parse and create ingredients
-                $this->createIngredients($recipe);
+                $this->createIngredients($recipe, $categorizationService);
 
                 // Clear cache
                 Cache::forget('recipe_import_preview:'.auth()->id());
@@ -72,7 +72,7 @@ class ImportPreview extends Component
         }
     }
 
-    protected function createIngredients(Recipe $recipe): void
+    protected function createIngredients(Recipe $recipe, IngredientCategorizationService $categorizationService): void
     {
         $ingredients = $this->recipeData['recipeIngredient'] ?? [];
         $parser = app(\App\Services\RecipeImporter\IngredientParser::class);
@@ -90,7 +90,7 @@ class ImportPreview extends Component
             // Find or create ingredient using parsed name (or original if parsing failed)
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => $parsed['name']],
-                ['category' => IngredientCategory::OTHER] // Default to OTHER for imported ingredients
+                ['category' => $categorizationService->resolve($parsed['name'], auth()->id())]
             );
 
             // Check for duplicate ingredient

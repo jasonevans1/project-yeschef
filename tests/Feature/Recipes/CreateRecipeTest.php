@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\IngredientCategory;
 use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
+use App\Models\CommonItemTemplate;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
@@ -361,4 +363,59 @@ test('existing ingredients are reused', function () {
     $recipe = Recipe::where('name', 'Recipe Using Existing')->first();
     $recipeIngredient = $recipe->recipeIngredients->first();
     expect($recipeIngredient->ingredient_id)->toBe($existingIngredient->id);
+});
+
+it('assigns a category from the categorization service when creating a new ingredient via the create form', function () {
+    actingAs($this->user);
+
+    // "zogby" has no keyword match — old code returns OTHER; service returns PRODUCE via CommonItemTemplate
+    CommonItemTemplate::factory()->create([
+        'name' => 'zogby root',
+        'category' => IngredientCategory::PRODUCE,
+    ]);
+
+    Volt::test('recipes.create')
+        ->set('name', 'Zogby Dish')
+        ->set('instructions', 'Cook the zogby root well')
+        ->set('ingredients', [
+            [
+                'ingredient_name' => 'Zogby Root',
+                'quantity' => 1,
+                'unit' => MeasurementUnit::LB->value,
+                'notes' => null,
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $ingredient = Ingredient::where('name', 'zogby root')->first();
+    expect($ingredient)->not->toBeNull();
+    expect($ingredient->category)->toBe(IngredientCategory::PRODUCE);
+});
+
+it('retains an existing ingredient\'s stored category when the ingredient already exists in the database (create form)', function () {
+    actingAs($this->user);
+
+    $existingIngredient = Ingredient::factory()->create([
+        'name' => 'mystery ingredient',
+        'category' => IngredientCategory::BAKERY,
+    ]);
+
+    Volt::test('recipes.create')
+        ->set('name', 'Mystery Recipe')
+        ->set('instructions', 'Use mystery ingredient carefully')
+        ->set('ingredients', [
+            [
+                'ingredient_name' => 'Mystery Ingredient',
+                'quantity' => 1,
+                'unit' => MeasurementUnit::CUP->value,
+                'notes' => null,
+            ],
+        ])
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $existingIngredient->refresh();
+    expect($existingIngredient->category)->toBe(IngredientCategory::BAKERY);
+    expect(Ingredient::where('name', 'mystery ingredient')->count())->toBe(1);
 });

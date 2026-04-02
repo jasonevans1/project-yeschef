@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\UserItemTemplate;
 use App\Services\GroceryListGenerator;
 use App\Services\IngredientAggregator;
+use App\Services\IngredientCategorizationService;
 use App\Services\ServingSizeScaler;
 use App\Services\UnitConverter;
 
@@ -872,6 +873,86 @@ test('generate does not use another users template for ingredient resolution', f
     $groceryList = $generator->generate($mealPlan);
     $item = $groceryList->groceryItems->first();
 
-    // Must stay OTHER — other user's template must not be used
-    expect($item->category)->toBe(IngredientCategory::OTHER);
+    // Must NOT use the other user's template (SOUPS_AND_CANNED_GOODS).
+    // The categorization service resolves via keyword matching instead (cumin → COOKING_AND_BAKING).
+    expect($item->category)->not->toBe(IngredientCategory::SOUPS_AND_CANNED_GOODS)
+        ->and($item->category)->toBe(IngredientCategory::COOKING_AND_BAKING);
+});
+
+// ──────────────────────────────────────────────────────────
+// T004: GroceryListGenerator delegates to IngredientCategorizationService
+// ──────────────────────────────────────────────────────────
+
+it('passes the correct user id to the categorization service when resolving ingredient categories', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $categorizationService = Mockery::mock(IngredientCategorizationService::class);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter, $categorizationService);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    $ingredient = Ingredient::factory()->create(['name' => 'Cumin', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $categorizationService->shouldReceive('resolve')
+        ->once()
+        ->with('Cumin', $user->id)
+        ->andReturn(IngredientCategory::COOKING_AND_BAKING);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::COOKING_AND_BAKING);
+});
+
+it('does not call the categorization service for non-other ingredient categories (early return preserved)', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $categorizationService = Mockery::mock(IngredientCategorizationService::class);
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter, $categorizationService);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient already has a non-OTHER category
+    $ingredient = Ingredient::factory()->create(['name' => 'Milk', 'category' => IngredientCategory::DAIRY]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::CUP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    // Service must NOT be called for non-OTHER categories
+    $categorizationService->shouldNotReceive('resolve');
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    expect($item->category)->toBe(IngredientCategory::DAIRY);
+});
+
+it('returns a resolved category for an ingredient that is OTHER in the database', function () {
+    $unitConverter = new UnitConverter;
+    $scaler = new ServingSizeScaler;
+    $aggregator = new IngredientAggregator($unitConverter);
+    $categorizationService = new IngredientCategorizationService;
+    $generator = new GroceryListGenerator($scaler, $aggregator, $unitConverter, $categorizationService);
+
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->create(['user_id' => $user->id]);
+    $recipe = Recipe::factory()->create(['user_id' => $user->id]);
+
+    // Ingredient stored as OTHER but keyword-matchable via the service
+    $ingredient = Ingredient::factory()->create(['name' => 'olive oil', 'category' => IngredientCategory::OTHER]);
+    RecipeIngredient::factory()->create(['recipe_id' => $recipe->id, 'ingredient_id' => $ingredient->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::TBSP]);
+    MealAssignment::factory()->create(['meal_plan_id' => $mealPlan->id, 'recipe_id' => $recipe->id]);
+
+    $groceryList = $generator->generate($mealPlan);
+    $item = $groceryList->groceryItems->first();
+
+    // 'olive oil' matches the cooking-and-baking keyword 'olive oil' in IngredientCategorizationService
+    expect($item->category)->toBe(IngredientCategory::COOKING_AND_BAKING);
 });

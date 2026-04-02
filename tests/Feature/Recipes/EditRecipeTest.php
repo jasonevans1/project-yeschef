@@ -2,8 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Enums\IngredientCategory;
 use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
+use App\Models\CommonItemTemplate;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
@@ -442,4 +444,71 @@ test('ingredient sort order is maintained when editing', function () {
     expect($ingredients[1]->sort_order)->toBe(1);
     expect(strtolower($ingredients[2]->ingredient->name))->toBe('third ingredient');
     expect($ingredients[2]->sort_order)->toBe(2);
+});
+
+it('assigns a category from the service when a new ingredient is introduced via the edit form (ingredient not previously in the database)', function () {
+    actingAs($this->user);
+
+    // "zogby" has no keyword match — old code returns OTHER; service returns DAIRY via CommonItemTemplate
+    CommonItemTemplate::factory()->create([
+        'name' => 'zogby powder',
+        'category' => IngredientCategory::DAIRY,
+    ]);
+
+    $recipe = Recipe::factory()->create([
+        'user_id' => $this->user->id,
+        'name' => 'Zogby Dish',
+        'instructions' => 'Cook with zogby powder',
+    ]);
+
+    Volt::test('recipes.edit', ['recipe' => $recipe])
+        ->set('name', 'Zogby Dish')
+        ->set('instructions', 'Cook with zogby powder')
+        ->set('ingredients', [
+            [
+                'ingredient_name' => 'Zogby Powder',
+                'quantity' => 1,
+                'unit' => MeasurementUnit::LB->value,
+                'notes' => null,
+            ],
+        ])
+        ->call('update')
+        ->assertHasNoErrors();
+
+    $ingredient = Ingredient::where('name', 'zogby powder')->first();
+    expect($ingredient)->not->toBeNull();
+    expect($ingredient->category)->toBe(IngredientCategory::DAIRY);
+});
+
+it('retains an existing ingredient\'s stored category when the ingredient already exists in the database (edit form)', function () {
+    actingAs($this->user);
+
+    $existingIngredient = Ingredient::factory()->create([
+        'name' => 'mystery spice',
+        'category' => IngredientCategory::BAKERY,
+    ]);
+
+    $recipe = Recipe::factory()->create([
+        'user_id' => $this->user->id,
+        'name' => 'Mystery Recipe',
+        'instructions' => 'Use mystery spice wisely',
+    ]);
+
+    Volt::test('recipes.edit', ['recipe' => $recipe])
+        ->set('name', 'Mystery Recipe')
+        ->set('instructions', 'Use mystery spice wisely')
+        ->set('ingredients', [
+            [
+                'ingredient_name' => 'Mystery Spice',
+                'quantity' => 1,
+                'unit' => MeasurementUnit::TSP->value,
+                'notes' => null,
+            ],
+        ])
+        ->call('update')
+        ->assertHasNoErrors();
+
+    $existingIngredient->refresh();
+    expect($existingIngredient->category)->toBe(IngredientCategory::BAKERY);
+    expect(Ingredient::where('name', 'mystery spice')->count())->toBe(1);
 });
