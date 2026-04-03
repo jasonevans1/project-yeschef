@@ -98,6 +98,7 @@ class Create extends Component
             'image_url' => $this->image_url,
         ]);
 
+        $addedIngredientIds = [];
         foreach ($this->ingredients as $index => $ingredientData) {
             if (empty($ingredientData['ingredient_name'])) {
                 continue;
@@ -107,6 +108,12 @@ class Create extends Component
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
                 ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
             );
+
+            if (in_array($ingredient->id, $addedIngredientIds, true)) {
+                continue;
+            }
+
+            $addedIngredientIds[] = $ingredient->id;
 
             $recipe->recipeIngredients()->create([
                 'ingredient_id' => $ingredient->id,
