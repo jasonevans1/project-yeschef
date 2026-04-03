@@ -25,6 +25,7 @@ class User extends Authenticatable
         'email',
         'password',
         'grocery_category_exclusions',
+        'pantry_items',
     ];
 
     /**
@@ -48,6 +49,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'grocery_category_exclusions' => 'array',
+            'pantry_items' => 'array',
         ];
     }
 

@@ -13,7 +13,7 @@
             {{-- Existing list warning --}}
             <div class="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
                 <div class="flex items-start gap-3">
-                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-yellow-600 dark:text-yellow-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <div>
@@ -35,7 +35,7 @@
             <div class="space-y-3">
                 {{-- Meal Plan Details --}}
                 <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                     <div>
@@ -50,7 +50,7 @@
 
                 {{-- Recipe Count --}}
                 <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                     </svg>
                     <div>
@@ -66,7 +66,7 @@
                 {{-- Estimated Items --}}
                 @if($recipeCount > 0)
                     <div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg">
-                        <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-5 h-5 text-gray-600 dark:text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
                         </svg>
                         <div>
@@ -82,7 +82,7 @@
                     {{-- Empty meal plan warning --}}
                     <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
                         <div class="flex items-start gap-3">
-                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <div>
@@ -107,11 +107,13 @@
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
                     @foreach($categories as $category)
                         @if(isset($categoryItemCounts[$category->value]) && $categoryItemCounts[$category->value] > 0)
-                            <flux:checkbox
-                                wire:model="excludedCategories"
-                                value="{{ $category->value }}"
-                                label="{{ $category->label() }} ({{ $categoryItemCounts[$category->value] }})"
-                            />
+                            <div wire:key="category-exclusion-{{ $category->value }}">
+                                <flux:checkbox
+                                    wire:model="excludedCategories"
+                                    value="{{ $category->value }}"
+                                    label="{{ $category->label() }} ({{ $categoryItemCounts[$category->value] }})"
+                                />
+                            </div>
                         @endif
                     @endforeach
                 </div>
@@ -122,6 +124,53 @@
                     @if(count($savedPreferences) > 0)
                         <flux:button wire:click="clearPreferences" variant="ghost" size="sm">
                             Clear saved defaults
+                        </flux:button>
+                    @endif
+                </div>
+            </div>
+        @endif
+
+        {{-- Ingredient Exclusion Panel --}}
+        @if(count($ingredientPreview) > 0)
+            <div class="mb-6 bg-gray-50 dark:bg-zinc-800 rounded-lg p-4">
+                <flux:heading size="md" class="mb-1">Exclude specific ingredients (optional)</flux:heading>
+                <flux:text class="text-sm text-gray-600 dark:text-zinc-400 mb-3">
+                    Check items you already have. Checked items will not be added to your list.
+                </flux:text>
+
+                @foreach(collect($ingredientPreview)->groupBy('category') as $category => $items)
+                    @php $categoryLabel = $items->first()['category_label']; @endphp
+                    <div class="mb-3" wire:key="category-{{ $category }}">
+                        <flux:text class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-zinc-400 mb-1">
+                            {{ $categoryLabel }}
+                        </flux:text>
+                        <div class="space-y-1">
+                            @foreach($items as $item)
+                                <div class="flex items-center gap-2" wire:key="ingredient-{{ strtolower($item['name']) }}">
+                                    <flux:checkbox
+                                        wire:model="excludedIngredients"
+                                        value="{{ strtolower($item['name']) }}"
+                                        label="{{ $item['name'] }}"
+                                    />
+                                    <flux:text class="text-sm text-gray-500 dark:text-zinc-400">
+                                        {{ $item['quantity'] }}{{ $item['unit'] ? ' ' . $item['unit'] : '' }}
+                                    </flux:text>
+                                    @if(in_array(strtolower($item['name']), $savedPantry))
+                                        <flux:badge size="sm" color="green">pantry</flux:badge>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endforeach
+
+                <div class="flex items-center gap-2 mt-3">
+                    <flux:button wire:click="savePantry" variant="ghost" size="sm">
+                        Save checked as always have
+                    </flux:button>
+                    @if(count($savedPantry) > 0)
+                        <flux:button wire:click="clearPantry" variant="ghost" size="sm">
+                            Clear pantry
                         </flux:button>
                     @endif
                 </div>
