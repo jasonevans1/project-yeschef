@@ -136,6 +136,7 @@ class Edit extends Component
 
         $this->recipe->recipeIngredients()->delete();
 
+        $addedIngredientIds = [];
         foreach ($this->ingredients as $index => $ingredientData) {
             if (empty($ingredientData['ingredient_name'])) {
                 continue;
@@ -145,6 +146,12 @@ class Edit extends Component
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
                 ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
             );
+
+            if (in_array($ingredient->id, $addedIngredientIds, true)) {
+                continue;
+            }
+
+            $addedIngredientIds[] = $ingredient->id;
 
             $this->recipe->recipeIngredients()->create([
                 'ingredient_id' => $ingredient->id,

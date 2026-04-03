@@ -32,6 +32,15 @@ class Generate extends Component
     /** @var array<int, string> */
     public array $savedPreferences = [];
 
+    /** @var array<int, array{name: string, quantity: mixed, unit: ?string, category: string, category_label: string}> */
+    public array $ingredientPreview = [];
+
+    /** @var array<int, string> */
+    public array $excludedIngredients = [];
+
+    /** @var array<int, string> */
+    public array $savedPantry = [];
+
     public function mount(MealPlan $mealPlan): void
     {
         // Check if user owns this meal plan
@@ -45,9 +54,6 @@ class Generate extends Component
         // Calculate recipe count
         $this->recipeCount = $mealPlan->mealAssignments()->count();
 
-        // Estimate item count (rough estimate based on average ingredients per recipe)
-        $this->estimatedItemCount = $this->recipeCount * 8; // Assume ~8 ingredients per recipe
-
         // Load saved preferences
         $this->savedPreferences = auth()->user()->grocery_category_exclusions ?? [];
 
@@ -55,11 +61,25 @@ class Generate extends Component
         $this->excludedCategories = $this->existingList?->excluded_categories
             ?? $this->savedPreferences;
 
-        // Load category item counts for the exclusion checkboxes
+        // Load category item counts and ingredient preview when recipes exist
         if ($this->recipeCount > 0) {
             $generator = app(GroceryListGenerator::class);
             $this->categoryItemCounts = $generator->getCategoryItemCounts($mealPlan, auth()->id());
+
+            // Load ingredient preview (real data — replaces heuristic)
+            $this->ingredientPreview = $generator->getIngredientPreview($mealPlan, auth()->id())
+                ->toArray();
         }
+
+        // Replace heuristic with real count from preview
+        $this->estimatedItemCount = count($this->ingredientPreview);
+
+        // Load pantry
+        $this->savedPantry = auth()->user()->pantry_items ?? [];
+
+        // Pre-populate excludedIngredients:
+        // existing list's excluded_ingredients takes precedence over pantry
+        $this->excludedIngredients = $this->existingList?->excluded_ingredients ?? $this->savedPantry;
     }
 
     public function generate(): mixed
@@ -77,11 +97,11 @@ class Generate extends Component
 
         // If list exists, regenerate it
         if ($this->existingList) {
-            $groceryList = $generator->regenerate($this->existingList, array_values($excludedEnums));
+            $groceryList = $generator->regenerate($this->existingList, array_values($excludedEnums), $this->excludedIngredients);
             session()->flash('message', 'Grocery list regenerated successfully!');
         } else {
             // Generate new list
-            $groceryList = $generator->generate($this->mealPlan, array_values($excludedEnums));
+            $groceryList = $generator->generate($this->mealPlan, array_values($excludedEnums), $this->excludedIngredients);
             session()->flash('message', 'Grocery list generated successfully!');
         }
 
@@ -105,6 +125,24 @@ class Generate extends Component
         ]);
 
         $this->savedPreferences = [];
+    }
+
+    public function savePantry(): void
+    {
+        auth()->user()->update([
+            'pantry_items' => $this->excludedIngredients ?: null,
+        ]);
+
+        $this->savedPantry = $this->excludedIngredients;
+    }
+
+    public function clearPantry(): void
+    {
+        auth()->user()->update([
+            'pantry_items' => null,
+        ]);
+
+        $this->savedPantry = [];
     }
 
     public function cancel(): mixed

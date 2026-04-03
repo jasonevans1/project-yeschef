@@ -19,15 +19,53 @@ class GroceryListGenerator
     ) {}
 
     /**
+     * Get the full aggregated ingredient list for a meal plan (used for UI preview).
+     * Returns plain arrays (no enum instances) suitable for Livewire public properties.
+     *
+     * Sorted by IngredientCategory declaration order first, then alphabetically by name.
+     *
+     * @return \Illuminate\Support\Collection<int, array{name: string, quantity: numeric|null, unit: string|null, category: string, category_label: string}>
+     */
+    public function getIngredientPreview(MealPlan $mealPlan, int $userId): Collection
+    {
+        $aggregated = $this->getAggregatedIngredients($mealPlan, $userId);
+
+        $categoryOrder = array_flip(array_map(fn (IngredientCategory $c) => $c->value, IngredientCategory::cases()));
+
+        return $aggregated
+            ->map(function (array $ingredient): array {
+                /** @var IngredientCategory $category */
+                $category = $ingredient['category'];
+                /** @var \App\Enums\MeasurementUnit|null $unit */
+                $unit = $ingredient['unit'];
+
+                return [
+                    'name' => $ingredient['name'],
+                    'quantity' => $ingredient['quantity'],
+                    'unit' => $unit?->value,
+                    'category' => $category->value,
+                    'category_label' => $category->label(),
+                ];
+            })
+            ->sortBy([
+                fn (array $a, array $b) => ($categoryOrder[$a['category']] ?? 999) <=> ($categoryOrder[$b['category']] ?? 999),
+                fn (array $a, array $b) => $a['name'] <=> $b['name'],
+            ])
+            ->values();
+    }
+
+    /**
      * Generate a new grocery list from a meal plan
      *
      * @param  MealPlan  $mealPlan  The meal plan to generate from
      * @param  array<int, IngredientCategory>  $excludedCategories  Categories to exclude from the list
+     * @param  array<int, string>  $excludedIngredients  Lowercase ingredient names to exclude
      * @return GroceryList The generated grocery list
      */
-    public function generate(MealPlan $mealPlan, array $excludedCategories = []): GroceryList
+    public function generate(MealPlan $mealPlan, array $excludedCategories = [], array $excludedIngredients = []): GroceryList
     {
         $excludedValues = array_map(fn (IngredientCategory $c) => $c->value, $excludedCategories);
+        $excludedIngredientNames = array_map('strtolower', $excludedIngredients);
 
         // Create the grocery list
         $groceryList = GroceryList::create([
@@ -36,6 +74,7 @@ class GroceryListGenerator
             'name' => "Grocery List for {$mealPlan->name}",
             'generated_at' => now(),
             'excluded_categories' => $excludedValues ?: null,
+            'excluded_ingredients' => $excludedIngredientNames ?: null,
         ]);
 
         // Collect and process all ingredients from meal plan
@@ -56,6 +95,11 @@ class GroceryListGenerator
             }
 
             foreach ($ingredients as $ingredient) {
+                // Skip excluded ingredient names
+                if (in_array(strtolower($ingredient['name']), $excludedIngredientNames, true)) {
+                    continue;
+                }
+
                 GroceryItem::create([
                     'grocery_list_id' => $groceryList->id,
                     'name' => $ingredient['name'],
@@ -77,15 +121,17 @@ class GroceryListGenerator
      *
      * @param  GroceryList  $groceryList  The grocery list to regenerate
      * @param  array<int, IngredientCategory>  $excludedCategories  Categories to exclude from the list
+     * @param  array<int, string>  $excludedIngredients  Lowercase ingredient names to exclude
      * @return GroceryList The updated grocery list
      */
-    public function regenerate(GroceryList $groceryList, array $excludedCategories = []): GroceryList
+    public function regenerate(GroceryList $groceryList, array $excludedCategories = [], array $excludedIngredients = []): GroceryList
     {
         if ($groceryList->meal_plan_id === null) {
             throw new \InvalidArgumentException('Cannot regenerate a standalone grocery list');
         }
 
         $excludedValues = array_map(fn (IngredientCategory $c) => $c->value, $excludedCategories);
+        $excludedIngredientNames = array_map('strtolower', $excludedIngredients);
 
         $mealPlan = $groceryList->mealPlan;
 
@@ -118,6 +164,11 @@ class GroceryListGenerator
 
             // Skip excluded categories (never affects manual items — they are handled separately)
             if (in_array($categoryValue, $excludedValues, true)) {
+                continue;
+            }
+
+            // Skip excluded ingredient names (never affects manual items — they are handled separately)
+            if (in_array($ingredientName, $excludedIngredientNames, true)) {
                 continue;
             }
 
@@ -163,6 +214,7 @@ class GroceryListGenerator
         $groceryList->update([
             'regenerated_at' => now(),
             'excluded_categories' => $excludedValues ?: null,
+            'excluded_ingredients' => $excludedIngredientNames ?: null,
         ]);
 
         return $groceryList->fresh('groceryItems');
@@ -176,8 +228,7 @@ class GroceryListGenerator
      */
     public function getCategoryItemCounts(MealPlan $mealPlan, int $userId): array
     {
-        $allIngredients = $this->collectIngredientsFromMealPlan($mealPlan, $userId);
-        $aggregated = $this->aggregateIngredients($allIngredients);
+        $aggregated = $this->getAggregatedIngredients($mealPlan, $userId);
 
         $counts = [];
         foreach ($aggregated as $ingredient) {
@@ -186,6 +237,17 @@ class GroceryListGenerator
         }
 
         return $counts;
+    }
+
+    /**
+     * Collect and aggregate all ingredients from a meal plan.
+     * Used by getCategoryItemCounts and getIngredientPreview.
+     */
+    private function getAggregatedIngredients(MealPlan $mealPlan, int $userId): Collection
+    {
+        $allIngredients = $this->collectIngredientsFromMealPlan($mealPlan, $userId);
+
+        return $this->aggregateIngredients($allIngredients);
     }
 
     /**

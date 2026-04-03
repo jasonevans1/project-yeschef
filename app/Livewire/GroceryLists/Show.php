@@ -9,6 +9,7 @@ use App\Mail\ShareInvitation;
 use App\Models\ContentShare;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
+use App\Models\MealPlan;
 use App\Models\User;
 use App\Services\GroceryListGenerator;
 use App\Services\ItemAutoCompleteService;
@@ -43,15 +44,20 @@ class Show extends Component
     // Properties for autocomplete (US1)
     public string $searchQuery = '';
 
+    /** @var array<int, array<string, mixed>> */
     public array $suggestions = [];
 
     // Properties for regeneration confirmation (US4 - T090)
     public bool $showRegenerateConfirm = false;
 
+    /** @var array<string, int> */
     public array $regenerateDiff = [];
 
     /** @var array<int, string> */
     public array $regenerateExcludedCategories = [];
+
+    /** @var array<int, string> */
+    public array $regenerateExcludedIngredients = [];
 
     // Properties for share dialog (US8 - T131)
     public bool $showShareDialog = false;
@@ -66,7 +72,7 @@ class Show extends Component
     // Properties for delete confirmation (US1)
     public bool $showDeleteConfirm = false;
 
-    protected function rules()
+    protected function rules(): array
     {
         return [
             'itemName' => 'required|string|min:1|max:255',
@@ -77,7 +83,7 @@ class Show extends Component
         ];
     }
 
-    public function mount(GroceryList $groceryList)
+    public function mount(GroceryList $groceryList): void
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
@@ -88,7 +94,7 @@ class Show extends Component
     /**
      * Toggle purchased status of an item
      */
-    public function togglePurchased(GroceryItem $item)
+    public function togglePurchased(GroceryItem $item): void
     {
         // Verify item belongs to this list
         if ($item->grocery_list_id !== $this->groceryList->id) {
@@ -110,7 +116,7 @@ class Show extends Component
     /**
      * Show the add item form (US4)
      */
-    public function openAddItemForm()
+    public function openAddItemForm(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -121,7 +127,7 @@ class Show extends Component
     /**
      * Cancel adding/editing item
      */
-    public function cancelItemForm()
+    public function cancelItemForm(): void
     {
         $this->resetForm();
         $this->showAddItemForm = false;
@@ -131,7 +137,7 @@ class Show extends Component
     /**
      * Add a manual item to the list (US4)
      */
-    public function addManualItem()
+    public function addManualItem(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -163,7 +169,7 @@ class Show extends Component
     /**
      * Start editing an item (US4)
      */
-    public function startEditing(GroceryItem $item)
+    public function startEditing(GroceryItem $item): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -184,7 +190,7 @@ class Show extends Component
     /**
      * Save edited item (US4)
      */
-    public function saveEdit()
+    public function saveEdit(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -228,7 +234,7 @@ class Show extends Component
     /**
      * Delete an item (US4)
      */
-    public function deleteItem(GroceryItem $item)
+    public function deleteItem(GroceryItem $item): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -266,6 +272,7 @@ class Show extends Component
 
         // Pre-populate exclusions from the existing list
         $this->regenerateExcludedCategories = $this->groceryList->excluded_categories ?? [];
+        $this->regenerateExcludedIngredients = $this->groceryList->excluded_ingredients ?? [];
 
         // Calculate diff preview
         $this->regenerateDiff = $this->calculateRegenerateDiff();
@@ -280,6 +287,7 @@ class Show extends Component
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
         $this->regenerateExcludedCategories = [];
+        $this->regenerateExcludedIngredients = [];
     }
 
     /**
@@ -349,7 +357,7 @@ class Show extends Component
     /**
      * Helper method to collect ingredients from meal plan
      */
-    private function collectIngredientsFromMealPlan($mealPlan)
+    private function collectIngredientsFromMealPlan(MealPlan $mealPlan): Collection
     {
         $allIngredients = collect();
 
@@ -395,20 +403,21 @@ class Show extends Component
         ));
 
         $generator = app(GroceryListGenerator::class);
-        $generator->regenerate($this->groceryList, array_values($excludedEnums));
+        $generator->regenerate($this->groceryList, array_values($excludedEnums), $this->regenerateExcludedIngredients);
 
         session()->flash('message', 'Grocery list regenerated successfully');
 
         $this->showRegenerateConfirm = false;
         $this->regenerateDiff = [];
         $this->regenerateExcludedCategories = [];
+        $this->regenerateExcludedIngredients = [];
         $this->groceryList->refresh();
     }
 
     /**
      * Open share dialog (US8 - T131)
      */
-    public function openShareDialog()
+    public function openShareDialog(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -423,7 +432,7 @@ class Show extends Component
     /**
      * Close share dialog (US8 - T131)
      */
-    public function closeShareDialog()
+    public function closeShareDialog(): void
     {
         $this->showShareDialog = false;
     }
@@ -431,7 +440,7 @@ class Show extends Component
     /**
      * Generate shareable link for grocery list (US8 - T128)
      */
-    public function share()
+    public function share(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -453,7 +462,7 @@ class Show extends Component
     /**
      * Revoke share access by clearing the token (US8 - Optional)
      */
-    public function revokeShare()
+    public function revokeShare(): void
     {
         $this->authorize('update', $this->groceryList);
 
@@ -544,7 +553,7 @@ class Show extends Component
     /**
      * Show delete confirmation modal (US1)
      */
-    public function confirmDelete()
+    public function confirmDelete(): void
     {
         $this->authorize('delete', $this->groceryList);
 
@@ -554,7 +563,7 @@ class Show extends Component
     /**
      * Cancel delete operation (US2)
      */
-    public function cancelDelete()
+    public function cancelDelete(): void
     {
         $this->showDeleteConfirm = false;
     }
@@ -562,7 +571,7 @@ class Show extends Component
     /**
      * Delete the grocery list (US1)
      */
-    public function delete()
+    public function delete(): mixed
     {
         $this->authorize('delete', $this->groceryList);
 
@@ -577,7 +586,7 @@ class Show extends Component
     /**
      * Reset form properties
      */
-    private function resetForm()
+    private function resetForm(): void
     {
         $this->itemName = '';
         $this->itemQuantity = null;
@@ -591,7 +600,7 @@ class Show extends Component
     /**
      * Update suggestions when search query changes (US1)
      */
-    public function updatedSearchQuery()
+    public function updatedSearchQuery(): void
     {
         if (empty(trim($this->searchQuery))) {
             $this->suggestions = [];
@@ -642,7 +651,7 @@ class Show extends Component
         });
     }
 
-    public function render()
+    public function render(): mixed
     {
         return view('livewire.grocery-lists.show', [
             'itemsByCategory' => $this->itemsByCategory,

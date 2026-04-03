@@ -21,6 +21,7 @@ class GroceryList extends Model
         'generated_at',
         'regenerated_at',
         'excluded_categories',
+        'excluded_ingredients',
         'share_token',
         'share_expires_at',
     ];
@@ -29,6 +30,7 @@ class GroceryList extends Model
         'generated_at' => 'datetime',
         'regenerated_at' => 'datetime',
         'excluded_categories' => 'array',
+        'excluded_ingredients' => 'array',
         'share_expires_at' => 'datetime',
         'deleted_at' => 'datetime',
     ];
