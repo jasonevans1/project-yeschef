@@ -4,11 +4,9 @@ namespace App\Services;
 
 use App\Enums\IngredientCategory;
 use App\Enums\SourceType;
-use App\Models\CommonItemTemplate;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
-use App\Models\UserItemTemplate;
 use Illuminate\Support\Collection;
 
 class GroceryListGenerator
@@ -16,7 +14,8 @@ class GroceryListGenerator
     public function __construct(
         private ServingSizeScaler $scaler,
         private IngredientAggregator $aggregator,
-        private UnitConverter $unitConverter
+        private UnitConverter $unitConverter,
+        private IngredientCategorizationService $categorizationService = new IngredientCategorizationService
     ) {}
 
     /**
@@ -230,11 +229,11 @@ class GroceryListGenerator
     }
 
     /**
-     * Resolve the category for an ingredient, upgrading OTHER via user and common templates.
+     * Resolve the category for an ingredient, upgrading OTHER via the categorization service.
      *
      * Returns the original category immediately when it is not OTHER.
-     * Checks the user's personal templates first, then the shared common templates.
-     * Falls back to OTHER when no template match is found.
+     * Delegates the full resolution chain (UserItemTemplate → CommonItemTemplate → keyword matching → OTHER)
+     * to IngredientCategorizationService when the current category is OTHER.
      */
     private function resolveIngredientCategory(string $name, IngredientCategory $currentCategory, int $userId): IngredientCategory
     {
@@ -242,26 +241,7 @@ class GroceryListGenerator
             return $currentCategory;
         }
 
-        $lowerName = strtolower($name);
-
-        if ($userId > 0) {
-            $userTemplate = UserItemTemplate::where('user_id', $userId)
-                ->whereRaw('LOWER(name) = ?', [$lowerName])
-                ->first();
-
-            if ($userTemplate !== null) {
-                return $userTemplate->category;
-            }
-        }
-
-        $commonTemplate = CommonItemTemplate::whereRaw('LOWER(name) = ?', [$lowerName])
-            ->first();
-
-        if ($commonTemplate !== null) {
-            return $commonTemplate->category;
-        }
-
-        return IngredientCategory::OTHER;
+        return $this->categorizationService->resolve($name, $userId);
     }
 
     /**

@@ -4,10 +4,13 @@ namespace App\Models;
 
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CommonItemTemplate extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'category',
