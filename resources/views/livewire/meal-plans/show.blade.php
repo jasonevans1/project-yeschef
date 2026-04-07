@@ -66,14 +66,16 @@
     </div>
 
     {{-- Meal Plan Calendar --}}
-    <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
-        <div class="overflow-x-auto">
-            <table class="w-full border-collapse">
+    <div class="bg-white dark:bg-zinc-900 rounded-lg shadow">
+
+        {{-- Desktop: existing table --}}
+        <div class="hidden md:block overflow-x-auto p-6">
+        <table class="w-full border-collapse">
                 <thead>
                     <tr class="border-b-2 border-gray-200 dark:border-zinc-700">
                         <th class="p-3 text-left font-semibold text-gray-700 dark:text-zinc-300 w-32">Date</th>
                         @foreach($mealTypes as $mealType)
-                            <th class="p-3 text-center font-semibold text-gray-700 dark:text-zinc-300">
+                            <th wire:key="header-{{ $mealType->value }}" class="p-3 text-center font-semibold text-gray-700 dark:text-zinc-300">
                                 {{ ucfirst($mealType->value) }}
                             </th>
                         @endforeach
@@ -81,7 +83,7 @@
                 </thead>
                 <tbody>
                     @foreach($dates as $date)
-                        <tr class="border-b border-gray-100 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800">
+                        <tr wire:key="desktop-day-{{ $date->format('Y-m-d') }}" class="border-b border-gray-100 dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-800">
                             <td class="p-3 font-medium text-gray-700 dark:text-zinc-300">
                                 <div>{{ $date->format('D') }}</div>
                                 <div class="text-sm text-gray-500 dark:text-zinc-400">{{ $date->format('M d') }}</div>
@@ -93,7 +95,7 @@
                                     $noteCollection = $notes->get($key) ?? collect();
                                     $hasItems = $assignmentCollection->isNotEmpty() || $noteCollection->isNotEmpty();
                                 @endphp
-                                <td
+                                <td wire:key="desktop-{{ $date->format('Y-m-d') }}-{{ $mealType->value }}"
                                     class="p-2 text-center align-top border-l border-gray-100 dark:border-zinc-700"
                                     data-date="{{ $date->format('Y-m-d') }}"
                                     data-meal-type="{{ $mealType->value }}"
@@ -101,7 +103,8 @@
                                     <div class="flex flex-col gap-2">
                                         {{-- Recipe Assignments --}}
                                         @foreach($assignmentCollection as $assignment)
-                                            <div class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-left relative group transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700"
+                                            <div wire:key="desktop-recipe-{{ $assignment->id }}"
+                                                 class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-lg p-3 text-left relative group transition-colors cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-700"
                                                  role="button"
                                                  tabindex="0"
                                                  wire:click="openRecipeDrawer({{ $assignment }})"
@@ -130,7 +133,7 @@
                                                     </div>
                                                 @endif
                                                 @can('update', $mealPlan)
-                                                    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                         <flux:button
                                                             wire:click.stop="removeAssignment({{ $assignment->id }})"
                                                             wire:confirm="Remove this recipe from the meal slot?"
@@ -146,14 +149,15 @@
 
                                         {{-- Notes (distinct amber styling) --}}
                                         @foreach($noteCollection as $note)
-                                            <div class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3 text-left relative group transition-colors cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40"
+                                            <div wire:key="desktop-note-{{ $note->id }}"
+                                                 class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700 rounded-lg p-3 text-left relative group transition-colors cursor-pointer hover:bg-amber-100 dark:hover:bg-amber-900/40"
                                                  role="button"
                                                  tabindex="0"
                                                  wire:click="openNoteDrawer({{ $note }})"
                                                  @keydown.enter="$wire.openNoteDrawer({{ $note }})"
                                                  @keydown.space.prevent="$wire.openNoteDrawer({{ $note }})">
                                                 <div class="flex items-start gap-2">
-                                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                                     </svg>
                                                     <div class="flex-1 min-w-0">
@@ -168,7 +172,7 @@
                                                     </div>
                                                 </div>
                                                 @can('update', $mealPlan)
-                                                    <div class="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <div class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                                                         <flux:button
                                                             wire:click.stop="deleteNote({{ $note->id }})"
                                                             wire:confirm="Delete this note?"
@@ -228,6 +232,158 @@
                 </tbody>
             </table>
         </div>
+
+        {{-- Mobile: day-card stack --}}
+        <div class="block md:hidden divide-y divide-gray-100 dark:divide-zinc-700"
+             data-mobile-calendar>
+            @foreach($dates as $date)
+                <div wire:key="mobile-day-{{ $date->format('Y-m-d') }}" class="p-4">
+                    {{-- Day header --}}
+                    <div class="font-semibold text-gray-900 dark:text-white mb-3">
+                        {{ $date->format('l, M j') }}
+                    </div>
+                    {{-- Meal type sections --}}
+                    @foreach($mealTypes as $mealType)
+                        <div wire:key="mobile-{{ $date->format('Y-m-d') }}-{{ $mealType->value }}"
+                             class="mb-3 last:mb-0">
+                            {{-- Data for this slot --}}
+                            @php
+                                $key = $date->format('Y-m-d') . '_' . $mealType->value;
+                                $assignmentCollection = $assignments->get($key) ?? collect();
+                                $noteCollection = $notes->get($key) ?? collect();
+                                $hasItems = $assignmentCollection->isNotEmpty() || $noteCollection->isNotEmpty();
+                            @endphp
+
+                            {{-- Meal type header row: label + Add button --}}
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-500 dark:text-zinc-400 uppercase tracking-wide mb-2">
+                                    {{ ucfirst($mealType->value) }}
+                                </span>
+                                @can('update', $mealPlan)
+                                    <flux:dropdown>
+                                        <flux:button variant="ghost" icon="plus" size="sm" class="min-h-[44px]">
+                                            Add
+                                        </flux:button>
+                                        <flux:menu>
+                                            <flux:menu.item wire:click="openRecipeSelector('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')">
+                                                Add Recipe
+                                            </flux:menu.item>
+                                            <flux:menu.item wire:click="openNoteForm('{{ $date->format('Y-m-d') }}', '{{ $mealType->value }}')">
+                                                Add Note
+                                            </flux:menu.item>
+                                        </flux:menu>
+                                    </flux:dropdown>
+                                @endcan
+                            </div>
+
+                            {{-- Items stack --}}
+                            <div class="flex flex-col gap-2">
+
+                                {{-- Recipe assignment cards --}}
+                                @foreach($assignmentCollection as $assignment)
+                                    <div wire:key="mobile-recipe-{{ $assignment->id }}"
+                                         class="bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700
+                                                rounded-lg p-3 relative group cursor-pointer transition-colors
+                                                hover:bg-gray-50 dark:hover:bg-zinc-700"
+                                         role="button"
+                                         tabindex="0"
+                                         wire:click="openRecipeDrawer({{ $assignment }})">
+
+                                        <div class="font-medium text-sm text-gray-900 dark:text-white mb-1 pr-6">
+                                            {{ $assignment->recipe->name }}
+                                        </div>
+
+                                        @if($assignment->serving_multiplier != 1.00)
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                                                             bg-gray-100 dark:bg-zinc-700 text-gray-800 dark:text-zinc-200
+                                                             border border-gray-300 dark:border-zinc-600">
+                                                    {{ $assignment->recipe->servings * $assignment->serving_multiplier }} servings
+                                                </span>
+                                                <span class="text-xs text-gray-500 dark:text-zinc-400">({{ $assignment->serving_multiplier }}x)</span>
+                                            </div>
+                                        @else
+                                            <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                {{ $assignment->recipe->servings }} servings
+                                            </div>
+                                        @endif
+
+                                        @if($assignment->notes)
+                                            <div class="text-xs text-gray-500 dark:text-zinc-400 mt-1">
+                                                {{ Str::limit($assignment->notes, 50) }}
+                                            </div>
+                                        @endif
+
+                                        @can('update', $mealPlan)
+                                            <div class="absolute top-1 right-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                                <flux:button
+                                                    wire:click.stop="removeAssignment({{ $assignment->id }})"
+                                                    wire:confirm="Remove this recipe from the meal slot?"
+                                                    variant="ghost"
+                                                    size="xs"
+                                                    icon="x-mark"
+                                                    class="text-red-600"
+                                                />
+                                            </div>
+                                        @endcan
+                                    </div>
+                                @endforeach
+
+                                {{-- Note cards --}}
+                                @foreach($noteCollection as $note)
+                                    <div wire:key="mobile-note-{{ $note->id }}"
+                                         class="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700
+                                                rounded-lg p-3 relative group cursor-pointer transition-colors
+                                                hover:bg-amber-100 dark:hover:bg-amber-900/40"
+                                         role="button"
+                                         tabindex="0"
+                                         wire:click="openNoteDrawer({{ $note }})">
+
+                                        <div class="flex items-start gap-2">
+                                            <svg class="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0"
+                                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <div class="flex-1 min-w-0 pr-6">
+                                                <div class="font-medium text-sm text-amber-900 dark:text-amber-100 truncate">
+                                                    {{ Str::limit($note->title, 40) }}
+                                                </div>
+                                                @if($note->details)
+                                                    <div class="text-xs text-amber-700 dark:text-amber-300 mt-1 truncate">
+                                                        {{ Str::limit($note->details, 50) }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+
+                                        @can('update', $mealPlan)
+                                            <div class="absolute top-1 right-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                                                <flux:button
+                                                    wire:click.stop="deleteNote({{ $note->id }})"
+                                                    wire:confirm="Delete this note?"
+                                                    variant="ghost"
+                                                    size="xs"
+                                                    icon="x-mark"
+                                                    class="text-red-600"
+                                                />
+                                            </div>
+                                        @endcan
+                                    </div>
+                                @endforeach
+
+                                {{-- Empty state --}}
+                                @if(!$hasItems)
+                                    <div class="text-xs text-gray-400 dark:text-zinc-500 italic py-1">Nothing planned</div>
+                                @endif
+
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            @endforeach
+        </div>
+
     </div>
 
     {{-- Recipe Selector Modal --}}
@@ -277,6 +433,7 @@
             <div class="max-h-96 overflow-y-auto space-y-2">
                 @forelse($this->recipes as $recipe)
                     <button
+                        wire:key="recipe-option-{{ $recipe->id }}"
                         wire:click="assignRecipe({{ $recipe }})"
                         class="w-full p-4 border border-gray-200 dark:border-zinc-700 rounded-lg hover:bg-gray-50 dark:hover:bg-zinc-800 hover:border-gray-300 dark:hover:border-zinc-500 transition text-left relative"
                         data-recipe-card
@@ -379,7 +536,7 @@
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
                 @click="$wire.closeRecipeDrawer()"
-                class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-zinc-900 dark:bg-opacity-75"
+                class="fixed inset-0 bg-gray-500/75 dark:bg-zinc-900/75"
             ></div>
 
             {{-- Drawer Panel --}}
@@ -470,8 +627,8 @@
                                             <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-2">Ingredients</h3>
                                             @if(count($this->scaledIngredients) > 0)
                                                 <ul class="space-y-2">
-                                                    @foreach($this->scaledIngredients as $ingredient)
-                                                        <li class="text-sm text-gray-700 dark:text-zinc-300 flex items-start">
+                                                    @foreach($this->scaledIngredients as $index => $ingredient)
+                                                        <li wire:key="ingredient-{{ $index }}" class="text-sm text-gray-700 dark:text-zinc-300 flex items-start">
                                                             <span class="mr-2 text-gray-400 dark:text-zinc-500">•</span>
                                                             <span>
                                                                 <span class="font-medium">{{ $ingredient['quantity'] }} {{ $ingredient['unit'] }}</span>
@@ -551,7 +708,7 @@
                 x-transition:leave-start="opacity-100"
                 x-transition:leave-end="opacity-0"
                 @click="$wire.closeNoteDrawer()"
-                class="fixed inset-0 bg-gray-500 bg-opacity-75 dark:bg-zinc-900 dark:bg-opacity-75"
+                class="fixed inset-0 bg-gray-500/75 dark:bg-zinc-900/75"
             ></div>
 
             {{-- Drawer Panel --}}
