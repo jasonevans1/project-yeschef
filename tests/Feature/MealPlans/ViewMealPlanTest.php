@@ -1,11 +1,16 @@
 <?php
 
 use App\Enums\MealType;
+use App\Enums\MeasurementUnit;
+use App\Livewire\MealPlans\Show;
+use App\Models\Ingredient;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -272,16 +277,14 @@ it('can remove one recipe from slot with multiple recipes while keeping others',
 
     // Use Livewire to test the removeAssignment method
     Livewire::actingAs($user)
-        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->test(Show::class, ['mealPlan' => $mealPlan])
         ->call('removeAssignment', $assignment1->id)
         ->assertOk();
 
-    // Verify only one assignment remains
-    expect(MealAssignment::count())->toBe(1);
-
-    // Verify the correct assignment was removed
-    expect(MealAssignment::find($assignment1->id))->toBeNull();
-    expect(MealAssignment::find($assignment2->id))->not->toBeNull();
+    // Verify only one assignment remains and the correct one was removed
+    expect(MealAssignment::count())->toBe(1)
+        ->and(MealAssignment::find($assignment1->id))->toBeNull()
+        ->and(MealAssignment::find($assignment2->id))->not->toBeNull();
 
     // Verify the remaining assignment is the second one
     $remaining = MealAssignment::first();
@@ -307,7 +310,7 @@ it('can open recipe drawer with correct state', function () {
 
     // Use Livewire to test opening the drawer
     Livewire::actingAs($user)
-        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->test(Show::class, ['mealPlan' => $mealPlan])
         ->call('openRecipeDrawer', $assignment)
         ->assertSet('showRecipeDrawer', true)
         ->assertSet('selectedAssignmentId', $assignment->id);
@@ -330,7 +333,7 @@ it('can close recipe drawer', function () {
 
     // Open drawer then close it
     Livewire::actingAs($user)
-        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->test(Show::class, ['mealPlan' => $mealPlan])
         ->call('openRecipeDrawer', $assignment)
         ->assertSet('showRecipeDrawer', true)
         ->call('closeRecipeDrawer')
@@ -346,14 +349,14 @@ it('calculates scaled ingredient quantities correctly', function () {
     ]);
 
     $recipe = Recipe::factory()->create(['servings' => 4]);
-    $ingredient = \App\Models\Ingredient::factory()->create(['name' => 'Chicken']);
+    $ingredient = Ingredient::factory()->create(['name' => 'Chicken']);
 
     // Create recipe ingredient with quantity 2.0
-    \App\Models\RecipeIngredient::create([
+    RecipeIngredient::create([
         'recipe_id' => $recipe->id,
         'ingredient_id' => $ingredient->id,
         'quantity' => 2.0,
-        'unit' => \App\Enums\MeasurementUnit::LB,
+        'unit' => MeasurementUnit::LB,
     ]);
 
     // Create assignment with 2x multiplier
@@ -367,15 +370,15 @@ it('calculates scaled ingredient quantities correctly', function () {
 
     // Test that scaled ingredients are calculated correctly (2.0 * 2.0 = 4.0)
     $component = Livewire::actingAs($user)
-        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->test(Show::class, ['mealPlan' => $mealPlan])
         ->call('openRecipeDrawer', $assignment);
 
     $scaledIngredients = $component->get('scaledIngredients');
 
-    expect($scaledIngredients)->toHaveCount(1);
-    expect($scaledIngredients[0]['quantity'])->toBe('4');
-    expect($scaledIngredients[0]['unit'])->toBe('lb');
-    expect($scaledIngredients[0]['name'])->toBe('Chicken');
+    expect($scaledIngredients)->toHaveCount(1)
+        ->and($scaledIngredients[0]['quantity'])->toBe('4')
+        ->and($scaledIngredients[0]['unit'])->toBe('lb')
+        ->and($scaledIngredients[0]['name'])->toBe('Chicken');
 });
 
 it('formats scaled quantities without trailing zeros', function () {
@@ -386,30 +389,30 @@ it('formats scaled quantities without trailing zeros', function () {
     ]);
 
     $recipe = Recipe::factory()->create();
-    $ingredient1 = \App\Models\Ingredient::factory()->create(['name' => 'Flour']);
-    $ingredient2 = \App\Models\Ingredient::factory()->create(['name' => 'Sugar']);
-    $ingredient3 = \App\Models\Ingredient::factory()->create(['name' => 'Salt']);
+    $ingredient1 = Ingredient::factory()->create(['name' => 'Flour']);
+    $ingredient2 = Ingredient::factory()->create(['name' => 'Sugar']);
+    $ingredient3 = Ingredient::factory()->create(['name' => 'Salt']);
 
     // Create ingredients with different decimal scenarios
-    \App\Models\RecipeIngredient::create([
+    RecipeIngredient::create([
         'recipe_id' => $recipe->id,
         'ingredient_id' => $ingredient1->id,
-        'quantity' => 2.5,  // Should stay 2.5
-        'unit' => \App\Enums\MeasurementUnit::CUP,
+        'quantity' => 2.5,  // Should display as 2½
+        'unit' => MeasurementUnit::CUP,
     ]);
 
-    \App\Models\RecipeIngredient::create([
+    RecipeIngredient::create([
         'recipe_id' => $recipe->id,
         'ingredient_id' => $ingredient2->id,
-        'quantity' => 1.0,  // Should become 1 (no trailing zeros)
-        'unit' => \App\Enums\MeasurementUnit::CUP,
+        'quantity' => 1.0,  // Should display as 1 (whole number)
+        'unit' => MeasurementUnit::CUP,
     ]);
 
-    \App\Models\RecipeIngredient::create([
+    RecipeIngredient::create([
         'recipe_id' => $recipe->id,
         'ingredient_id' => $ingredient3->id,
-        'quantity' => 0.333,  // Should stay 0.333 (3 decimal places max)
-        'unit' => \App\Enums\MeasurementUnit::TSP,
+        'quantity' => 0.333,  // Should display as ⅓ (fraction)
+        'unit' => MeasurementUnit::TSP,
     ]);
 
     $assignment = MealAssignment::create([
@@ -421,13 +424,13 @@ it('formats scaled quantities without trailing zeros', function () {
     ]);
 
     $component = Livewire::actingAs($user)
-        ->test(\App\Livewire\MealPlans\Show::class, ['mealPlan' => $mealPlan])
+        ->test(Show::class, ['mealPlan' => $mealPlan])
         ->call('openRecipeDrawer', $assignment);
 
     $scaledIngredients = $component->get('scaledIngredients');
 
-    expect($scaledIngredients)->toHaveCount(3);
-    expect($scaledIngredients[0]['quantity'])->toBe('2.5');  // Keeps decimal
-    expect($scaledIngredients[1]['quantity'])->toBe('1');    // No trailing zeros
-    expect($scaledIngredients[2]['quantity'])->toBe('0.333'); // 3 decimals max
+    expect($scaledIngredients)->toHaveCount(3)
+        ->and($scaledIngredients[0]['quantity'])->toBe('2½')
+        ->and($scaledIngredients[1]['quantity'])->toBe('1')
+        ->and($scaledIngredients[2]['quantity'])->toBe('⅓');
 });

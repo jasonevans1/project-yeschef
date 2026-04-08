@@ -2,6 +2,65 @@
 // We just need to wait for them to be available
 // console.log('[APP.JS] Loading...');
 
+/**
+ * Format a numeric quantity as a unicode fraction string.
+ *
+ * Fraction lookup table matches the PHP QuantityFormatter:
+ *   0 -> '', 0.125 -> '⅛', 0.25 -> '¼', 0.333 -> '⅓', 0.375 -> '⅜',
+ *   0.5 -> '½', 0.625 -> '⅝', 0.667 -> '⅔', 0.75 -> '¾', 0.875 -> '⅞'
+ *
+ * 1/3 and 2/3 are detected via epsilon check before nearest-1/8 rounding
+ * to avoid naive rounding mapping them to 3/8 and 5/8 respectively.
+ *
+ * @param {number|null} value
+ * @returns {string|null}
+ */
+function formatQuantity(value) {
+    if (value === null) {
+        return null;
+    }
+
+    const fractionMap = {
+        0: '',
+        0.125: '⅛',
+        0.25: '¼',
+        0.333: '⅓',
+        0.375: '⅜',
+        0.5: '½',
+        0.625: '⅝',
+        0.667: '⅔',
+        0.75: '¾',
+        0.875: '⅞',
+    };
+
+    const whole = Math.floor(value);
+    const frac = value - whole;
+
+    let fracChar;
+
+    if (Math.abs(frac - 0.333) < 0.02) {
+        fracChar = '⅓';
+    } else if (Math.abs(frac - 0.667) < 0.02) {
+        fracChar = '⅔';
+    } else {
+        // Round to nearest 1/8 and only accept if within tight tolerance
+        const rounded = Math.round(frac * 8) / 8;
+        const tolerance = 0.02;
+        fracChar = Math.abs(frac - rounded) <= tolerance ? fractionMap[rounded] : undefined;
+    }
+
+    if (fracChar === undefined) {
+        // Unrecognized fractional part: fall back to decimal string
+        return String(parseFloat(value.toFixed(3)).toString());
+    }
+
+    if (whole === 0) {
+        return fracChar === '' ? '0' : fracChar;
+    }
+
+    return fracChar === '' ? String(whole) : String(whole) + fracChar;
+}
+
 document.addEventListener('livewire:init', () => {
     // console.log('[APP.JS] Livewire initialized');
 
@@ -56,15 +115,7 @@ document.addEventListener('livewire:init', () => {
     scaleQuantity(originalQuantity) {
         if (!originalQuantity) return null;
         const scaled = parseFloat(originalQuantity) * this.multiplier;
-        return this.formatQuantity(scaled);
-    },
-
-    // Format quantity (remove trailing zeros)
-    formatQuantity(value) {
-        if (value === null) return null;
-        let formatted = value.toFixed(3);
-        formatted = formatted.replace(/\.?0+$/, '');
-        return formatted;
+        return formatQuantity(scaled);
     },
 
     // Set multiplier with validation
@@ -95,14 +146,7 @@ document.addEventListener('livewire:init', () => {
     scaleQuantity(originalQuantity) {
         if (!originalQuantity) return null;
         const scaled = parseFloat(originalQuantity) * this.multiplier;
-        return this.formatQuantity(scaled);
-    },
-
-    formatQuantity(value) {
-        if (value === null) return null;
-        let formatted = value.toFixed(3);
-        formatted = formatted.replace(/\.?0+$/, '');
-        return formatted;
+        return formatQuantity(scaled);
     },
 
     setMultiplier(value) {

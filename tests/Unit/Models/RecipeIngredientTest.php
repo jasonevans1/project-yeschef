@@ -25,22 +25,22 @@ test('display_quantity formats large whole numbers', function () {
 
 test('display_quantity formats fractional with trailing zeros', function () {
     $ingredient = new RecipeIngredient(['quantity' => 1.500]);
-    expect($ingredient->display_quantity)->toBe('1.5');
+    expect($ingredient->display_quantity)->toBe('1½');
 });
 
 test('display_quantity formats fractional with two decimals', function () {
     $ingredient = new RecipeIngredient(['quantity' => 0.750]);
-    expect($ingredient->display_quantity)->toBe('0.75');
+    expect($ingredient->display_quantity)->toBe('¾');
 });
 
 test('display_quantity preserves precise decimals', function () {
     $ingredient = new RecipeIngredient(['quantity' => 0.333]);
-    expect($ingredient->display_quantity)->toBe('0.333');
+    expect($ingredient->display_quantity)->toBe('⅓');
 });
 
 test('display_quantity formats mixed precision', function () {
     $ingredient = new RecipeIngredient(['quantity' => 2.125]);
-    expect($ingredient->display_quantity)->toBe('2.125');
+    expect($ingredient->display_quantity)->toBe('2⅛');
 });
 
 // User Story 3: Edge Case Tests
@@ -55,9 +55,41 @@ test('display_quantity formats zero as "0"', function () {
     expect($ingredient->display_quantity)->toBe('0');
 });
 
-test('display_quantity preserves very small quantities', function () {
+test('display_quantity formats very small quantities below epsilon as zero', function () {
     $ingredient = new RecipeIngredient(['quantity' => 0.001]);
-    expect($ingredient->display_quantity)->toBe('0.001');
+    expect($ingredient->display_quantity)->toBe('0');
+});
+
+// Task 002: Fraction display requirements
+
+it('displays one half fraction for quantity zero point five', function () {
+    $ingredient = new RecipeIngredient(['quantity' => 0.5]);
+    expect($ingredient->display_quantity)->toBe('½');
+});
+
+it('displays one and one half fraction for quantity one point five', function () {
+    $ingredient = new RecipeIngredient(['quantity' => 1.5]);
+    expect($ingredient->display_quantity)->toBe('1½');
+});
+
+it('displays whole number for integer quantity', function () {
+    $ingredient = new RecipeIngredient(['quantity' => 2.0]);
+    expect($ingredient->display_quantity)->toBe('2');
+});
+
+it('returns null display quantity when quantity is null', function () {
+    $ingredient = new RecipeIngredient(['quantity' => null]);
+    expect($ingredient->display_quantity)->toBeNull();
+});
+
+it('displays three quarters fraction for quantity zero point seven five', function () {
+    $ingredient = new RecipeIngredient(['quantity' => 0.75]);
+    expect($ingredient->display_quantity)->toBe('¾');
+});
+
+it('displays one third fraction for quantity zero point three three three', function () {
+    $ingredient = new RecipeIngredient(['quantity' => 0.333]);
+    expect($ingredient->display_quantity)->toBe('⅓');
 });
 
 // User Story 1 (009-recipe-servings-multiplier): Scaling Calculation Tests

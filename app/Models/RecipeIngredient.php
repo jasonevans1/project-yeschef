@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\MeasurementUnit;
+use App\Services\QuantityFormatter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -29,25 +30,17 @@ class RecipeIngredient extends Model
     // Accessors
 
     /**
-     * Format quantity for display without trailing zeros.
+     * Format quantity for display as a human-readable fraction string.
      *
      * Examples:
      * - 2.000 → "2"
-     * - 1.500 → "1.5"
-     * - 0.333 → "0.333"
+     * - 1.500 → "1½"
+     * - 0.333 → "⅓"
      * - null → null
      */
     public function getDisplayQuantityAttribute(): ?string
     {
-        if ($this->quantity === null) {
-            return null;
-        }
-
-        $formatted = number_format((float) $this->quantity, 3, '.', '');
-        $formatted = rtrim($formatted, '0');
-        $formatted = rtrim($formatted, '.');
-
-        return $formatted;
+        return QuantityFormatter::format($this->quantity === null ? null : (float) $this->quantity);
     }
 
     // Relationships
