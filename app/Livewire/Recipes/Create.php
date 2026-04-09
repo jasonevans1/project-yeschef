@@ -7,6 +7,7 @@ use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
 use App\Models\Ingredient;
 use App\Services\IngredientCategorizationService;
+use App\Services\QuantityFormatter;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -81,6 +82,12 @@ class Create extends Component
 
     public function save(IngredientCategorizationService $categorizationService): void
     {
+        $this->parseIngredientQuantities();
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
         $this->validate();
         $this->validateIngredients();
 
@@ -129,6 +136,25 @@ class Create extends Component
         $this->redirect(route('recipes.show', $recipe), navigate: true);
     }
 
+    private function parseIngredientQuantities(): void
+    {
+        foreach ($this->ingredients as $index => $ingredient) {
+            if (! isset($ingredient['quantity']) || $ingredient['quantity'] === null || $ingredient['quantity'] === '') {
+                continue;
+            }
+
+            $parsed = QuantityFormatter::parse((string) $ingredient['quantity']);
+
+            if ($parsed === null) {
+                $this->addError("ingredients.{$index}.quantity", 'Quantity must be a number or fraction (e.g. 1/2, 1 1/2).');
+
+                continue;
+            }
+
+            $this->ingredients[$index]['quantity'] = $parsed;
+        }
+    }
+
     protected function validateIngredients(): void
     {
         foreach ($this->ingredients as $index => $ingredient) {
@@ -137,7 +163,7 @@ class Create extends Component
             }
 
             if (isset($ingredient['quantity']) && $ingredient['quantity'] !== null && $ingredient['quantity'] <= 0) {
-                $this->addError("ingredients.{$index}.quantity", 'Quantity must be greater than 0.');
+                $this->addError("ingredients.{$index}.quantity", 'Quantity must be a number or fraction (e.g. 1/2, 1 1/2).');
             }
         }
 

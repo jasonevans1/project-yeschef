@@ -11,6 +11,10 @@ use App\Models\MealPlan;
 use App\Models\MealPlanNote;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\QuantityFormatter;
+use Carbon\Carbon;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Validate;
@@ -62,13 +66,13 @@ class Show extends Component
 
     public ?int $selectedNoteId = null;
 
-    public function mount(MealPlan $mealPlan)
+    public function mount(MealPlan $mealPlan): void
     {
         $this->authorize('view', $mealPlan);
         $this->mealPlan = $mealPlan;
     }
 
-    public function openRecipeSelector($date, $mealType)
+    public function openRecipeSelector($date, $mealType): void
     {
         $this->selectedDate = $date;
         $this->selectedMealType = $mealType;
@@ -77,7 +81,7 @@ class Show extends Component
         $this->servingMultiplier = 1.0;
     }
 
-    public function closeRecipeSelector()
+    public function closeRecipeSelector(): void
     {
         $this->showRecipeSelector = false;
         $this->selectedDate = null;
@@ -86,7 +90,7 @@ class Show extends Component
         $this->servingMultiplier = 1.0;
     }
 
-    public function assignRecipe(Recipe $recipe)
+    public function assignRecipe(Recipe $recipe): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -98,7 +102,7 @@ class Show extends Component
         }
 
         // Check if date is within meal plan range
-        $date = \Carbon\Carbon::parse($this->selectedDate);
+        $date = Carbon::parse($this->selectedDate);
         if ($date->lt($this->mealPlan->start_date) || $date->gt($this->mealPlan->end_date)) {
             session()->flash('error', 'Selected date is outside the meal plan range.');
 
@@ -122,7 +126,7 @@ class Show extends Component
         session()->flash('success', 'Recipe assigned successfully!');
     }
 
-    public function removeAssignment(MealAssignment $assignment)
+    public function removeAssignment(MealAssignment $assignment): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -135,7 +139,7 @@ class Show extends Component
         session()->flash('success', 'Recipe removed from meal plan.');
     }
 
-    public function openRecipeDrawer(MealAssignment $assignment)
+    public function openRecipeDrawer(MealAssignment $assignment): void
     {
         $this->authorize('view', $this->mealPlan);
 
@@ -146,7 +150,7 @@ class Show extends Component
         $this->showRecipeDrawer = true;
     }
 
-    public function closeRecipeDrawer()
+    public function closeRecipeDrawer(): void
     {
         $this->showRecipeDrawer = false;
         $this->selectedAssignmentId = null;
@@ -154,7 +158,7 @@ class Show extends Component
 
     // Note methods
 
-    public function openNoteForm($date, $mealType)
+    public function openNoteForm($date, $mealType): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -166,7 +170,7 @@ class Show extends Component
         $this->showNoteForm = true;
     }
 
-    public function closeNoteForm()
+    public function closeNoteForm(): void
     {
         $this->showNoteForm = false;
         $this->selectedDate = null;
@@ -177,7 +181,7 @@ class Show extends Component
         $this->resetValidation(['noteTitle', 'noteDetails']);
     }
 
-    public function saveNote()
+    public function saveNote(): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -216,7 +220,7 @@ class Show extends Component
             ->findOrFail($this->mealPlan->id);
     }
 
-    public function openNoteDrawer(MealPlanNote $note)
+    public function openNoteDrawer(MealPlanNote $note): void
     {
         $this->authorize('view', $this->mealPlan);
 
@@ -224,13 +228,13 @@ class Show extends Component
         $this->showNoteDrawer = true;
     }
 
-    public function closeNoteDrawer()
+    public function closeNoteDrawer(): void
     {
         $this->showNoteDrawer = false;
         $this->selectedNoteId = null;
     }
 
-    public function editNote(MealPlanNote $note)
+    public function editNote(MealPlanNote $note): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -243,7 +247,7 @@ class Show extends Component
         $this->showNoteForm = true;
     }
 
-    public function getSelectedNoteProperty()
+    public function getSelectedNoteProperty(): ?MealPlanNote
     {
         if (! $this->selectedNoteId) {
             return null;
@@ -252,7 +256,7 @@ class Show extends Component
         return MealPlanNote::find($this->selectedNoteId);
     }
 
-    public function deleteNote(MealPlanNote $note)
+    public function deleteNote(MealPlanNote $note): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -328,7 +332,7 @@ class Show extends Component
         $this->dispatch('close-modal');
     }
 
-    public function delete()
+    public function delete(): mixed
     {
         $this->authorize('delete', $this->mealPlan);
 
@@ -339,7 +343,7 @@ class Show extends Component
         return redirect()->route('meal-plans.index');
     }
 
-    public function getRecipesProperty()
+    public function getRecipesProperty(): Collection
     {
         $query = Recipe::query()
             ->where(function ($q) {
@@ -357,7 +361,7 @@ class Show extends Component
         return $query->limit(20)->get();
     }
 
-    public function getSelectedAssignmentProperty()
+    public function getSelectedAssignmentProperty(): ?MealAssignment
     {
         if (! $this->selectedAssignmentId) {
             return null;
@@ -367,7 +371,10 @@ class Show extends Component
             ->find($this->selectedAssignmentId);
     }
 
-    public function getScaledIngredientsProperty()
+    /**
+     * @return array<int, array{quantity: ?string, unit: string, name: string}>
+     */
+    public function getScaledIngredientsProperty(): array
     {
         $assignment = $this->selectedAssignment;
 
@@ -378,20 +385,19 @@ class Show extends Component
         $multiplier = $assignment->serving_multiplier;
 
         return $assignment->recipe->recipeIngredients->map(function ($recipeIngredient) use ($multiplier) {
-            $scaledQuantity = $recipeIngredient->quantity * $multiplier;
-
-            // Format quantity: max 3 decimals, remove trailing zeros
-            $formattedQuantity = rtrim(rtrim(number_format($scaledQuantity, 3, '.', ''), '0'), '.');
+            $scaledQuantity = $recipeIngredient->quantity !== null
+                ? $recipeIngredient->quantity * $multiplier
+                : null;
 
             return [
-                'quantity' => $formattedQuantity,
+                'quantity' => QuantityFormatter::format($scaledQuantity),
                 'unit' => $recipeIngredient->unit?->value ?? '',
                 'name' => $recipeIngredient->ingredient->name,
             ];
         })->toArray();
     }
 
-    public function render()
+    public function render(): View
     {
         $mealPlan = $this->mealPlan->load(['mealAssignments.recipe', 'mealPlanNotes']);
 

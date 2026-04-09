@@ -167,14 +167,27 @@ test.describe('Recipe Servings Multiplier', () => {
 
         // Set multiplier to 0.5x
         await multiplierInput.fill('0.5');
-        await page.waitForTimeout(100);
+        await page.waitForTimeout(500);
 
         // Verify servings (original × 0.5, rounded)
         const expectedServings = Math.round(originalServings * 0.5);
         await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
 
-        // The formatting is handled by Alpine.js scaleQuantity() function
-        // which removes trailing zeros
+        // The formatting is handled by Alpine.js scaleQuantity() function.
+        // When a half-quantity ingredient exists, it should show ½ (fraction), not 0.5 (decimal).
+        // Check all ingredient quantity spans for fraction format — none should show raw decimals like "0.5"
+        const ingredientQuantitySpans = page.locator('li span[x-text]');
+        const spanCount = await ingredientQuantitySpans.count();
+
+        // Verify that no ingredient quantity displays a trailing decimal like "0.5" — should be "½"
+        for (let i = 0; i < spanCount; i++) {
+            const spanText = await ingredientQuantitySpans.nth(i).textContent();
+            // Quantities that are multiples of common fractions should show unicode fraction chars, not decimals
+            // e.g., 0.5 should appear as ½, not 0.5
+            expect(spanText).not.toMatch(/^\d*\.5$/);
+            expect(spanText).not.toMatch(/^\d*\.25$/);
+            expect(spanText).not.toMatch(/^\d*\.75$/);
+        }
     });
 
     test('works across different browsers', async ({ page, browserName }) => {

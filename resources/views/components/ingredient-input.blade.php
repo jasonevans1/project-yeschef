@@ -18,9 +18,8 @@
         <div>
             <flux:input
                 wire:model="ingredients.{{ $index }}.quantity"
-                type="number"
-                step="0.01"
-                min="0.01"
+                type="text"
+                inputmode="decimal"
                 placeholder="Qty"
                 id="quantity_{{ $index }}"
             />
