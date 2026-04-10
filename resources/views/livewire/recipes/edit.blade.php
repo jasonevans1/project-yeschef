@@ -128,8 +128,8 @@
                 <div>
                     <div class="flex items-center justify-between mb-4">
                         <flux:heading size="lg">Ingredients</flux:heading>
-                        <flux:button type="button" wire:click="addIngredient" variant="ghost" size="sm">
-                            <flux:icon.plus class="size-4" /> Add Ingredient
+                        <flux:button type="button" wire:click="addIngredient" variant="ghost" size="sm" icon="plus">
+                            Add Ingredient
                         </flux:button>
                     </div>
 
