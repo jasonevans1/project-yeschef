@@ -20,7 +20,7 @@ test('user can view system recipe details', function () {
 
     $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     $response->assertSee('System Recipe Name');
     $response->assertSee('Detailed description of the recipe');
     $response->assertSee('Step 1: Do this. Step 2: Do that.');
@@ -39,7 +39,7 @@ test('user can view own recipe details', function () {
 
     $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     $response->assertSee('My Personal Recipe');
     $response->assertSee('My recipe description');
     $response->assertSee('My cooking instructions');
@@ -64,7 +64,7 @@ test('recipe shows all fields', function () {
 
     $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     $response->assertSee('Complete Recipe');
     $response->assertSee('A complete recipe with all fields');
     $response->assertSee('20'); // prep_time
@@ -106,7 +106,7 @@ test('ingredients list displays with quantities and units', function () {
 
     $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
 
-    $response->assertStatus(200);
+    $response->assertOk();
     $response->assertSee('Flour');
     $response->assertSee('2.5');
     $response->assertSee('cup');
@@ -135,7 +135,51 @@ test('unauthorized user cannot view another users personal recipe', function () 
     $response = $this->actingAs($user2)->get(route('recipes.show', $recipe));
 
     // Should get 403 Forbidden due to authorization policy
-    $response->assertStatus(403);
+    $response->assertForbidden();
+});
+
+it('displays source url as a link on the recipe show page when source_url is present', function () {
+    $user = User::factory()->create();
+    $url = 'https://example.com/original-recipe';
+
+    $recipe = Recipe::factory()->create([
+        'user_id' => null,
+        'source_url' => $url,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
+
+    $response->assertOk();
+    $response->assertSee($url, false);
+});
+
+it('does not display source url on the recipe show page when source_url is null', function () {
+    $user = User::factory()->create();
+
+    $recipe = Recipe::factory()->create([
+        'user_id' => null,
+        'source_url' => null,
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
+
+    $response->assertOk();
+    $response->assertDontSee('View Original Recipe');
+});
+
+it('renders source url link with target blank and rel noopener noreferrer', function () {
+    $user = User::factory()->create();
+
+    $recipe = Recipe::factory()->create([
+        'user_id' => null,
+        'source_url' => 'https://example.com/original-recipe',
+    ]);
+
+    $response = $this->actingAs($user)->get(route('recipes.show', $recipe));
+
+    $response->assertOk();
+    $response->assertSee('target="_blank"', false);
+    $response->assertSee('rel="noopener noreferrer"', false);
 });
 
 test('guest cannot view recipes', function () {

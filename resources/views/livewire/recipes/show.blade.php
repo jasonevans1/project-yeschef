@@ -41,6 +41,12 @@
                     @if ($recipe->description)
                         <flux:text class="text-gray-600 dark:text-zinc-400 mb-4">{{ $recipe->description }}</flux:text>
                     @endif
+
+                    @if ($recipe->source_url)
+                        <flux:text class="mb-4">
+                            <a href="{{ $recipe->source_url }}" target="_blank" rel="noopener noreferrer" class="underline text-blue-600 dark:text-blue-400">View Original Recipe</a>
+                        </flux:text>
+                    @endif
                 </div>
 
                 <div class="flex gap-2">
@@ -172,7 +178,7 @@
                     <flux:heading size="lg" class="mb-3">Dietary Information</flux:heading>
                     <div class="flex flex-wrap gap-2">
                         @foreach ($recipe->dietary_tags as $tag)
-                            <flux:badge color="green" icon="check-circle">{{ ucfirst($tag) }}</flux:badge>
+                            <flux:badge wire:key="dietary-tag-{{ $tag }}" color="green" icon="check-circle">{{ ucfirst($tag) }}</flux:badge>
                         @endforeach
                     </div>
                 </div>
@@ -185,7 +191,7 @@
                 <div>
                     <ul class="space-y-3">
                         @foreach ($recipe->recipeIngredients->sortBy('sort_order') as $recipeIngredient)
-                            <li class="flex items-start gap-3">
+                            <li wire:key="recipe-ingredient-{{ $recipeIngredient->id }}" class="flex items-start gap-3">
                                 <div class="flex-shrink-0 pt-0.5">
                                     <input
                                         type="checkbox"
@@ -258,7 +264,7 @@
                         <flux:select wire:model="selectedMealPlanId" required>
                             <option value="">Select a meal plan...</option>
                             @foreach ($this->mealPlans as $mealPlan)
-                                <option value="{{ $mealPlan->id }}">
+                                <option wire:key="meal-plan-option-{{ $mealPlan->id }}" value="{{ $mealPlan->id }}">
                                     {{ $mealPlan->name }}
                                     ({{ $mealPlan->start_date->format('M j') }} - {{ $mealPlan->end_date->format('M j, Y') }})
                                 </option>
