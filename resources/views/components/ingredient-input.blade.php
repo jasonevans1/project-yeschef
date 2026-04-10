@@ -1,9 +1,9 @@
 @props(['index', 'ingredient', 'showRemove' => true])
 
-<div class="flex gap-2 items-start p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg" wire:key="ingredient-{{ $index }}">
-    <div class="flex-1 grid grid-cols-1 md:grid-cols-4 gap-2">
+<div class="flex flex-col gap-2 p-3 bg-gray-50 dark:bg-zinc-800 rounded-lg md:flex-row md:items-start" wire:key="ingredient-{{ $index }}">
+    <div class="grid grid-cols-2 gap-2 md:flex-1 md:grid-cols-6">
         {{-- Ingredient Name --}}
-        <div class="md:col-span-2">
+        <div class="col-span-2">
             <flux:input
                 wire:model="ingredients.{{ $index }}.ingredient_name"
                 placeholder="e.g., Flour"
@@ -15,7 +15,7 @@
         </div>
 
         {{-- Quantity --}}
-        <div>
+        <div class="col-span-1">
             <flux:input
                 wire:model="ingredients.{{ $index }}.quantity"
                 type="text"
@@ -29,7 +29,7 @@
         </div>
 
         {{-- Unit --}}
-        <div>
+        <div class="col-span-1">
             <flux:select wire:model="ingredients.{{ $index }}.unit" id="unit_{{ $index }}">
                 <option value="">Unit</option>
                 <optgroup label="Volume">
@@ -65,15 +65,15 @@
                 <span class="text-red-600 text-sm mt-1">{{ $message }}</span>
             @enderror
         </div>
-    </div>
 
-    {{-- Notes (optional) --}}
-    <div class="flex-1">
-        <flux:input
-            wire:model="ingredients.{{ $index }}.notes"
-            placeholder="Notes (e.g., finely chopped)"
-            id="notes_{{ $index }}"
-        />
+        {{-- Notes (optional) --}}
+        <div class="col-span-2">
+            <flux:input
+                wire:model="ingredients.{{ $index }}.notes"
+                placeholder="Notes (e.g., finely chopped)"
+                id="notes_{{ $index }}"
+            />
+        </div>
     </div>
 
     {{-- Remove Button --}}
@@ -83,9 +83,8 @@
             wire:click="removeIngredient({{ $index }})"
             variant="ghost"
             size="sm"
-            class="text-red-600 hover:text-red-800"
-        >
-            <flux:icon.trash class="size-4" />
-        </flux:button>
+            icon="trash"
+            class="self-end md:self-auto text-red-600 hover:text-red-800"
+        />
     @endif
 </div>
