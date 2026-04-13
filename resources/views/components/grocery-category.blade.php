@@ -1,4 +1,4 @@
-@props(['category', 'items', 'groceryList', 'editingItemId' => null, 'categories' => [], 'units' => []])
+@props(['category', 'items', 'groceryList', 'editingItemId' => null, 'categories' => [], 'units' => [], 'recipesById' => collect()])
 
 @php
     use App\Enums\IngredientCategory;
@@ -127,6 +127,25 @@
                                             <flux:badge variant="info" size="sm">Manual</flux:badge>
                                         @endif
                                     </div>
+
+                                    @if($groceryList->is_meal_plan_linked && $item->is_generated && !empty($item->recipe_ids))
+                                        @php
+                                            $visibleRecipes = collect($item->recipe_ids)
+                                                ->map(fn ($id) => $recipesById->get($id))
+                                                ->filter();
+                                        @endphp
+                                        @if($visibleRecipes->count() > 0)
+                                            <div class="recipe-links-container mt-1">
+                                                <flux:text class="text-xs text-gray-500 dark:text-zinc-500">
+                                                    From:
+                                                    @foreach($visibleRecipes as $index => $recipe)
+                                                        @if($index > 0), @endif
+                                                        <a href="{{ route('recipes.show', $recipe) }}" class="text-blue-600 dark:text-blue-400 hover:underline">{{ $recipe->name }}</a>
+                                                    @endforeach
+                                                </flux:text>
+                                            </div>
+                                        @endif
+                                    @endif
                                 </div>
 
                                 {{-- Edit/Delete Icons (US4) --}}

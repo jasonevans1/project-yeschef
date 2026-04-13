@@ -41,12 +41,42 @@ class IngredientAggregator
     }
 
     /**
+     * Normalize recipe_id (singular int) into recipe_ids (array) and remove the singular key.
+     *
+     * @param  array<string, mixed>  $item
+     * @return array<string, mixed>
+     */
+    private function normalizeRecipeIds(array $item): array
+    {
+        $recipeId = $item['recipe_id'] ?? null;
+        unset($item['recipe_id']);
+        $item['recipe_ids'] = $recipeId !== null ? [$recipeId] : [];
+
+        return $item;
+    }
+
+    /**
+     * Collect all recipe_ids from a collection of items (filter nulls, deduplicate, re-index).
+     *
+     * @return array<int>
+     */
+    private function mergeRecipeIds(Collection $items): array
+    {
+        return $items
+            ->map(fn ($item) => $item['recipe_id'] ?? null)
+            ->filter(fn ($id) => $id !== null)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /**
      * Aggregate a group of items with the same ingredient name
      */
     private function aggregateGroup(Collection $group): Collection
     {
         if ($group->count() === 1) {
-            return $group;
+            return collect([$this->normalizeRecipeIds($group->first())]);
         }
 
         // Group by unit compatibility
@@ -78,7 +108,7 @@ class IngredientAggregator
 
         foreach ($byUnit as $unitType => $compatibleItems) {
             if ($compatibleItems->count() === 1) {
-                $result->push($compatibleItems->first());
+                $result->push($this->normalizeRecipeIds($compatibleItems->first()));
             } else {
                 $result->push($this->aggregateCompatibleItems($compatibleItems));
             }
@@ -123,6 +153,7 @@ class IngredientAggregator
             'quantity' => $totalQuantity,
             'unit' => $baseUnit,
             'category' => $baseItem['category'],
+            'recipe_ids' => $this->mergeRecipeIds($items),
         ];
     }
 

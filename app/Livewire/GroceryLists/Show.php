@@ -10,6 +10,7 @@ use App\Models\ContentShare;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
+use App\Models\Recipe;
 use App\Models\User;
 use App\Services\GroceryListGenerator;
 use App\Services\ItemAutoCompleteService;
@@ -653,8 +654,24 @@ class Show extends Component
 
     public function render(): mixed
     {
+        $itemsByCategory = $this->itemsByCategory;
+
+        $recipeIds = $itemsByCategory
+            ->flatten(1)
+            ->pluck('recipe_ids')
+            ->filter()
+            ->flatten()
+            ->unique()
+            ->values();
+
+        $recipesById = Recipe::whereIn('id', $recipeIds)
+            ->get()
+            ->filter(fn (Recipe $r) => auth()->user()?->can('view', $r) ?? false)
+            ->keyBy('id');
+
         return view('livewire.grocery-lists.show', [
-            'itemsByCategory' => $this->itemsByCategory,
+            'itemsByCategory' => $itemsByCategory,
+            'recipesById' => $recipesById,
             'categories' => IngredientCategory::cases(),
             'units' => MeasurementUnit::cases(),
         ]);
