@@ -108,6 +108,7 @@ class GroceryListGenerator
                     'category' => $ingredient['category'],
                     'source_type' => SourceType::GENERATED,
                     'sort_order' => $sortOrder++,
+                    'recipe_ids' => $ingredient['recipe_ids'] ?? null,
                 ]);
             }
         }
@@ -208,6 +209,7 @@ class GroceryListGenerator
                 'category' => $ingredient['category'],
                 'source_type' => SourceType::GENERATED,
                 'sort_order' => ++$sortOrder,
+                'recipe_ids' => $ingredient['recipe_ids'] ?? null,
             ]);
         }
 
@@ -274,6 +276,7 @@ class GroceryListGenerator
                     'unit' => $recipeIngredient->unit,
                     'category' => $recipeIngredient->ingredient->category,
                     'serving_multiplier' => $servingMultiplier,
+                    'recipe_id' => $recipe->id,
                 ]);
             }
         }

@@ -348,6 +348,7 @@
                     :editingItemId="$editingItemId"
                     :categories="$categories"
                     :units="$units"
+                    :recipesById="$recipesById"
                 />
             @endforeach
         </div>
