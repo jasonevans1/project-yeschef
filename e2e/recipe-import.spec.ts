@@ -44,17 +44,15 @@ test('successfully imports recipe from URL', async ({ page }) => {
   await page.waitForURL(/\/recipes\/import\/preview$/, { timeout: 10000 });
 
   // Verify preview page elements
-  await expect(page.locator('h1').filter({ hasText: /preview recipe import/i })).toBeVisible();
+  await expect(page.locator('h1').filter({ hasText: /review & edit imported recipe/i })).toBeVisible();
 
-  // Verify recipe data is displayed from mocked data
-  await expect(page.locator('text=Test Chocolate Chip Cookies')).toBeVisible();
-  await expect(page.locator('text=Delicious test cookies for E2E testing')).toBeVisible();
-  await expect(page.locator('text=2 cups all-purpose flour')).toBeVisible();
-  await expect(page.locator('text=/Confirm & Save Recipe/i')).toBeVisible();
+  // Verify recipe data is pre-populated into the form
+  await expect(page.locator('input[name="name"]')).toHaveValue('Test Chocolate Chip Cookies');
+  await expect(page.locator('button:has-text("Save Recipe")')).toBeVisible();
   await expect(page.locator('button:has-text("Cancel")')).toBeVisible();
 
-  // Click confirm button
-  await page.click('button:has-text("Confirm & Save Recipe")');
+  // Click save button
+  await page.click('button:has-text("Save Recipe")');
 
   // Wait for redirect to recipe show page
   await page.waitForURL(/\/recipes\/\d+$/, { timeout: 10000 });
@@ -88,8 +86,8 @@ test('allows user to cancel recipe import', async ({ page }) => {
   await page.waitForURL(/\/recipes\/import\/preview$/, { timeout: 10000 });
 
   // Verify we're on the preview page
-  await expect(page.locator('h1').filter({ hasText: /preview recipe import/i })).toBeVisible();
-  await expect(page.locator('text=Test Chocolate Chip Cookies')).toBeVisible();
+  await expect(page.locator('h1').filter({ hasText: /review & edit imported recipe/i })).toBeVisible();
+  await expect(page.locator('input[name="name"]')).toHaveValue('Test Chocolate Chip Cookies');
 
   // Click cancel button
   await page.click('button:has-text("Cancel")');
