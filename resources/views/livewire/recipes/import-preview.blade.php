@@ -1,103 +1,213 @@
 <div>
     <div class="max-w-4xl mx-auto">
-        <flux:heading size="xl" level="1" class="mb-6">Preview Recipe Import</flux:heading>
+        <flux:heading size="xl" level="1" class="mb-6">Review & Edit Imported Recipe</flux:heading>
 
-        @if($recipeData)
-        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6 space-y-6">
-            {{-- Recipe Name --}}
-            <div>
-                <h2 class="text-2xl font-bold dark:text-white">{{ $recipeData['name'] }}</h2>
-            </div>
-
-            {{-- Image --}}
-            @if($recipeData['image_url'] ?? null)
-            <div>
-                <img src="{{ $recipeData['image_url'] }}" alt="{{ $recipeData['name'] }}" class="w-full h-64 object-cover rounded-lg">
-            </div>
-            @endif
-
-            {{-- Description --}}
-            @if($recipeData['description'] ?? null)
-            <div>
-                <h3 class="font-semibold dark:text-white mb-2">Description</h3>
-                <p class="text-gray-700 dark:text-zinc-300">{{ $recipeData['description'] }}</p>
-            </div>
-            @endif
-
-            {{-- Recipe Details --}}
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                @if($recipeData['prep_time'] ?? null)
+        <div class="bg-white dark:bg-zinc-900 rounded-lg shadow p-6">
+            <form wire:submit="save" class="space-y-6">
+                {{-- Basic Information --}}
                 <div>
-                    <span class="text-sm text-gray-500 dark:text-zinc-400">Prep Time</span>
-                    <p class="font-semibold dark:text-white">{{ $recipeData['prep_time'] }} min</p>
+                    <flux:heading size="lg" class="mb-4">Basic Information</flux:heading>
+
+                    {{-- Recipe Name --}}
+                    <flux:input
+                        wire:model="name"
+                        label="Recipe Name"
+                        id="name"
+                        name="name"
+                        placeholder="e.g., Mom's Lasagna"
+                        required
+                    />
+                </div>
+
+                {{-- Description --}}
+                <flux:field>
+                    <flux:label>Description (Optional)</flux:label>
+                    <flux:textarea
+                        wire:model="description"
+                        id="description"
+                        name="description"
+                        rows="3"
+                        placeholder="Brief description of the recipe..."
+                    />
+                    <flux:error name="description" />
+                </flux:field>
+
+                {{-- Time and Servings --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <flux:field>
+                        <flux:label>Prep Time (minutes)</flux:label>
+                        <flux:input
+                            wire:model="prep_time"
+                            type="number"
+                            id="prep_time"
+                            name="prep_time"
+                            min="0"
+                            placeholder="30"
+                        />
+                        <flux:error name="prep_time" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Cook Time (minutes)</flux:label>
+                        <flux:input
+                            wire:model="cook_time"
+                            type="number"
+                            id="cook_time"
+                            name="cook_time"
+                            min="0"
+                            placeholder="45"
+                        />
+                        <flux:error name="cook_time" />
+                    </flux:field>
+
+                    <flux:input
+                        wire:model="servings"
+                        label="Servings"
+                        type="number"
+                        id="servings"
+                        name="servings"
+                        min="1"
+                        max="100"
+                        placeholder="4"
+                        required
+                    />
+                </div>
+
+                {{-- Additional Details --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <flux:field>
+                        <flux:label>Meal Type (Optional)</flux:label>
+                        <flux:select wire:model="meal_type" id="meal_type" name="meal_type">
+                            <option value="">Select...</option>
+                            @foreach($mealTypes as $type)
+                                <option value="{{ $type->value }}">{{ ucfirst($type->value) }}</option>
+                            @endforeach
+                        </flux:select>
+                        <flux:error name="meal_type" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Cuisine (Optional)</flux:label>
+                        <flux:input
+                            wire:model="cuisine"
+                            id="cuisine"
+                            name="cuisine"
+                            placeholder="e.g., Italian"
+                        />
+                        <flux:error name="cuisine" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Difficulty (Optional)</flux:label>
+                        <flux:select wire:model="difficulty" id="difficulty" name="difficulty">
+                            <option value="">Select...</option>
+                            <option value="easy">Easy</option>
+                            <option value="medium">Medium</option>
+                            <option value="hard">Hard</option>
+                        </flux:select>
+                        <flux:error name="difficulty" />
+                    </flux:field>
+                </div>
+
+                {{-- Dietary Tags --}}
+                <flux:field>
+                    <flux:label>Dietary Tags (Optional)</flux:label>
+                    <div class="flex flex-wrap gap-3 mt-2">
+                        <flux:checkbox wire:model="dietary_tags" value="vegetarian" label="Vegetarian" />
+                        <flux:checkbox wire:model="dietary_tags" value="vegan" label="Vegan" />
+                        <flux:checkbox wire:model="dietary_tags" value="gluten-free" label="Gluten-Free" />
+                        <flux:checkbox wire:model="dietary_tags" value="dairy-free" label="Dairy-Free" />
+                        <flux:checkbox wire:model="dietary_tags" value="nut-free" label="Nut-Free" />
+                        <flux:checkbox wire:model="dietary_tags" value="low-carb" label="Low-Carb" />
+                        <flux:checkbox wire:model="dietary_tags" value="keto" label="Keto" />
+                    </div>
+                    <flux:error name="dietary_tags" />
+                </flux:field>
+
+                {{-- Ingredients --}}
+                <div>
+                    <div class="flex items-center justify-between mb-4">
+                        <flux:heading size="lg">Ingredients</flux:heading>
+                        <flux:button type="button" wire:click="addIngredient" variant="ghost" size="sm" icon="plus">
+                            Add Ingredient
+                        </flux:button>
+                    </div>
+
+                    <div class="space-y-3">
+                        @foreach($ingredients as $index => $ingredient)
+                            <x-ingredient-input
+                                wire:key="ingredient-{{ $index }}"
+                                :index="$index"
+                                :ingredient="$ingredient"
+                                :showRemove="count($ingredients) > 1"
+                            />
+                        @endforeach
+                    </div>
+
+                    @error('ingredients')
+                        <span class="text-red-600 text-sm mt-2 block">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                {{-- Instructions --}}
+                <flux:field>
+                    <flux:label>Cooking Instructions</flux:label>
+                    <flux:textarea
+                        wire:model="instructions"
+                        id="instructions"
+                        name="instructions"
+                        rows="8"
+                        placeholder="Step-by-step cooking instructions..."
+                        required
+                    />
+                    <flux:description>Write step-by-step instructions for preparing this recipe</flux:description>
+                    <flux:error name="instructions" />
+                </flux:field>
+
+                {{-- Image URL (Optional) --}}
+                <flux:field>
+                    <flux:label>Image URL (Optional)</flux:label>
+                    <flux:input
+                        wire:model="image_url"
+                        type="url"
+                        id="image_url"
+                        name="image_url"
+                        placeholder="https://example.com/recipe-image.jpg"
+                    />
+                    <flux:description>Link to an image of the finished dish</flux:description>
+                    <flux:error name="image_url" />
+                </flux:field>
+
+                {{-- Source URL --}}
+                @if($source_url)
+                <div class="text-sm text-gray-500 dark:text-zinc-400">
+                    <strong>Source:</strong>
+                    <a href="{{ $source_url }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
+                        {{ $source_url }}
+                    </a>
                 </div>
                 @endif
-                @if($recipeData['cook_time'] ?? null)
-                <div>
-                    <span class="text-sm text-gray-500 dark:text-zinc-400">Cook Time</span>
-                    <p class="font-semibold dark:text-white">{{ $recipeData['cook_time'] }} min</p>
+
+                {{-- Error Display --}}
+                <flux:error name="import" />
+
+                {{-- Action Buttons --}}
+                <div class="flex items-center justify-end gap-3 pt-4 border-t dark:border-zinc-700">
+                    <flux:button
+                        wire:click="cancel"
+                        variant="ghost"
+                    >
+                        Cancel
+                    </flux:button>
+                    <flux:button
+                        type="submit"
+                        variant="primary"
+                    >
+                        <span wire:loading.remove>Save Recipe</span>
+                        <span wire:loading>Saving...</span>
+                    </flux:button>
                 </div>
-                @endif
-                <div>
-                    <span class="text-sm text-gray-500 dark:text-zinc-400">Servings</span>
-                    <p class="font-semibold dark:text-white">{{ $recipeData['servings'] ?? 4 }}</p>
-                </div>
-                @if($recipeData['cuisine'] ?? null)
-                <div>
-                    <span class="text-sm text-gray-500 dark:text-zinc-400">Cuisine</span>
-                    <p class="font-semibold dark:text-white">{{ $recipeData['cuisine'] }}</p>
-                </div>
-                @endif
-            </div>
-
-            {{-- Ingredients --}}
-            @if(!empty($recipeData['recipeIngredient']))
-            <div>
-                <h3 class="font-semibold dark:text-white mb-2">Ingredients</h3>
-                <ul class="list-disc list-inside space-y-1">
-                    @foreach($recipeData['recipeIngredient'] as $ingredient)
-                    <li class="text-gray-700 dark:text-zinc-300">{{ $ingredient }}</li>
-                    @endforeach
-                </ul>
-            </div>
-            @endif
-
-            {{-- Instructions --}}
-            <div>
-                <h3 class="font-semibold dark:text-white mb-2">Instructions</h3>
-                <div class="text-gray-700 dark:text-zinc-300 whitespace-pre-line">{{ $recipeData['instructions'] }}</div>
-            </div>
-
-            {{-- Source URL --}}
-            @if($recipeData['source_url'] ?? null)
-            <div class="text-sm text-gray-500 dark:text-zinc-400">
-                <strong>Source:</strong>
-                <a href="{{ $recipeData['source_url'] }}" target="_blank" class="text-blue-600 dark:text-blue-400 hover:underline">
-                    {{ $recipeData['source_url'] }}
-                </a>
-            </div>
-            @endif
-
-            {{-- Error Display --}}
-            <flux:error name="import" />
-
-            {{-- Action Buttons --}}
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-zinc-700">
-                <flux:button
-                    wire:click="cancel"
-                    variant="ghost"
-                >
-                    Cancel
-                </flux:button>
-                <flux:button
-                    wire:click="confirmImport"
-                    variant="primary"
-                >
-                    <span wire:loading.remove>Confirm & Save Recipe</span>
-                    <span wire:loading>Saving...</span>
-                </flux:button>
-            </div>
+            </form>
         </div>
-        @endif
     </div>
 </div>
