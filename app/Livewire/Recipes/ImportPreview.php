@@ -4,146 +4,178 @@ declare(strict_types=1);
 
 namespace App\Livewire\Recipes;
 
+use App\Enums\MealType;
+use App\Enums\MeasurementUnit;
 use App\Models\Ingredient;
-use App\Models\Recipe;
 use App\Services\IngredientCategorizationService;
+use App\Services\QuantityFormatter;
+use App\Services\RecipeImporter\IngredientParser;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Validate;
 use Livewire\Component;
 
 class ImportPreview extends Component
 {
-    public array $recipeData = [];
+    #[Validate('required|string|min:3|max:255')]
+    public string $name = '';
+
+    #[Validate('nullable|string|max:1000')]
+    public ?string $description = null;
+
+    #[Validate('nullable|integer|min:0|max:1440')]
+    public ?int $prep_time = null;
+
+    #[Validate('nullable|integer|min:0|max:1440')]
+    public ?int $cook_time = null;
+
+    #[Validate('required|integer|min:1|max:100')]
+    public int $servings = 4;
+
+    #[Validate('nullable|string')]
+    public ?string $meal_type = null;
+
+    #[Validate('nullable|string|max:100')]
+    public ?string $cuisine = null;
+
+    #[Validate('required|string|min:10')]
+    public string $instructions = '';
+
+    #[Validate('nullable|url|max:255')]
+    public ?string $image_url = null;
+
+    #[Validate('nullable|string|in:easy,medium,hard')]
+    public ?string $difficulty = null;
+
+    #[Validate('nullable|array')]
+    public array $dietary_tags = [];
+
+    #[Validate('required|array|min:1')]
+    public array $ingredients = [];
+
+    public ?string $source_url = null;
 
     public function mount(): void
     {
         $cacheKey = 'recipe_import_preview:'.auth()->id();
-        $this->recipeData = Cache::get($cacheKey, []);
+        $recipeData = Cache::get($cacheKey, []);
 
-        logger()->info('Recipe import preview loaded', [
-            'cache_key' => $cacheKey,
-            'user_id' => auth()->id(),
-            'has_data' => ! empty($this->recipeData),
-            'recipe_name' => $this->recipeData['name'] ?? null,
-        ]);
-
-        if (empty($this->recipeData)) {
-            logger()->warning('Recipe import cache data missing', [
-                'cache_key' => $cacheKey,
-                'user_id' => auth()->id(),
-            ]);
+        if (empty($recipeData)) {
             session()->flash('error', 'Recipe import data was lost. Please try importing again.');
             $this->redirect(route('recipes.import'));
+
+            return;
+        }
+
+        $this->name = $recipeData['name'] ?? '';
+        $this->description = $recipeData['description'] ?? null;
+        $this->prep_time = $recipeData['prep_time'] ?? null;
+        $this->cook_time = $recipeData['cook_time'] ?? null;
+        $this->servings = $recipeData['servings'] ?? 4;
+        $this->meal_type = $recipeData['meal_type'] ?? null;
+        $this->cuisine = $recipeData['cuisine'] ?? null;
+        $this->instructions = $recipeData['instructions'] ?? '';
+        $this->image_url = $recipeData['image_url'] ?? null;
+        $this->source_url = $recipeData['source_url'] ?? null;
+
+        $this->ingredients = $this->parseRawIngredients($recipeData['recipeIngredient'] ?? []);
+
+        if (empty($this->ingredients)) {
+            $this->ingredients = [
+                [
+                    'ingredient_name' => '',
+                    'quantity' => null,
+                    'unit' => null,
+                    'notes' => null,
+                ],
+            ];
         }
     }
 
-    public function confirmImport(IngredientCategorizationService $categorizationService): void
+    public function addIngredient(): void
     {
+        $this->ingredients[] = [
+            'ingredient_name' => '',
+            'quantity' => null,
+            'unit' => null,
+            'notes' => null,
+        ];
+    }
+
+    public function removeIngredient(int $index): void
+    {
+        if (count($this->ingredients) > 1) {
+            unset($this->ingredients[$index]);
+            $this->ingredients = array_values($this->ingredients);
+        }
+    }
+
+    public function save(IngredientCategorizationService $categorizationService): void
+    {
+        $this->parseIngredientQuantities();
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
+        $this->validate();
+        $this->validateIngredients();
+
+        if ($this->getErrorBag()->isNotEmpty()) {
+            return;
+        }
+
         try {
             DB::transaction(function () use ($categorizationService) {
-                // Create recipe
                 $recipe = auth()->user()->recipes()->create([
-                    'name' => $this->recipeData['name'],
-                    'description' => $this->recipeData['description'] ?? null,
-                    'prep_time' => $this->recipeData['prep_time'] ?? null,
-                    'cook_time' => $this->recipeData['cook_time'] ?? null,
-                    'servings' => $this->recipeData['servings'] ?? 4,
-                    'cuisine' => $this->recipeData['cuisine'] ?? null,
-                    'meal_type' => $this->recipeData['meal_type'] ?? null,
-                    'instructions' => $this->recipeData['instructions'],
-                    'image_url' => $this->recipeData['image_url'] ?? null,
-                    'source_url' => $this->recipeData['source_url'],
+                    'name' => $this->name,
+                    'description' => $this->description,
+                    'prep_time' => $this->prep_time,
+                    'cook_time' => $this->cook_time,
+                    'servings' => $this->servings,
+                    'meal_type' => $this->meal_type ? MealType::from($this->meal_type) : null,
+                    'cuisine' => $this->cuisine,
+                    'instructions' => $this->instructions,
+                    'image_url' => $this->image_url,
+                    'source_url' => $this->source_url,
                 ]);
 
-                // Parse and create ingredients
-                $this->createIngredients($recipe, $categorizationService);
+                $addedIngredientIds = [];
 
-                // Clear cache
+                foreach ($this->ingredients as $index => $ingredientData) {
+                    if (empty($ingredientData['ingredient_name'])) {
+                        continue;
+                    }
+
+                    $ingredient = Ingredient::firstOrCreate(
+                        ['name' => strtolower(trim($ingredientData['ingredient_name']))],
+                        ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
+                    );
+
+                    if (in_array($ingredient->id, $addedIngredientIds, true)) {
+                        continue;
+                    }
+
+                    $addedIngredientIds[] = $ingredient->id;
+
+                    $recipe->recipeIngredients()->create([
+                        'ingredient_id' => $ingredient->id,
+                        'quantity' => $ingredientData['quantity'] ?? 1,
+                        'unit' => $ingredientData['unit'] ? MeasurementUnit::from($ingredientData['unit']) : MeasurementUnit::WHOLE,
+                        'sort_order' => $index,
+                        'notes' => $ingredientData['notes'],
+                    ]);
+                }
+
                 Cache::forget('recipe_import_preview:'.auth()->id());
 
-                // Redirect to recipe show page
                 session()->flash('success', 'Recipe imported successfully!');
                 $this->redirect(route('recipes.show', $recipe));
             });
         } catch (\Exception $e) {
-            logger()->error('Import failed: '.$e->getMessage(), ['exception' => $e]);
             $this->addError('import', 'An error occurred while saving the recipe. Please try again.');
         }
-    }
-
-    protected function createIngredients(Recipe $recipe, IngredientCategorizationService $categorizationService): void
-    {
-        $ingredients = $this->recipeData['recipeIngredient'] ?? [];
-        $parser = app(\App\Services\RecipeImporter\IngredientParser::class);
-        $addedIngredientIds = [];
-
-        foreach ($ingredients as $index => $ingredientText) {
-            // Guard clause for empty ingredients
-            if (empty(trim($ingredientText))) {
-                continue;
-            }
-
-            // Parse ingredient text to extract quantity, unit, and name
-            $parsed = $parser->parse(trim($ingredientText));
-
-            // Find or create ingredient using parsed name (or original if parsing failed)
-            $ingredient = Ingredient::firstOrCreate(
-                ['name' => $parsed['name']],
-                ['category' => $categorizationService->resolve($parsed['name'], auth()->id())]
-            );
-
-            // Check for duplicate ingredient
-            if (in_array($ingredient->id, $addedIngredientIds, strict: true)) {
-                $this->handleDuplicateIngredient($recipe, $ingredient, $parsed);
-
-                continue;
-            }
-
-            // Track this ingredient ID
-            $addedIngredientIds[] = $ingredient->id;
-
-            // Create recipe-ingredient relationship
-            $recipe->recipeIngredients()->create([
-                'ingredient_id' => $ingredient->id,
-                'quantity' => $parsed['quantity'],
-                'unit' => $parsed['unit'],
-                'notes' => $parsed['quantity'] || $parsed['unit'] ? null : $parsed['original'], // Only store original as notes if parsing failed
-                'sort_order' => $index,
-            ]);
-        }
-    }
-
-    protected function handleDuplicateIngredient(Recipe $recipe, Ingredient $ingredient, array $parsed): void
-    {
-        $existingRecipeIngredient = $recipe->recipeIngredients()
-            ->where('ingredient_id', $ingredient->id)
-            ->first();
-
-        $duplicateNote = $this->buildDuplicateNote($parsed);
-
-        $updatedNotes = $existingRecipeIngredient->notes
-            ? $existingRecipeIngredient->notes.' | Also listed as: '.$duplicateNote
-            : 'Also listed as: '.$duplicateNote;
-
-        $existingRecipeIngredient->update(['notes' => $updatedNotes]);
-    }
-
-    protected function buildDuplicateNote(array $parsed): string
-    {
-        // If we have quantity and/or unit, format nicely
-        if ($parsed['quantity'] || $parsed['unit']) {
-            $parts = array_filter([
-                $parsed['quantity'],
-                $parsed['unit']?->value,
-                $parsed['name'],
-            ]);
-
-            return implode(' ', $parts);
-        }
-
-        // Otherwise use original text
-        return $parsed['original'];
     }
 
     public function cancel(): void
@@ -154,6 +186,76 @@ class ImportPreview extends Component
 
     public function render(): View
     {
-        return view('livewire.recipes.import-preview');
+        return view('livewire.recipes.import-preview', [
+            'mealTypes' => MealType::cases(),
+            'measurementUnits' => MeasurementUnit::cases(),
+        ]);
+    }
+
+    /**
+     * @param  array<int, string>  $rawIngredients
+     * @return array<int, array{ingredient_name: string, quantity: float|null, unit: string|null, notes: string|null}>
+     */
+    private function parseRawIngredients(array $rawIngredients): array
+    {
+        $parser = app(IngredientParser::class);
+        $parsed = [];
+
+        foreach ($rawIngredients as $ingredientText) {
+            if (empty(trim($ingredientText))) {
+                continue;
+            }
+
+            $result = $parser->parse(trim($ingredientText));
+
+            $parsed[] = [
+                'ingredient_name' => $result['name'],
+                'quantity' => $result['quantity'],
+                'unit' => $result['unit']?->value,
+                'notes' => ($result['quantity'] || $result['unit']) ? null : $result['original'],
+            ];
+        }
+
+        return $parsed;
+    }
+
+    private function parseIngredientQuantities(): void
+    {
+        foreach ($this->ingredients as $index => $ingredient) {
+            if (! isset($ingredient['quantity']) || $ingredient['quantity'] === null || $ingredient['quantity'] === '') {
+                continue;
+            }
+
+            $parsed = QuantityFormatter::parse((string) $ingredient['quantity']);
+
+            if ($parsed === null) {
+                $this->addError("ingredients.{$index}.quantity", 'Quantity must be a number or fraction (e.g. 1/2, 1 1/2).');
+
+                continue;
+            }
+
+            $this->ingredients[$index]['quantity'] = $parsed;
+        }
+    }
+
+    protected function validateIngredients(): void
+    {
+        foreach ($this->ingredients as $index => $ingredient) {
+            if (empty($ingredient['ingredient_name'])) {
+                $this->addError("ingredients.{$index}.ingredient_name", 'Ingredient name is required.');
+            }
+
+            if (isset($ingredient['quantity']) && $ingredient['quantity'] !== null && $ingredient['quantity'] <= 0) {
+                $this->addError("ingredients.{$index}.quantity", 'Quantity must be a number or fraction (e.g. 1/2, 1 1/2).');
+            }
+        }
+
+        $hasValidIngredient = collect($this->ingredients)
+            ->filter(fn ($ing) => ! empty($ing['ingredient_name']))
+            ->isNotEmpty();
+
+        if (! $hasValidIngredient) {
+            $this->addError('ingredients', 'At least one ingredient is required.');
+        }
     }
 }

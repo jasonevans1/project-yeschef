@@ -15,20 +15,20 @@ it('assigns a non-other category to a recognized imported ingredient', function 
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Categorization Test Recipe',
-        'instructions' => 'Cook the chicken',
+        'instructions' => 'Cook the chicken breast thoroughly',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => ['1 lb chicken breast'],
     ]);
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Categorization Test Recipe')->first();
     $ingredient = $recipe->recipeIngredients()->first()->ingredient;
 
-    expect($ingredient->category)->not->toBe(IngredientCategory::OTHER);
-    expect($ingredient->category)->toBe(IngredientCategory::MEAT);
+    expect($ingredient->category)->not->toBe(IngredientCategory::OTHER)
+        ->and($ingredient->category)->toBe(IngredientCategory::MEAT);
 });
 
 it('assigns OTHER to an unrecognized imported ingredient', function () {
@@ -36,14 +36,14 @@ it('assigns OTHER to an unrecognized imported ingredient', function () {
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Unrecognized Ingredient Recipe',
-        'instructions' => 'Use the mystery ingredient',
+        'instructions' => 'Use the mystery ingredient carefully',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => ['1 tsp xylotrimazine'],
     ]);
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Unrecognized Ingredient Recipe')->first();
     $ingredient = $recipe->recipeIngredients()->first()->ingredient;
@@ -62,19 +62,19 @@ it('uses the existing ingredient category when the ingredient was previously imp
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Salmon Recipe',
-        'instructions' => 'Cook the salmon',
+        'instructions' => 'Cook the salmon until done',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => ['1 lb salmon'],
     ]);
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Salmon Recipe')->first();
     $ingredient = $recipe->recipeIngredients()->first()->ingredient;
 
     // The pre-existing ingredient should be reused without overwriting its category
-    expect($ingredient->id)->toBe($existingIngredient->id);
-    expect($ingredient->fresh()->category)->toBe(IngredientCategory::SEAFOOD);
+    expect($ingredient->id)->toBe($existingIngredient->id)
+        ->and($ingredient->fresh()->category)->toBe(IngredientCategory::SEAFOOD);
 });

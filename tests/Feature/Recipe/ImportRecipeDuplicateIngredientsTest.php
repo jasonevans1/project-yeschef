@@ -10,12 +10,12 @@ use Livewire\Livewire;
 
 // Tests for duplicate ingredient handling during recipe imports
 
-test('basic duplicate ingredients are combined with notes', function () {
+test('basic duplicate ingredients are skipped on save', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Duplicate Ingredients',
-        'instructions' => 'Mix everything',
+        'instructions' => 'Mix everything together thoroughly',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 cups flour',
@@ -26,22 +26,21 @@ test('basic duplicate ingredients are combined with notes', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Duplicate Ingredients')->first();
 
-    // Should only create 2 recipe ingredients (flour and water)
+    // Should only create 2 recipe ingredients (flour and water) - duplicate skipped
     expect($recipe->recipeIngredients)->toHaveCount(2);
 
-    // First ingredient (flour) should have notes about duplicate
+    // First ingredient (flour) should have no duplicate notes
     $flourIngredient = $recipe->recipeIngredients()
         ->whereHas('ingredient', fn ($q) => $q->where('name', 'flour'))
         ->first();
 
-    expect($flourIngredient->quantity)->toBe('2.000');
-    expect($flourIngredient->unit->value)->toBe('cup');
-    expect($flourIngredient->notes)->toContain('Also listed as: 1 cup flour');
-    expect($flourIngredient->sort_order)->toBe(0);
+    expect($flourIngredient->quantity)->toBe('2.000')
+        ->and($flourIngredient->unit->value)->toBe('cup')
+        ->and($flourIngredient->sort_order)->toBe(0);
 
     // Second ingredient (water) should have no notes
     $waterIngredient = $recipe->recipeIngredients()
@@ -51,12 +50,12 @@ test('basic duplicate ingredients are combined with notes', function () {
     expect($waterIngredient->notes)->toBeNull();
 });
 
-test('multiple duplicates are all noted with pipe separator', function () {
+test('multiple duplicates are all skipped on save', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Multiple Duplicates',
-        'instructions' => 'Cook',
+        'instructions' => 'Cook everything well and serve',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '3 cups flour',
@@ -68,11 +67,11 @@ test('multiple duplicates are all noted with pipe separator', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Multiple Duplicates')->first();
 
-    // Should only create 2 recipe ingredients
+    // Should only create 2 recipe ingredients (duplicates skipped)
     expect($recipe->recipeIngredients)->toHaveCount(2);
 
     $flourIngredient = $recipe->recipeIngredients()
@@ -80,17 +79,14 @@ test('multiple duplicates are all noted with pipe separator', function () {
         ->first();
 
     expect($flourIngredient->quantity)->toBe('3.000');
-    expect($flourIngredient->notes)
-        ->toContain('Also listed as: 1 cup flour')
-        ->toContain(' | Also listed as: 2 cup flour');
 });
 
-test('duplicate with unparseable quantity uses original text', function () {
+test('duplicate with same ingredient uses first occurrence', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
-        'name' => 'Recipe with Unparseable Duplicate',
-        'instructions' => 'Season to taste',
+        'name' => 'Recipe with Duplicate Salt',
+        'instructions' => 'Season to taste and serve warm',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 tsp salt',
@@ -100,25 +96,24 @@ test('duplicate with unparseable quantity uses original text', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
-    $recipe = Recipe::where('name', 'Recipe with Unparseable Duplicate')->first();
+    $recipe = Recipe::where('name', 'Recipe with Duplicate Salt')->first();
 
     expect($recipe->recipeIngredients)->toHaveCount(1);
 
     $saltIngredient = $recipe->recipeIngredients()->first();
 
-    expect($saltIngredient->quantity)->toBe('2.000');
-    expect($saltIngredient->unit->value)->toBe('tsp');
-    expect($saltIngredient->notes)->toContain('Also listed as: 1 tsp salt');
+    expect($saltIngredient->quantity)->toBe('2.000')
+        ->and($saltIngredient->unit->value)->toBe('tsp');
 });
 
-test('first without quantity, duplicate with quantity', function () {
+test('first without quantity, duplicate with quantity - first occurrence used', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Reverse Parsing',
-        'instructions' => 'Add water',
+        'instructions' => 'Add water and stir well',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             'water',        // First occurrence has no quantity
@@ -128,28 +123,22 @@ test('first without quantity, duplicate with quantity', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Reverse Parsing')->first();
 
     expect($recipe->recipeIngredients)->toHaveCount(1);
 
     $waterIngredient = $recipe->recipeIngredients()->first();
-
-    // First occurrence stored original as notes (per line 95 of ImportPreview)
-    // Then duplicate appends to it
-    expect($waterIngredient->notes)
-        ->toContain('water')
-        ->toContain(' | Also listed as: 1 cup water');
     expect($waterIngredient->sort_order)->toBe(0);
 });
 
-test('mixed case and whitespace are normalized', function () {
+test('mixed case and whitespace are normalized on save', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Case Variations',
-        'instructions' => 'Mix',
+        'instructions' => 'Mix together and bake well',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 cups  FLOUR  ',  // Extra whitespace and uppercase
@@ -159,15 +148,12 @@ test('mixed case and whitespace are normalized', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Case Variations')->first();
 
     // Should detect as duplicate despite case/whitespace differences
     expect($recipe->recipeIngredients)->toHaveCount(1);
-
-    $flourIngredient = $recipe->recipeIngredients()->first();
-    expect($flourIngredient->notes)->toContain('Also listed as: 1 cup flour');
 });
 
 test('preserves sort_order for first occurrence only', function () {
@@ -175,7 +161,7 @@ test('preserves sort_order for first occurrence only', function () {
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Sort Order Test',
-        'instructions' => 'Mix',
+        'instructions' => 'Mix together and serve warm',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 cups flour',  // Index 0
@@ -187,7 +173,7 @@ test('preserves sort_order for first occurrence only', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Sort Order Test')->first();
 
@@ -218,7 +204,7 @@ test('complete import integration with duplicates', function () {
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Instant Pot Loaded Potato Soup',
         'description' => 'A hearty soup',
-        'instructions' => 'Cook everything together',
+        'instructions' => 'Cook everything together until done',
         'prep_time' => 15,
         'cook_time' => 30,
         'servings' => 6,
@@ -234,31 +220,19 @@ test('complete import integration with duplicates', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport')
+        ->call('save')
         ->assertHasNoErrors()
         ->assertRedirect();
 
     $recipe = Recipe::where('name', 'Instant Pot Loaded Potato Soup')->first();
 
     // Verify recipe created successfully
-    expect($recipe)->not->toBeNull();
-    expect($recipe->user_id)->toBe($user->id);
-    expect($recipe->source_url)->toBe('https://fedandfit.com/instant-pot-loaded-potato-soup/');
+    expect($recipe)->not->toBeNull()
+        ->and($recipe->user_id)->toBe($user->id)
+        ->and($recipe->source_url)->toBe('https://fedandfit.com/instant-pot-loaded-potato-soup/');
 
-    // Should only create 3 unique ingredients
+    // Should only create 3 unique ingredients (duplicates skipped)
     expect($recipe->recipeIngredients)->toHaveCount(3);
-
-    // Water should have duplicate note
-    $waterIngredient = $recipe->recipeIngredients()
-        ->whereHas('ingredient', fn ($q) => $q->where('name', 'water'))
-        ->first();
-    expect($waterIngredient->notes)->toContain('Also listed as: 1 cup water');
-
-    // Potatoes should have duplicate note
-    $potatoIngredient = $recipe->recipeIngredients()
-        ->whereHas('ingredient', fn ($q) => $q->where('name', 'potatoes'))
-        ->first();
-    expect($potatoIngredient->notes)->toContain('Also listed as: 2 cup potatoes');
 });
 
 test('empty and whitespace ingredients are skipped', function () {
@@ -266,7 +240,7 @@ test('empty and whitespace ingredients are skipped', function () {
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Recipe with Empty Ingredients',
-        'instructions' => 'Mix',
+        'instructions' => 'Mix everything together well',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 cups flour',
@@ -278,7 +252,7 @@ test('empty and whitespace ingredients are skipped', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'Recipe with Empty Ingredients')->first();
 
@@ -286,12 +260,12 @@ test('empty and whitespace ingredients are skipped', function () {
     expect($recipe->recipeIngredients)->toHaveCount(2);
 });
 
-test('duplicate detection within database transaction', function () {
+test('duplicate detection does not cause constraint violation', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'Transaction Test Recipe',
-        'instructions' => 'Mix',
+        'instructions' => 'Mix together and bake well',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '2 cups flour',
@@ -303,19 +277,19 @@ test('duplicate detection within database transaction', function () {
     expect(function () use ($user) {
         Livewire::actingAs($user)
             ->test(ImportPreview::class)
-            ->call('confirmImport');
+            ->call('save');
     })->not->toThrow(\Illuminate\Database\QueryException::class);
 
     $recipe = Recipe::where('name', 'Transaction Test Recipe')->first();
     expect($recipe->recipeIngredients)->toHaveCount(1);
 });
 
-test('all ingredients are duplicates of first', function () {
+test('all ingredients are duplicates of first - only one saved', function () {
     $user = User::factory()->create();
 
     Cache::put('recipe_import_preview:'.$user->id, [
         'name' => 'All Duplicates Recipe',
-        'instructions' => 'Add salt multiple times',
+        'instructions' => 'Add salt multiple times carefully',
         'source_url' => 'https://example.com/recipe',
         'recipeIngredient' => [
             '1 tsp salt',
@@ -327,18 +301,14 @@ test('all ingredients are duplicates of first', function () {
 
     Livewire::actingAs($user)
         ->test(ImportPreview::class)
-        ->call('confirmImport');
+        ->call('save');
 
     $recipe = Recipe::where('name', 'All Duplicates Recipe')->first();
 
-    // Should only create 1 ingredient
+    // Should only create 1 ingredient (all duplicates skipped)
     expect($recipe->recipeIngredients)->toHaveCount(1);
 
     $saltIngredient = $recipe->recipeIngredients()->first();
-
-    // Should have all duplicates in notes
-    expect($saltIngredient->notes)
-        ->toContain('Also listed as: 2 tsp salt')
-        ->toContain(' | Also listed as: 3 tsp salt')
-        ->toContain(' | Also listed as: 0.5 tsp salt');
+    expect($saltIngredient->quantity)->toBe('1.000')
+        ->and($saltIngredient->unit->value)->toBe('tsp');
 });
