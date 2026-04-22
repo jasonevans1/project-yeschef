@@ -105,4 +105,17 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Serializable Classes
+    |--------------------------------------------------------------------------
+    |
+    | This option allows you to specify which classes are allowed to be
+    | deserialized from the cache. This is a security hardening feature
+    | introduced in Laravel 13. An empty array allows all classes.
+    |
+    */
+
+    'serializable_classes' => [],
+
 ];
