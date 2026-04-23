@@ -85,7 +85,7 @@ class ContentShareFactory extends Factory
     /**
      * Pending share (recipient not yet registered).
      */
-    public function pending(string $email = null): static
+    public function pending(?string $email = null): static
     {
         return $this->state(fn (array $attributes) => [
             'recipient_id' => null,

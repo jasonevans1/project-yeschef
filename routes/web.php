@@ -35,25 +35,25 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('dashboard', Dashboard::class)
+Route::livewire('dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
 Route::middleware(['auth'])->group(function () {
     // Recipe Routes
-    Route::get('recipes', RecipesIndex::class)->name('recipes.index');
-    Route::get('recipes/create', RecipesCreate::class)->name('recipes.create'); // US5 - T099, T100
-    Route::get('recipes/import', RecipesImport::class)->name('recipes.import'); // US1 - T036
-    Route::get('recipes/import/preview', RecipesImportPreview::class)->name('recipes.import.preview'); // US3 - T036
-    Route::get('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
-    Route::get('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // US5 - T101, T102
+    Route::livewire('recipes', RecipesIndex::class)->name('recipes.index');
+    Route::livewire('recipes/create', RecipesCreate::class)->name('recipes.create'); // US5 - T099, T100
+    Route::livewire('recipes/import', RecipesImport::class)->name('recipes.import'); // US1 - T036
+    Route::livewire('recipes/import/preview', RecipesImportPreview::class)->name('recipes.import.preview'); // US3 - T036
+    Route::livewire('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
+    Route::livewire('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // US5 - T101, T102
     Route::delete('recipes/{recipe}', [\App\Http\Controllers\RecipeController::class, 'destroy'])->name('recipes.destroy'); // US5 - T103
 
     // Meal Plan Routes
-    Route::get('meal-plans', MealPlansIndex::class)->name('meal-plans.index');
-    Route::get('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create');
-    Route::get('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show');
-    Route::get('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit');
+    Route::livewire('meal-plans', MealPlansIndex::class)->name('meal-plans.index');
+    Route::livewire('meal-plans/create', MealPlansCreate::class)->name('meal-plans.create');
+    Route::livewire('meal-plans/{mealPlan}', MealPlansShow::class)->name('meal-plans.show');
+    Route::livewire('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit');
 
     // Meal Plan Actions (POST/PUT/DELETE)
     Route::post('meal-plans', [\App\Http\Controllers\MealPlanController::class, 'store'])->name('meal-plans.store');
@@ -66,17 +66,17 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'destroy'])->name('meal-plans.assignments.destroy');
 
     // Grocery List Routes (authenticated)
-    Route::get('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // US3 - T074
-    Route::get('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // US6 - T110
-    Route::get('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // US3 - T078
-    Route::get('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
+    Route::livewire('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // US3 - T074
+    Route::livewire('grocery-lists/create', GroceryListsCreate::class)->name('grocery-lists.create'); // US6 - T110
+    Route::livewire('grocery-lists/{groceryList}', GroceryListsShow::class)->name('grocery-lists.show'); // US3 - T078
+    Route::livewire('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
 
     // Grocery List Export Routes (US8 - T126)
     Route::get('grocery-lists/{groceryList}/export/pdf', [\App\Http\Controllers\GroceryListController::class, 'exportPdf'])->name('grocery-lists.export.pdf');
     Route::get('grocery-lists/{groceryList}/export/text', [\App\Http\Controllers\GroceryListController::class, 'exportText'])->name('grocery-lists.export.text');
 
     // Shared Grocery List Route (US8 - T129)
-    Route::get('grocery-lists/shared/{token}', GroceryListsShared::class)->name('grocery-lists.shared');
+    Route::livewire('grocery-lists/shared/{token}', GroceryListsShared::class)->name('grocery-lists.shared');
 
     // Grocery List Item Actions (POST/PUT/DELETE)
     Route::post('grocery-lists/{groceryList}/items', [\App\Http\Controllers\GroceryItemController::class, 'store'])->name('grocery-lists.items.store'); // US4 - T087
@@ -86,18 +86,18 @@ Route::middleware(['auth'])->group(function () {
     // Settings Routes
     Route::redirect('settings', 'settings/profile');
 
-    Route::get('settings/profile', Profile::class)->name('settings.profile');
-    Route::get('settings/password', Password::class)->name('settings.password');
-    Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    Route::livewire('settings/profile', Profile::class)->name('settings.profile');
+    Route::livewire('settings/password', Password::class)->name('settings.password');
+    Route::livewire('settings/appearance', Appearance::class)->name('settings.appearance');
 
     // Item Templates Routes (moved to settings)
-    Route::get('settings/item-templates', ItemTemplates::class)->name('settings.item-templates');
-    Route::get('settings/item-templates/create', ItemTemplatesEdit::class)->name('settings.item-templates.create');
-    Route::get('settings/item-templates/{template}/edit', ItemTemplatesEdit::class)->name('settings.item-templates.edit');
+    Route::livewire('settings/item-templates', ItemTemplates::class)->name('settings.item-templates');
+    Route::livewire('settings/item-templates/create', ItemTemplatesEdit::class)->name('settings.item-templates.create');
+    Route::livewire('settings/item-templates/{template}/edit', ItemTemplatesEdit::class)->name('settings.item-templates.edit');
 
-    Route::get('settings/sharing', Sharing::class)->name('settings.sharing');
+    Route::livewire('settings/sharing', Sharing::class)->name('settings.sharing');
 
-    Route::get('settings/two-factor', TwoFactor::class)
+    Route::livewire('settings/two-factor', TwoFactor::class)
         ->middleware(
             when(
                 Features::canManageTwoFactorAuthentication()
