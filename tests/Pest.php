@@ -1,5 +1,7 @@
 <?php
 
+use App\Services\RecipeImporter\UrlSafetyValidator;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -18,6 +20,40 @@ pest()->extend(Tests\TestCase::class)
 pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Browser');
+
+/*
+|--------------------------------------------------------------------------
+| Test-Only Container Bindings
+|--------------------------------------------------------------------------
+|
+| Register a stub UrlSafetyValidator in the container for all Feature and
+| Browser tests so that no real DNS lookups are performed. The stub maps
+| known test hostnames to a fixed public IP (93.184.216.34 = example.com)
+| so that Http::fake() usage in those tests remains hermetic.
+|
+| Host => IP map:
+|   example.com          => 93.184.216.34
+|   slow-site.com        => 93.184.216.34
+|   unreachable.com      => 93.184.216.34
+|   yeschef.ddev.site    => 93.184.216.34
+|
+*/
+
+pest()->beforeEach(function () {
+    /** @var array<string, string> $testHostMap */
+    $testHostMap = [
+        'example.com' => '93.184.216.34',
+        'slow-site.com' => '93.184.216.34',
+        'unreachable.com' => '93.184.216.34',
+        'yeschef.ddev.site' => '93.184.216.34',
+    ];
+
+    app()->bind(UrlSafetyValidator::class, function () use ($testHostMap) {
+        return new UrlSafetyValidator(function (string $host) use ($testHostMap): array {
+            return isset($testHostMap[$host]) ? [$testHostMap[$host]] : [];
+        });
+    });
+})->in('Feature', 'Browser');
 
 /*
 |--------------------------------------------------------------------------
