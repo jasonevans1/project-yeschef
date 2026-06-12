@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Services\RecipeImporter;
 
 use App\Exceptions\InvalidHTTPStatusException;
@@ -10,55 +12,82 @@ use Illuminate\Support\Facades\Http;
 
 class RecipeFetcher
 {
+    public function __construct(
+        private readonly UrlSafetyValidator $guard = new UrlSafetyValidator
+    ) {}
+
     /**
      * Fetch HTML content from a URL.
      *
-     * @param  string  $url  The URL to fetch
-     * @return string The HTML content
+     * The guard is invoked on the initial URL and on every redirect Location
+     * before the hop is followed, preventing SSRF via open redirects.
+     * Redirects are followed manually (Guzzle auto-redirect is disabled) so
+     * that each hop can be validated.
      *
+     * @throws \App\Exceptions\BlockedUrlException If the URL (or any redirect) is unsafe
      * @throws NetworkTimeoutException If the request times out
-     * @throws InvalidHTTPStatusException If the response status is not 2xx
-     * @throws Exception If connection fails
+     * @throws InvalidHTTPStatusException If the final response status is not 2xx
+     * @throws Exception If connection fails or redirect limit exceeded
      */
     public function fetch(string $url): string
     {
-        // Handle local test routes to avoid self-referential HTTP requests
         if ($this->isLocalTestRoute($url)) {
             return $this->fetchLocalRoute($url);
         }
 
+        $maxRedirects = config('recipe-import.max_redirects', 5);
+        $hops = 0;
+        $currentUrl = $url;
+
         try {
-            $response = Http::timeout(30)
-                ->connectTimeout(10)
-                ->withHeaders([
-                    'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                    'Accept-Language' => 'en-US,en;q=0.9',
-                    'Accept-Encoding' => 'gzip, deflate, br',
-                    'Cache-Control' => 'no-cache',
-                    'Pragma' => 'no-cache',
-                    'Sec-Fetch-Dest' => 'document',
-                    'Sec-Fetch-Mode' => 'navigate',
-                    'Sec-Fetch-Site' => 'none',
-                    'Sec-Fetch-User' => '?1',
-                    'Upgrade-Insecure-Requests' => '1',
-                ])
-                ->get($url);
+            while (true) {
+                // Validate the current URL before fetching
+                $this->guard->validate($currentUrl);
 
-            // Validate HTTP status code
-            if (! $response->successful()) {
-                throw new InvalidHTTPStatusException($response->status());
+                $response = Http::timeout(30)
+                    ->connectTimeout(10)
+                    ->withOptions(['allow_redirects' => false])
+                    ->withHeaders($this->browserHeaders())
+                    ->get($currentUrl);
+
+                $statusCode = $response->status();
+
+                // Follow 3xx redirects manually
+                if ($statusCode >= 300 && $statusCode <= 399) {
+                    $location = $response->header('Location');
+
+                    if (empty($location)) {
+                        // 3xx with no Location — treat as a bad response
+                        throw new InvalidHTTPStatusException($statusCode);
+                    }
+
+                    // Resolve relative Location against the current absolute URL
+                    $currentUrl = $this->resolveUrl($location, $currentUrl);
+
+                    $hops++;
+
+                    if ($hops > $maxRedirects) {
+                        throw new Exception(
+                            'Could not connect to the site: too many redirects.'
+                        );
+                    }
+
+                    continue;
+                }
+
+                // Non-redirect: validate status and return body
+                if (! $response->successful()) {
+                    throw new InvalidHTTPStatusException($statusCode);
+                }
+
+                return $response->body();
             }
-
-            return $response->body();
         } catch (ConnectionException $e) {
-            // Determine if timeout or connection failure
             if (str_contains($e->getMessage(), 'timed out') ||
                 str_contains($e->getMessage(), 'timeout')) {
                 throw new NetworkTimeoutException;
             }
 
-            // Generic connection failure
             throw new Exception(
                 'Could not connect to the site. Please check your internet connection and try again.'
             );
@@ -67,30 +96,21 @@ class RecipeFetcher
 
     /**
      * Check if URL is a local test route (to avoid self-referential HTTP requests).
-     *
-     * @param  string  $url  The URL to check
-     * @return bool True if URL is a local test route
      */
     protected function isLocalTestRoute(string $url): bool
     {
-        // Only handle test routes in testing/local environments
         if (! app()->environment(['local', 'testing'])) {
             return false;
         }
 
-        // Check if URL contains /test/ path segment
         return str_contains($url, '/test/');
     }
 
     /**
      * Fetch content from a local route without making HTTP request.
-     *
-     * @param  string  $url  The URL to fetch
-     * @return string The response content
      */
     protected function fetchLocalRoute(string $url): string
     {
-        // Return static HTML for test routes (avoids self-referential HTTP)
         if (str_contains($url, '/test/recipe-valid')) {
             return <<<'HTML'
 <html>
@@ -130,7 +150,63 @@ HTML;
             return '<html><body>Just a regular page with no recipe data</body></html>';
         }
 
-        // Fallback: return empty HTML
         return '<html><body></body></html>';
+    }
+
+    /**
+     * Resolve a Location header value against the current (base) URL.
+     *
+     * Handles absolute URLs unchanged and resolves relative paths
+     * (both root-relative and relative) against the base URL scheme + host.
+     */
+    private function resolveUrl(string $location, string $baseUrl): string
+    {
+        // Already absolute
+        if (preg_match('#^https?://#i', $location)) {
+            return $location;
+        }
+
+        $parsed = parse_url($baseUrl);
+        $scheme = $parsed['scheme'] ?? 'https';
+        $host = $parsed['host'] ?? '';
+        $port = isset($parsed['port']) ? ':'.$parsed['port'] : '';
+
+        // Root-relative path (starts with /)
+        if (str_starts_with($location, '/')) {
+            return $scheme.'://'.$host.$port.$location;
+        }
+
+        // Protocol-relative (starts with //)
+        if (str_starts_with($location, '//')) {
+            return $scheme.':'.$location;
+        }
+
+        // Relative to the current path directory
+        $basePath = $parsed['path'] ?? '/';
+        $dir = rtrim(dirname($basePath), '/');
+
+        return $scheme.'://'.$host.$port.$dir.'/'.$location;
+    }
+
+    /**
+     * Returns the browser-like headers sent on every request.
+     *
+     * @return array<string, string>
+     */
+    private function browserHeaders(): array
+    {
+        return [
+            'User-Agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+            'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Accept-Encoding' => 'gzip, deflate, br',
+            'Cache-Control' => 'no-cache',
+            'Pragma' => 'no-cache',
+            'Sec-Fetch-Dest' => 'document',
+            'Sec-Fetch-Mode' => 'navigate',
+            'Sec-Fetch-Site' => 'none',
+            'Sec-Fetch-User' => '?1',
+            'Upgrade-Insecure-Requests' => '1',
+        ];
     }
 }
