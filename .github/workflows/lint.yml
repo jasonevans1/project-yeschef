@@ -29,6 +29,21 @@ jobs:
       - name: Run Pint
         run: vendor/bin/pint
 
+      - name: Security regression check (dampener for the security control loop)
+        continue-on-error: true
+        run: |
+          set -uo pipefail
+          git fetch origin "${{ github.base_ref }}" --depth=1
+          pr_count=$(composer audit --locked --format=json --no-interaction 2>/dev/null | jq '[.advisories[][]] | length')
+          mkdir -p /tmp/base
+          git show "origin/${{ github.base_ref }}:composer.json" > /tmp/base/composer.json
+          git show "origin/${{ github.base_ref }}:composer.lock" > /tmp/base/composer.lock
+          base_count=$(cd /tmp/base && composer audit --locked --format=json --no-interaction 2>/dev/null | jq '[.advisories[][]] | length')
+          echo "base: $base_count advisories, PR: $pr_count advisories"
+          if [ "$pr_count" -gt "$base_count" ]; then
+            echo "::warning::This PR increases composer audit advisories ($base_count -> $pr_count). See .claude/control-loops/security.md"
+          fi
+
       # - name: Commit Changes
       #   uses: stefanzweifel/git-auto-commit-action@v5
       #   with:
