@@ -11,8 +11,6 @@ on:
   schedule:
     - cron: "0 13 * * 1" # weekly, Monday 13:00 UTC
   workflow_dispatch:
-  push:
-    branches: [ci/security-loop-schedule] # TEMPORARY — Phase H dry run only, remove after
 
 permissions:
   contents: write
@@ -74,7 +72,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          branch="security/${{ steps.target.outputs.package }}-$GITHUB_RUN_ID"
+          pkg="${{ steps.target.outputs.package }}"
+          branch="security/${pkg//\//-}-$GITHUB_RUN_ID"
           git checkout -b "$branch"
           echo "BRANCH=$branch" >> "$GITHUB_ENV"
 
