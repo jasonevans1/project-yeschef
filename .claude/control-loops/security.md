@@ -1,7 +1,8 @@
 # Control loop: security
 
-Designed via `design-control-loop` skill, Phase A/B. Manual-run only — no CI
-wiring yet (Phase E+ deferred).
+Designed via `design-control-loop` skill, Phase A/B. Phase E (CI) wired in
+`.github/workflows/security-loop.yml` after two clean manual runs validated
+the actuator's judgment (major-bump gate, dependency-cascade handling).
 
 ## Set point
 
@@ -23,7 +24,18 @@ the next reviewable increment. Deterministic, not agentic.
 Claude Code + `.claude/skills/fix-security-advisory/`. Upgrades the named
 package, defers major-version bumps to manual review, requires
 `vendor/bin/pint --parallel --test` and `vendor/bin/pest` to pass before
-committing. Never pushes or opens a PR without explicit go-ahead.
+committing.
+
+Interactively, it never pushes or opens a PR without explicit go-ahead. In
+CI (`security-loop.yml`), the agent only ever commits locally — pushing and
+opening the PR is a separate, deterministic workflow step, not something the
+agent does itself. The agent's step gets `ANTHROPIC_API_KEY` only: no
+`GH_TOKEN`, and `actions/checkout` runs with `persist-credentials: false`, so
+it has no git or GitHub API credential under any permission mode. This is a
+deliberate hardening against the risk the `design-control-loop` skill itself
+was flagged for (Snyk: Critical) — a privileged CI agent with push access is
+a real risk class, not a hypothetical one, so the credential boundary is
+enforced structurally, not just by prompt instruction.
 
 ## Disturbances
 
@@ -46,10 +58,25 @@ future runs.
 
 ## Flow control
 
-Not applicable yet — no scheduling exists (Phase E+). Revisit when this loop
-moves to CI: bound to one open PR via a `security-loop` label.
+Bound to one open PR via the `security-loop` label — scheduled runs no-op if
+one is already open. Manual `workflow_dispatch` bypasses the check.
 
-## Status as of first run
+## No /iterate
 
-31 advisories, 11 packages. First target: `laravel/framework` (3 advisories,
-high severity).
+Deliberately not built. `/iterate` feeds PR-comment text to the actuator as
+instructions — exactly the pattern behind this skill's Critical risk rating
+(anyone who can comment can potentially steer what a privileged CI identity
+commits). Revisit only if a concrete need shows up; until then, correcting
+the loop means editing the memory file directly.
+
+## Cadence
+
+Weekly (`0 13 * * 1`, Monday 13:00 UTC), plus manual `workflow_dispatch`.
+Requires an `ANTHROPIC_API_KEY` repo secret — not yet added as of this
+writing.
+
+## Status
+
+31 advisories / 11 packages at first run. After two manual runs (both
+merged): 9 advisories / 2 packages remain (`dompdf/dompdf`,
+`symfony/yaml`) — the CI schedule's first target.

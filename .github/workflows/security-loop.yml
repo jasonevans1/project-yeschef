@@ -1,0 +1,149 @@
+name: Security control loop
+
+# Weekly scheduled run of the security control loop (see .claude/control-loops/security.md).
+# Sensor+controller: scripts/security-loop-next.sh (fused, deterministic).
+# Actuator: Claude Code running the fix-security-advisory skill.
+# No /iterate support by design — feeding PR-comment text to a privileged
+# CI agent is a known prompt-injection risk class; skip until there's a
+# concrete need for it.
+
+on:
+  schedule:
+    - cron: "0 13 * * 1" # weekly, Monday 13:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: security-loop
+  cancel-in-progress: false
+
+jobs:
+  security-loop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Flow control — skip scheduled runs if a PR is already open
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            existing=$(gh pr list --repo "${{ github.repository }}" --state open --label security-loop --json number --limit 1)
+            if [ "$(echo "$existing" | jq 'length')" -gt 0 ]; then
+              echo "run=false" >> "$GITHUB_OUTPUT"
+              echo "Open security-loop PR already exists; no-op."
+              exit 0
+            fi
+          fi
+          echo "run=true" >> "$GITHUB_OUTPUT"
+
+      # persist-credentials: false — the actuator step below gets no git/gh
+      # credentials at all. Only the final "Push and open PR" step, which is
+      # deterministic (not agent-driven), re-authenticates explicitly.
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.run == 'true'
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup PHP
+        if: steps.gate.outputs.run == 'true'
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install dependencies
+        if: steps.gate.outputs.run == 'true'
+        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+
+      - name: Sensor + controller — pick next target
+        id: target
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          output=$(./scripts/security-loop-next.sh)
+          echo "$output"
+          package=$(echo "$output" | sed -n 's/^Next: *\([^ ]*\).*/\1/p')
+          echo "package=$package" >> "$GITHUB_OUTPUT"
+
+      - name: Configure git and branch
+        if: steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          pkg="${{ steps.target.outputs.package }}"
+          branch="security/${pkg//\//-}-$GITHUB_RUN_ID"
+          git checkout -b "$branch"
+          echo "BRANCH=$branch" >> "$GITHUB_ENV"
+
+      - name: Install Claude Code
+        if: steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        run: npm install -g @anthropic-ai/claude-code
+
+      # No GH_TOKEN in this step's env, and checkout above didn't persist git
+      # credentials — this agent can commit locally but cannot push or call
+      # the GitHub API under any credential, regardless of --permission-mode.
+      - name: Actuator — fix the advisory
+        if: steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          set -o pipefail
+          prompt="$(cat <<EOF
+          Use the fix-security-advisory skill (.claude/skills/fix-security-advisory/SKILL.md)
+          against package: ${{ steps.target.outputs.package }}
+
+          You are running unattended in CI, not interactively — there is no one to ask
+          for approval, so do not stop for it. Follow the skill's steps through step 8
+          (commit), with one change to step 8: the branch already exists (created before
+          you started) — commit on it, do not create a new branch, and do not push. This
+          workflow pushes and opens the PR itself after you finish, using your final
+          response as the PR body.
+
+          If step 5's major-version gate defers the package, or validation fails, do not
+          commit a package fix — say so plainly in your final response. You may still
+          commit a memory-file update alone (step 9) if you learned something durable;
+          the workflow opens a small PR for that too, so a deferral is visible and
+          reviewable rather than silent. If you make no commit at all, the workflow
+          skips PR creation.
+          EOF
+          )"
+
+          claude -p "$prompt" \
+            --permission-mode bypassPermissions \
+            --output-format stream-json \
+            --verbose \
+            2>&1 | tee /tmp/agent-output.txt
+
+      - name: Extract PR body
+        if: steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        run: |
+          cat /tmp/agent-output.txt \
+            | grep '^{' \
+            | jq -s '[.[] | select(.type == "assistant" and .message.content)] | last | .message.content[] | select(.type == "text") | .text' -r \
+            > /tmp/pr-body.md
+
+      - name: Push and open PR
+        if: steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet origin/main...HEAD; then
+            echo "No commit from this run (deferred, blocked, or memory-only); skipping PR."
+            exit 0
+          fi
+
+          git remote set-url origin "https://x-access-token:${GH_TOKEN}@github.com/${{ github.repository }}.git"
+          git push --set-upstream origin "$BRANCH"
+
+          gh label create security-loop --description "Recurring security control loop PR" --color "0E8A16" || true
+          pr_url=$(gh pr create --title "security: fix ${{ steps.target.outputs.package }} advisories" --body-file /tmp/pr-body.md)
+          gh pr edit "$pr_url" --add-label security-loop
+
+      - name: Upload agent output
+        if: always() && steps.gate.outputs.run == 'true' && steps.target.outputs.package != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: agent-output
+          path: /tmp/agent-output.txt
