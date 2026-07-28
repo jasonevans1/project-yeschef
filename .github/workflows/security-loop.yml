@@ -11,6 +11,8 @@ on:
   schedule:
     - cron: "0 13 * * 1" # weekly, Monday 13:00 UTC
   workflow_dispatch:
+  push:
+    branches: [ci/security-loop-schedule] # TEMPORARY — second Phase H dry run, remove after
 
 permissions:
   contents: write
