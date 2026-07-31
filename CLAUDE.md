@@ -815,7 +815,3 @@ Use this workflow for new features, multi-file changes, or anything requiring mu
 <code-standards>
 @.claude/code-standards.md
 </code-standards>
-
-<pipeline>
-@.claude/pipeline.md
-</pipeline>
