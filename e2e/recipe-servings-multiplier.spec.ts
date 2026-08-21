@@ -230,6 +230,32 @@ test.describe('Recipe Servings Multiplier', () => {
         await expect(page.locator('#servings-result')).toContainText(expectedServings.toString());
     });
 
+    test('rounds displayed scaled quantities to at most 3 decimal places', async ({ page }) => {
+        await expect(page.locator('#servings-heading')).toBeVisible();
+
+        const multiplierInput = page.getByLabel('Serving size multiplier');
+
+        // A multiplier chosen to produce long repeating decimals for essentially any
+        // starting quantity (e.g. 1 * 1.3333 = 1.3333), so the rounding boundary is exercised
+        // regardless of what the seeded recipe's quantities happen to be.
+        await multiplierInput.fill('1.3333');
+        await page.waitForTimeout(100);
+
+        // Alpine leaves the x-text attribute in the DOM after evaluation, so this selector
+        // finds every ingredient quantity span regardless of its rendered value.
+        const quantitySpans = page.locator('[x-text^="scaleQuantity"]');
+        const count = await quantitySpans.count();
+        expect(count).toBeGreaterThan(0);
+
+        for (let i = 0; i < count; i++) {
+            const text = (await quantitySpans.nth(i).textContent())?.trim() ?? '';
+            // Strip unicode fraction characters (e.g. ½, ⅓) — fraction display is a separate
+            // formatting path from the decimal fallback that this test targets.
+            const withoutFractions = text.replace(/[⅛¼⅓⅜½⅝⅔¾⅞]/g, '');
+            expect(withoutFractions).toMatch(/^[^.]*(\.\d{1,3})?$/);
+        }
+    });
+
     test('minus button decreases multiplier', async ({ page }) => {
         await expect(page.locator('#servings-heading')).toBeVisible();
 

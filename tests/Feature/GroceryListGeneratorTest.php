@@ -8,6 +8,7 @@ use App\Enums\SourceType;
 use App\Models\GroceryItem;
 use App\Models\Ingredient;
 use App\Models\MealPlan;
+use App\Models\MealPlanNote;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Services\GroceryListGenerator;
@@ -73,20 +74,21 @@ it('returns all aggregated ingredients from getIngredientPreview for a meal plan
     ]);
 
     $result = $this->generator->getIngredientPreview($mealPlan, $this->user->id);
-
-    expect($result)->toHaveCount(2);
     $names = $result->pluck('name')->all();
-    expect($names)->toContain('Salt')->toContain('Black pepper');
+
+    expect($result)->toHaveCount(2)
+        ->and($names)->toContain('Salt')
+        ->toContain('Black pepper');
 });
 
 it('returns items with expected shape keys from getIngredientPreview', function () {
     $mealPlan = makeMealPlanWithIngredient($this->user, 'carrot', IngredientCategory::PRODUCE, 2.0, MeasurementUnit::WHOLE);
 
     $result = $this->generator->getIngredientPreview($mealPlan, $this->user->id);
-
-    expect($result)->toHaveCount(1);
     $item = $result->first();
-    expect($item)->toHaveKey('name')
+
+    expect($result)->toHaveCount(1)
+        ->and($item)->toHaveKey('name')
         ->toHaveKey('quantity')
         ->toHaveKey('unit')
         ->toHaveKey('category')
@@ -107,8 +109,13 @@ it('sorts getIngredientPreview results by category enum order then alphabeticall
     $apple = Ingredient::factory()->create(['name' => 'apple', 'category' => IngredientCategory::PRODUCE]);
     $zucchini = Ingredient::factory()->create(['name' => 'zucchini', 'category' => IngredientCategory::PRODUCE]);
 
-    foreach ([$chicken, $milk, $apple, $zucchini] as $i => $ing) {
-        $recipe->recipeIngredients()->create(['ingredient_id' => $ing->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::WHOLE, 'sort_order' => $i]);
+    foreach ([$chicken, $milk, $apple, $zucchini] as $sortOrder => $ingredient) {
+        $recipe->recipeIngredients()->create([
+            'ingredient_id' => $ingredient->id,
+            'quantity' => 1.0,
+            'unit' => MeasurementUnit::WHOLE,
+            'sort_order' => $sortOrder,
+        ]);
     }
 
     $mealPlan->mealAssignments()->create([
@@ -237,8 +244,13 @@ it('excludes by category AND by ingredient name independently in generate', func
     $milk = Ingredient::factory()->create(['name' => 'milk', 'category' => IngredientCategory::DAIRY]);
     $apple = Ingredient::factory()->create(['name' => 'apple', 'category' => IngredientCategory::PRODUCE]);
 
-    foreach ([$chicken, $milk, $apple] as $i => $ing) {
-        $recipe->recipeIngredients()->create(['ingredient_id' => $ing->id, 'quantity' => 1.0, 'unit' => MeasurementUnit::WHOLE, 'sort_order' => $i]);
+    foreach ([$chicken, $milk, $apple] as $sortOrder => $ingredient) {
+        $recipe->recipeIngredients()->create([
+            'ingredient_id' => $ingredient->id,
+            'quantity' => 1.0,
+            'unit' => MeasurementUnit::WHOLE,
+            'sort_order' => $sortOrder,
+        ]);
     }
 
     $mealPlan->mealAssignments()->create([
@@ -265,4 +277,25 @@ it('applies ingredient exclusion case-insensitively', function () {
 
     $itemNames = $groceryList->groceryItems->pluck('name')->all();
     expect($itemNames)->not->toContain('Black pepper');
+});
+
+// FR-010: Notes excluded from grocery list generation
+it('excludes meal plan notes from generated grocery list items', function () {
+    $date = now()->toDateString();
+    $mealPlan = makeMealPlanWithIngredient($this->user, 'carrot', IngredientCategory::PRODUCE, 2.0, MeasurementUnit::WHOLE);
+
+    // Note lives in the same date/meal-type slot as the recipe assignment
+    MealPlanNote::factory()->for($mealPlan)->create([
+        'date' => $date,
+        'meal_type' => 'dinner',
+        'title' => 'Bring napkins',
+        'details' => 'Remember the paprika garnish',
+    ]);
+
+    $groceryList = $this->generator->generate($mealPlan);
+
+    $itemNames = $groceryList->groceryItems->pluck('name')->all();
+    expect($itemNames)->toBe(['Carrot'])
+        ->and($itemNames)->not->toContain('Bring napkins')
+        ->and($itemNames)->not->toContain('Remember the paprika garnish');
 });

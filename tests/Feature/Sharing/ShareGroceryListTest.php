@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Enums\SharePermission;
+use App\Livewire\GroceryLists\Shared;
 use App\Livewire\GroceryLists\Show;
 use App\Models\ContentShare;
 use App\Models\GroceryList;
 use App\Models\User;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 beforeEach(function () {
@@ -154,4 +156,36 @@ test('share permission must be valid for grocery list', function () {
         ->set('sharePermission', 'admin')
         ->call('shareWith')
         ->assertHasErrors(['sharePermission']);
+});
+
+// ──────────────────────────────────────────
+// FR-017 (partial): Token-link access and user-to-user share access coexist
+// ──────────────────────────────────────────
+
+test('it allows token-link access and user-to-user share access to work simultaneously on the same grocery list', function () {
+    $recipient = $this->recipient;
+    $unrelatedUser = User::factory()->create();
+
+    $groceryList = GroceryList::factory()->standalone()->create([
+        'user_id' => $this->owner->id,
+        'share_token' => Str::uuid()->toString(),
+        'share_expires_at' => now()->addDays(7),
+    ]);
+
+    ContentShare::factory()->forGroceryList($groceryList)->create([
+        'owner_id' => $this->owner->id,
+        'recipient_id' => $recipient->id,
+        'recipient_email' => $recipient->email,
+        'permission' => SharePermission::Read,
+    ]);
+
+    // User-to-user share access path: recipient reaches the list directly by ID
+    Livewire::actingAs($recipient)
+        ->test(Show::class, ['groceryList' => $groceryList])
+        ->assertOk();
+
+    // Token-link access path: an unrelated authenticated user reaches the same list via the token
+    Livewire::actingAs($unrelatedUser)
+        ->test(Shared::class, ['token' => $groceryList->share_token])
+        ->assertOk();
 });
