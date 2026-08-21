@@ -281,14 +281,14 @@ it('can remove one recipe from slot with multiple recipes while keeping others',
         ->call('removeAssignment', $assignment1->id)
         ->assertOk();
 
-    // Verify only one assignment remains and the correct one was removed
+    $remaining = MealAssignment::first();
+
+    // Verify only one assignment remains, the correct one was removed, and the
+    // remaining assignment is the second one
     expect(MealAssignment::count())->toBe(1)
         ->and(MealAssignment::find($assignment1->id))->toBeNull()
-        ->and(MealAssignment::find($assignment2->id))->not->toBeNull();
-
-    // Verify the remaining assignment is the second one
-    $remaining = MealAssignment::first();
-    expect($remaining->recipe_id)->toBe($recipe2->id);
+        ->and(MealAssignment::find($assignment2->id))->not->toBeNull()
+        ->and($remaining->recipe_id)->toBe($recipe2->id);
 });
 
 it('can open recipe drawer with correct state', function () {
@@ -339,6 +339,29 @@ it('can close recipe drawer', function () {
         ->call('closeRecipeDrawer')
         ->assertSet('showRecipeDrawer', false)
         ->assertSet('selectedAssignmentId', null);
+});
+
+it('renders a link to the full recipe page from the drawer', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create(['name' => 'Test Recipe']);
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+    ]);
+
+    $expectedUrl = route('recipes.show', $recipe);
+
+    Livewire::actingAs($user)
+        ->test(Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment)
+        ->assertSee("href=\"{$expectedUrl}\"", false);
 });
 
 it('calculates scaled ingredient quantities correctly', function () {
@@ -433,4 +456,48 @@ it('formats scaled quantities without trailing zeros', function () {
         ->and($scaledIngredients[0]['quantity'])->toBe('2½')
         ->and($scaledIngredients[1]['quantity'])->toBe('1')
         ->and($scaledIngredients[2]['quantity'])->toBe('⅓');
+});
+
+it('displays recipe name, date, servings, times, ingredients, instructions, and notes in the drawer', function () {
+    $user = User::factory()->create();
+    $mealPlan = MealPlan::factory()->for($user)->create([
+        'start_date' => '2025-10-14',
+        'end_date' => '2025-10-20',
+    ]);
+
+    $recipe = Recipe::factory()->create([
+        'name' => 'Drawer Content Recipe',
+        'servings' => 4,
+        'prep_time' => 15,
+        'cook_time' => 30,
+        'instructions' => 'Preheat the oven, then bake for 30 minutes.',
+    ]);
+    $ingredient = Ingredient::factory()->create(['name' => 'Chicken']);
+    RecipeIngredient::create([
+        'recipe_id' => $recipe->id,
+        'ingredient_id' => $ingredient->id,
+        'quantity' => 2.0,
+        'unit' => MeasurementUnit::LB,
+    ]);
+
+    $assignment = MealAssignment::create([
+        'meal_plan_id' => $mealPlan->id,
+        'recipe_id' => $recipe->id,
+        'date' => '2025-10-15',
+        'meal_type' => MealType::DINNER,
+        'notes' => 'Remember to defrost the chicken.',
+    ]);
+
+    Livewire::actingAs($user)
+        ->test(Show::class, ['mealPlan' => $mealPlan])
+        ->call('openRecipeDrawer', $assignment)
+        ->assertSee('Drawer Content Recipe')
+        ->assertSee('Wednesday, October 15')
+        ->assertSee('4 servings')
+        ->assertSee('15 min')
+        ->assertSee('30 min')
+        ->assertSee('2 lb')
+        ->assertSee('Chicken')
+        ->assertSee('Preheat the oven, then bake for 30 minutes.')
+        ->assertSee('Remember to defrost the chicken.');
 });
