@@ -16,6 +16,15 @@ only — not one-off instructions or single-run logs.
   pre-1.0 packages like `brick/math` moving 0.x→0.x are a judgment call, not
   an automatic stop) and that the full suite passes.
 
+- Composer resolves to the highest version the dependents' constraints allow,
+  which routinely overshoots the advisory's minimum fixed version — e.g. the
+  `symfony/yaml` advisories said `<8.0.12`, but `composer update` landed
+  `v8.1.2` because `laravel/roster` and `laravel/sail` both allow `^8.0`.
+  Apply step 5's gate to the version actually installed, not to the advisory's
+  fixed range: a minor overshoot inside the same major is fine and needs no
+  wrapper bump, but the overshoot is what could cross a major, so read the
+  update output rather than assuming you got the minimum patch.
+
 - The CI runner starts with no `.env` and no built frontend assets, so
   `vendor/bin/pest` fails wholesale before it ever exercises the upgraded
   package. Two distinct waves, both environmental, neither a regression:
