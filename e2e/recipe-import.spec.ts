@@ -121,10 +121,10 @@ test('displays error for invalid URL', async ({ page }) => {
   await page.click('button:has-text("Import Recipe")');
 
   // Wait for error message to appear
-  await page.waitForSelector('.flux-error, [role="alert"]', { timeout: 5000 });
+  await page.waitForSelector('[role="alert"]:visible', { timeout: 5000 });
 
   // Verify error message is displayed
-  const errorElement = page.locator('.flux-error, [role="alert"]');
+  const errorElement = page.locator('[role="alert"]:visible');
   await expect(errorElement).toBeVisible();
 
   // Verify the specific error message for no recipe data
@@ -132,4 +132,38 @@ test('displays error for invalid URL', async ({ page }) => {
 
   // Verify still on import page (no redirect)
   await expect(page).toHaveURL(/\/recipes\/import$/);
+});
+
+test('imports an uploaded JSON recipe through preview and saves it', async ({ page }) => {
+  await loginAsUser(page);
+  await page.goto('/recipes/import');
+  await page.waitForLoadState('networkidle');
+
+  const json = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Recipe',
+    name: 'Uploaded E2E Pancakes',
+    recipeInstructions: 'Mix the batter and fry until golden.',
+    recipeIngredient: ['2 cups flour', '1 tsp salt'],
+  });
+
+  const uploadFinished = page.waitForResponse(
+    (response) => (response.request().postData() ?? '').includes('_finishUpload'),
+  );
+
+  await page.setInputFiles('input[type=file]', {
+    name: 'recipe.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(json),
+  });
+
+  expect((await uploadFinished).ok()).toBeTruthy();
+
+  await page.click('button:has-text("Upload File")');
+  await page.waitForURL(/\/recipes\/import\/preview$/, { timeout: 10000 });
+  await expect(page.locator('input[name="name"]')).toHaveValue('Uploaded E2E Pancakes');
+
+  await page.click('button:has-text("Save Recipe")');
+  await page.waitForURL(/\/recipes\/\d+$/, { timeout: 10000 });
+  await expect(page.locator('text=Uploaded E2E Pancakes').first()).toBeVisible();
 });

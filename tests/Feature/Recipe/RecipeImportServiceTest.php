@@ -549,3 +549,101 @@ HTML;
         ->and($result['name'])->toBe('Array Recipe')
         ->and($result['recipeIngredient'])->toHaveCount(2);
 });
+
+/**
+ * @param  array<string, mixed>  $overrides
+ */
+function recipeJson(array $overrides = []): string
+{
+    return json_encode(array_merge([
+        '@context' => 'https://schema.org',
+        '@type' => 'Recipe',
+        'name' => 'Pancakes',
+        'description' => 'Fluffy',
+        'prepTime' => 'PT15M',
+        'cookTime' => 'PT1H30M',
+        'recipeYield' => '6 servings',
+        'recipeIngredient' => ['1 cup flour', '2 eggs'],
+        'recipeInstructions' => 'Mix and fry.',
+    ], $overrides));
+}
+
+it('parses schema.org JSON into the normalized recipe array', function () {
+    $result = $this->service->parseJson(recipeJson());
+
+    expect($result)->toMatchArray([
+        'name' => 'Pancakes',
+        'description' => 'Fluffy',
+        'instructions' => 'Mix and fry.',
+        'recipeIngredient' => ['1 cup flour', '2 eggs'],
+    ]);
+});
+
+it('converts ISO durations and recipeYield when parsing JSON', function () {
+    $result = $this->service->parseJson(recipeJson());
+
+    expect($result['prep_time'])->toBe(15)
+        ->and($result['cook_time'])->toBe(90)
+        ->and($result['servings'])->toBe(6);
+});
+
+it('sets source_url from the recipe url field', function () {
+    $result = $this->service->parseJson(recipeJson(['url' => 'https://example.com/pancakes']));
+
+    expect($result['source_url'])->toBe('https://example.com/pancakes');
+});
+
+it('leaves source_url null when the url field is missing or not http(s)', function (array $extra) {
+    expect($this->service->parseJson(recipeJson($extra))['source_url'])->toBeNull();
+})->with([
+    'missing' => [[]],
+    'not a url' => [['url' => 'nope']],
+    'ftp' => [['url' => 'ftp://example.com/x']],
+    'javascript' => [['url' => 'javascript:alert(1)']],
+    'array' => [['url' => ['https://example.com']]],
+]);
+
+it('throws MalformedRecipeDataException when JSON recipe lacks name, instructions, or ingredients', function (string $field) {
+    $data = json_decode(recipeJson(), true);
+    unset($data[$field]);
+
+    expect(fn () => $this->service->parseJson(json_encode($data)))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+})->with(['name', 'recipeInstructions', 'recipeIngredient']);
+
+it('throws MalformedRecipeDataException when name is not a string or recipeIngredient is not an array', function (array $override) {
+    expect(fn () => $this->service->parseJson(recipeJson($override)))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+})->with([
+    'numeric name' => [['name' => 123]],
+    'array name' => [['name' => ['a']]],
+    'string ingredients' => [['recipeIngredient' => 'flour, sugar']],
+]);
+
+it('drops non-string ingredient items and throws when none remain', function () {
+    $result = $this->service->parseJson(recipeJson(['recipeIngredient' => ['flour', 5, '', ['x'], 'eggs']]));
+
+    expect($result['recipeIngredient'])->toBe(['flour', 'eggs'])
+        ->and(fn () => $this->service->parseJson(recipeJson(['recipeIngredient' => [5, '', null]])))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+});
+
+it('nulls a non-string description', function () {
+    expect($this->service->parseJson(recipeJson(['description' => ['x']]))['description'])->toBeNull();
+});
+
+it('reports malformed file errors without mentioning a page', function () {
+    try {
+        $this->service->parseJson(recipeJson(['name' => 123]));
+        $this->fail('Expected exception');
+    } catch (\App\Exceptions\MalformedRecipeDataException $e) {
+        expect($e->getMessage())->toContain('recipe file')->not->toContain('page');
+    }
+
+    try {
+        $this->service->parseJson('{not json');
+        $this->fail('Expected exception');
+    } catch (\App\Exceptions\MalformedRecipeDataException $e) {
+        expect($e->getMessage())->toContain('recipe file')->not->toContain('page');
+    }
+});

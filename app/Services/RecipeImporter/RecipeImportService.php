@@ -41,6 +41,53 @@ class RecipeImportService
     }
 
     /**
+     * Parse an uploaded schema.org Recipe JSON string into the normalized recipe array.
+     *
+     * @return array<string, mixed>
+     *
+     * @throws \App\Exceptions\MissingRecipeDataException If no recipe found
+     * @throws MalformedRecipeDataException If the file is invalid or incomplete
+     */
+    public function parseJson(string $json): array
+    {
+        $recipeData = $this->parser->parseJson($json);
+        $transformed = $this->transform($recipeData);
+
+        if (! is_string($transformed['name']) || trim($transformed['name']) === '') {
+            throw MalformedRecipeDataException::forFile('Missing required fields: name');
+        }
+
+        if (! is_array($transformed['recipeIngredient'])) {
+            throw MalformedRecipeDataException::forFile('Missing required fields: recipeIngredient');
+        }
+
+        $transformed['recipeIngredient'] = array_values(array_filter(
+            $transformed['recipeIngredient'],
+            fn (mixed $item): bool => is_string($item) && trim($item) !== ''
+        ));
+
+        if (! is_string($transformed['description'])) {
+            $transformed['description'] = null;
+        }
+
+        $url = $recipeData['url'] ?? null;
+        $isHttpUrl = is_string($url)
+            && filter_var($url, FILTER_VALIDATE_URL)
+            && in_array(parse_url($url, PHP_URL_SCHEME), ['http', 'https'], true);
+        $transformed['source_url'] = $isHttpUrl ? $url : null;
+
+        try {
+            $this->validateRequiredFields($transformed);
+        } catch (MalformedRecipeDataException $e) {
+            throw MalformedRecipeDataException::forFile(
+                str_replace('The recipe data on this page is malformed or incomplete. ', '', $e->getMessage())
+            );
+        }
+
+        return $transformed;
+    }
+
+    /**
      * Transform schema.org Recipe data to application schema.
      *
      * @param  array<string, mixed>  $recipeData
