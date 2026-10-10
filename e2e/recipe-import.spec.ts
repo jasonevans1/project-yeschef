@@ -147,11 +147,17 @@ test('imports an uploaded JSON recipe through preview and saves it', async ({ pa
     recipeIngredient: ['2 cups flour', '1 tsp salt'],
   });
 
+  const uploadFinished = page.waitForResponse(
+    (response) => (response.request().postData() ?? '').includes('_finishUpload'),
+  );
+
   await page.setInputFiles('input[type=file]', {
     name: 'recipe.json',
     mimeType: 'application/json',
     buffer: Buffer.from(json),
   });
+
+  expect((await uploadFinished).ok()).toBeTruthy();
 
   await page.click('button:has-text("Upload File")');
   await page.waitForURL(/\/recipes\/import\/preview$/, { timeout: 10000 });
