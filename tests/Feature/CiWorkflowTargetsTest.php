@@ -10,16 +10,15 @@ test('it has no workflow that references the develop branch', function () {
     }
 });
 
-test('it triggers ci workflows only on pull requests targeting main', function () {
-    $pattern = '/on:\s*\n\s*pull_request:\s*\n\s*branches:\s*\n\s*-\s*main\s*\n/';
+test('it triggers the factory ci workflow on pull requests and pushes to main', function () {
+    $workflow = file_get_contents(base_path('.github/workflows/factory-ci.yml'));
 
-    foreach (['tests.yml', 'lint.yml', 'e2e.yml'] as $file) {
-        expect(file_get_contents(base_path(".github/workflows/{$file}")))->toMatch($pattern);
-    }
+    expect($workflow)->toMatch('/on:\s*\n\s*pull_request:\s*\n\s*push:\s*\n\s*branches:\s*\[main\]/');
 });
 
 test('it preserves the required status check job ids', function () {
-    expect(file_get_contents(base_path('.github/workflows/tests.yml')))->toContain('ci:')
-        ->and(file_get_contents(base_path('.github/workflows/e2e.yml')))->toContain('playwright:')
-        ->and(file_get_contents(base_path('.github/workflows/lint.yml')))->toContain('quality:');
+    $workflow = file_get_contents(base_path('.github/workflows/factory-ci.yml'));
+
+    expect($workflow)->toMatch('/^  ci:\n\s*uses: jasonevans1\/laravel-factory\/\.github\/workflows\/tests\.yml@/m')
+        ->and($workflow)->toMatch('/^  lint:\n(.*\n)*?\s*uses: jasonevans1\/laravel-factory\/\.github\/workflows\/lint\.yml@/m');
 });

@@ -1,5 +1,16 @@
 {
-    "env": {
-        "ENABLE_TOOL_SEARCH": "true"
+  "env": {
+    "ENABLE_TOOL_SEARCH": "true"
+  },
+  "extraKnownMarketplaces": {
+    "laravel-factory": {
+      "source": {
+        "source": "github",
+        "repo": "jasonevans1/laravel-factory"
+      }
     }
+  },
+  "enabledPlugins": {
+    "laravel-factory@laravel-factory": true
+  }
 }
