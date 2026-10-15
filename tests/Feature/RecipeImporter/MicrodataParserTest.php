@@ -392,3 +392,75 @@ HTML;
     expect($result)->not->toBeNull()
         ->and($result['name'])->toBe('Normal Recipe');
 });
+
+it('parses a bare schema.org Recipe JSON object', function () {
+    $result = $this->parser->parseJson('{"@type":"Recipe","name":"Soup"}');
+
+    expect($result['name'])->toBe('Soup');
+});
+
+it('parses a Recipe nested in an @graph array', function () {
+    $result = $this->parser->parseJson('{"@graph":[{"@type":"WebSite"},{"@type":"Recipe","name":"Soup"}]}');
+
+    expect($result['name'])->toBe('Soup');
+});
+
+it('parses a Recipe from a top-level JSON array', function () {
+    $result = $this->parser->parseJson('[{"@type":"Thing"},{"@type":"Recipe","name":"Soup"}]');
+
+    expect($result['name'])->toBe('Soup');
+});
+
+it('normalizes HowToStep instructions when parsing JSON', function () {
+    $json = '{"@type":"Recipe","name":"Soup","recipeInstructions":[{"@type":"HowToStep","text":"Boil"},"junk",{"@type":"HowToStep","text":"Serve"}]}';
+
+    $result = $this->parser->parseJson($json);
+
+    expect($result['recipeInstructions'])->toHaveCount(2)
+        ->and($result['recipeInstructions'][1]['text'])->toBe('Serve');
+});
+
+it('throws MalformedRecipeDataException for invalid JSON', function () {
+    expect(fn () => $this->parser->parseJson('{not json'))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class, 'Invalid JSON format.');
+});
+
+it('throws MissingRecipeDataException with a file-specific message when JSON contains no Recipe', function () {
+    expect(fn () => $this->parser->parseJson('{"@type":"Thing"}'))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
+});
+
+it('throws MissingRecipeDataException for empty JSON input', function (string $input) {
+    expect(fn () => $this->parser->parseJson($input))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
+})->with(['empty' => [''], 'whitespace' => ["  \n\t "]]);
+
+it('parses JSON that starts with a UTF-8 BOM', function () {
+    $result = $this->parser->parseJson("\xEF\xBB\xBF".'{"@type":"Recipe","name":"Soup"}');
+
+    expect($result['name'])->toBe('Soup');
+});
+
+it('throws MissingRecipeDataException when JSON decodes to a scalar', function (string $json) {
+    expect(fn () => $this->parser->parseJson($json))
+        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+})->with(['string' => ['"x"'], 'int' => ['42'], 'bool' => ['true'], 'null' => ['null']]);
+
+it('skips non-array items in a top-level JSON array', function () {
+    $result = $this->parser->parseJson('["x",42,null,{"@type":"Recipe","name":"Soup"}]');
+
+    expect($result['name'])->toBe('Soup');
+});
+
+it('does not strip comment-like text inside JSON string values', function () {
+    $result = $this->parser->parseJson('{"@type":"Recipe","name":"Soup","description":"Mix /* gently */ well"}');
+
+    expect($result['description'])->toBe('Mix /* gently */ well');
+});
+
+test('parse still reports Invalid JSON-LD format for malformed script tags', function () {
+    $html = '<html><head><script type="application/ld+json">{bad</script></head></html>';
+
+    expect(fn () => $this->parser->parse($html))
+        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class, 'Invalid JSON-LD format.');
+});

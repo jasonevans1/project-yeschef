@@ -58,28 +58,64 @@ class MicrodataParser
                 throw new MalformedRecipeDataException('Invalid JSON-LD format.');
             }
 
-            // Handle top-level array (e.g., [{"@type": "Recipe", ...}])
-            if (is_array($data) && isset($data[0]) && is_array($data[0])) {
-                foreach ($data as $item) {
-                    $recipe = $this->findRecipe($item);
-                    if ($recipe !== null) {
-                        return $this->normalizeRecipe($recipe);
-                    }
-                }
-
-                continue;
-            }
-
-            // Check if this is a Recipe
-            $recipe = $this->findRecipe($data);
+            $recipe = $this->extractRecipe($data);
 
             if ($recipe !== null) {
-                return $this->normalizeRecipe($recipe);
+                return $recipe;
             }
         }
 
         // No recipe found
         throw new MissingRecipeDataException;
+    }
+
+    /**
+     * Parse a raw JSON string (e.g. an uploaded file) into a normalized Recipe.
+     *
+     * @return array<string, mixed> The Recipe data
+     *
+     * @throws MissingRecipeDataException If no recipe found
+     * @throws MalformedRecipeDataException If the JSON is invalid
+     */
+    public function parseJson(string $json): array
+    {
+        $json = trim(preg_replace('/^\xEF\xBB\xBF/', '', $json));
+        $missingMessage = 'No schema.org Recipe found in this file.';
+
+        if ($json === '') {
+            throw new MissingRecipeDataException($missingMessage);
+        }
+
+        try {
+            $data = json_decode($json, true, 512, JSON_THROW_ON_ERROR);
+        } catch (JsonException) {
+            throw MalformedRecipeDataException::forFile('Invalid JSON format.');
+        }
+
+        return $this->extractRecipe($data) ?? throw new MissingRecipeDataException($missingMessage);
+    }
+
+    /**
+     * Find and normalize a Recipe in already-decoded JSON-LD data.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function extractRecipe(mixed $data): ?array
+    {
+        if (! is_array($data)) {
+            return null;
+        }
+
+        $candidates = array_is_list($data) ? $data : [$data];
+
+        foreach ($candidates as $item) {
+            $recipe = is_array($item) ? $this->findRecipe($item) : null;
+            if ($recipe !== null) {
+                return $this->normalizeRecipe($recipe);
+            }
+        }
+
+        return null;
     }
 
     /**
