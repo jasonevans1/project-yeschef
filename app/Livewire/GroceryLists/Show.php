@@ -14,6 +14,8 @@ use App\Models\Recipe;
 use App\Models\User;
 use App\Services\GroceryListGenerator;
 use App\Services\ItemAutoCompleteService;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Mail;
@@ -73,6 +75,9 @@ class Show extends Component
     // Properties for delete confirmation (US1)
     public bool $showDeleteConfirm = false;
 
+    /**
+     * @return array<string, string>
+     */
     protected function rules(): array
     {
         return [
@@ -181,9 +186,9 @@ class Show extends Component
 
         $this->editingItemId = $item->id;
         $this->itemName = $item->name;
-        $this->itemQuantity = $item->quantity;
+        $this->itemQuantity = $item->quantity !== null ? (string) $item->quantity : null;
         $this->itemUnit = $item->unit?->value;
-        $this->itemCategory = $item->category?->value;
+        $this->itemCategory = $item->category->value;
         $this->itemNotes = $item->notes ?? '';
         $this->showAddItemForm = false;
     }
@@ -211,7 +216,7 @@ class Show extends Component
                 'name' => $item->name,
                 'quantity' => $item->quantity,
                 'unit' => $item->unit?->value,
-                'category' => $item->category?->value,
+                'category' => $item->category->value,
                 'notes' => $item->notes,
             ];
         }
@@ -294,10 +299,13 @@ class Show extends Component
     /**
      * Calculate the diff preview for regeneration (US4 - T090)
      * Returns counts of items that will be added, updated, or removed
+     *
+     * @return array<string, int>
      */
     private function calculateRegenerateDiff(): array
     {
         $mealPlan = $this->groceryList->mealPlan;
+        abort_unless($mealPlan instanceof MealPlan, 404);
 
         // Get existing items (excluding soft-deleted)
         $existingItems = $this->groceryList->groceryItems()->get();
@@ -357,6 +365,8 @@ class Show extends Component
 
     /**
      * Helper method to collect ingredients from meal plan
+     *
+     * @return Collection<int, array<string, mixed>>
      */
     private function collectIngredientsFromMealPlan(MealPlan $mealPlan): Collection
     {
@@ -610,7 +620,7 @@ class Show extends Component
         }
 
         $service = app(ItemAutoCompleteService::class);
-        $results = $service->query(auth()->id(), $this->searchQuery, 10);
+        $results = $service->query((int) auth()->id(), $this->searchQuery, 10);
 
         $this->suggestions = $results->map(function ($template) use ($service) {
             return $service->formatSuggestion($template);
@@ -619,6 +629,8 @@ class Show extends Component
 
     /**
      * Select an item from autocomplete suggestions and populate form fields (US1)
+     *
+     * @param  array<string, mixed>  $item
      */
     public function selectGroceryItem(array $item): void
     {
@@ -636,6 +648,8 @@ class Show extends Component
 
     /**
      * Get items grouped by category for display
+     *
+     * @return Collection<int|string, EloquentCollection<int, Model>>
      */
     public function getItemsByCategoryProperty(): Collection
     {
@@ -654,7 +668,7 @@ class Show extends Component
 
     public function render(): mixed
     {
-        $itemsByCategory = $this->itemsByCategory;
+        $itemsByCategory = $this->getItemsByCategoryProperty();
 
         $recipeIds = $itemsByCategory
             ->flatten(1)
