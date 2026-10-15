@@ -23,7 +23,9 @@
         "symfony/mailgun-mailer": "^7.0"
     },
     "require-dev": {
+        "driftingly/rector-laravel": "^2.6",
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.13",
         "laravel/boost": "^2.0",
         "laravel/pail": "^1.2.2",
         "laravel/pint": "^1.18",
@@ -31,7 +33,9 @@
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
         "pestphp/pest": "^4.1",
-        "pestphp/pest-plugin-laravel": "^4.1"
+        "pestphp/pest-plugin-laravel": "^4.1",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "rector/rector": "^2.7"
     },
     "autoload": {
         "psr-4": {
