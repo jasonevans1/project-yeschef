@@ -16,6 +16,7 @@
 - [Getting Started](#getting-started)
 - [Development](#development)
 - [Testing](#testing)
+- [CI/CD & Control Loops](#cicd--control-loops)
 - [Speckit Development Workflow](#speckit-development-workflow)
 - [Project Architecture](#project-architecture)
 - [Contributing](#contributing)
@@ -94,7 +95,7 @@ Our [project constitution](>.specify/memory/constitution.md) ensures consistent 
 
 ### Backend
 
-- **PHP**: 8.3
+- **PHP**: 8.4 (DDEV and CI)
 - **Laravel**: 12
 - **Livewire**: 3 (full-page components)
 - **Livewire Volt**: 1 (single-file components)
@@ -127,13 +128,15 @@ Our [project constitution](>.specify/memory/constitution.md) ensures consistent 
 ### Code Quality
 
 - **Laravel Pint**: PSR-12 code formatting
+- **PHPStan + Larastan**: Static analysis (level 7, with a baseline the Larastan loop ratchets down)
+- **Rector**: Automated refactoring, used by the Larastan loop
 
 ## Getting Started
 
 ### Prerequisites
 
 - **Docker Desktop**: For DDEV containers
-- **PHP**: 8.3 or higher
+- **PHP**: 8.2 or higher (8.4 recommended, matching DDEV and CI)
 - **Composer**: Latest version
 - **Node.js & NPM**: LTS version
 
@@ -255,7 +258,17 @@ Run Laravel Pint before committing:
 vendor/bin/pint --dirty
 ```
 
-This ensures PSR-12 code style compliance.
+This ensures PSR-12 code style compliance. CI runs `pint --test`, so unformatted code fails the `lint / quality` check. `phpstan-baseline.php` is excluded in `pint.json` because it's generated.
+
+### Static Analysis
+
+Run PHPStan through DDEV:
+
+```bash
+ddev exec vendor/bin/phpstan analyse --memory-limit=1G
+```
+
+Use DDEV rather than host PHP. The baseline is calibrated for PHP 8.4, which DDEV and CI both run. Newer host PHP versions report extra deprecations. New errors fail CI. Existing ones live in `phpstan-baseline.php` until the Larastan loop fixes them. Don't add to the baseline by hand.
 
 ## Testing
 
@@ -310,6 +323,41 @@ npx playwright test --project=webkit
 - **In-memory SQLite**: Fast test execution with database isolation
 - **RefreshDatabase**: Automatic database reset between tests
 - **Factories & Seeders**: Comprehensive test data generation
+
+## CI/CD & Control Loops
+
+CI, deploys and automated maintenance run on [laravel-factory](https://github.com/jasonevans1/laravel-factory) reusable workflows, pinned to `v1`. The caller workflows in `.github/workflows/factory-*.yml` are managed by the factory's `adopt.sh`. Change the factory, not these files.
+
+### Pull Request Checks
+
+Branch protection on `main` requires:
+
+| Check | What it runs |
+|---|---|
+| `ci / pest` | Full Pest suite, plus a runtime-deprecation warning |
+| `ci / e2e` | Full Playwright suite (Chromium) against `php artisan serve` |
+| `lint / quality` | `pint --test`, PHPStan (new errors fail), the composer-audit dampener and the test-integrity gate |
+
+The test-integrity gate labels a PR `test-weakened` when a diff removes tests or assertions, adds skips, or rewrites expected values. On PRs made by Claude it blocks the merge.
+
+### Deploys
+
+Every push to `main` triggers the Laravel Cloud deploy hook. The deploy then polls `https://yeschef.jasonevans.xyz/up` and fails if the app isn't healthy within 5 minutes. To roll back, run `git revert <sha> && git push`.
+
+### Control Loops
+
+Each loop opens at most one PR at a time. If a loop PR stays open for more than 7 days, its scheduled runs fail loudly until it is merged or closed.
+
+| Loop | Goal | How it fixes | Auto-merge |
+|---|---|---|---|
+| Security (`security-loop`) | 0 `composer audit` advisories | `composer update`; Claude only if tests then fail | lockfile-only fixes, once trusted |
+| Larastan (`larastan-loop`) | Empty `phpstan-baseline.php` | Rector on one file, then Claude for what's left | unflagged PRs, once trusted |
+| Dependabot | Minor and patch dependencies current | Grouped Dependabot PRs; `dependency-fix` lets Claude repair a failing one | Dependabot PRs yes, Claude fixes never |
+| Mutation (`mutation-loop`) | Fewer escaped mutants | Claude writes tests (`tests/` only) | never |
+
+Loop PRs are opened by the factory GitHub App, so CI runs on them. Claude in CI authenticates with a Claude subscription token and never holds a GitHub token. PRs labelled `needs-type-review` add `mixed` or `@var` types, so review them before merging.
+
+Repository secrets: `CLAUDE_CODE_OAUTH_TOKEN`, `FACTORY_APP_ID`, `FACTORY_APP_PRIVATE_KEY` and `LARAVEL_CLOUD_DEPLOY_HOOK`. The repository variable `PRODUCTION_URL` holds the production URL. To re-apply settings or upgrade the factory, re-run `~/projects/laravel-factory/adopt/adopt.sh` (add `--ref v2` for a new major version).
 
 ## Speckit Development Workflow
 
@@ -439,7 +487,7 @@ Contributions are welcome! Please follow these guidelines:
 1. **Review the Constitution**: Read [>.specify/memory/constitution.md](>.specify/memory/constitution.md)
 2. **Use Speckit Workflow**: All features must follow specify → plan → tasks → implement
 3. **Write Tests First**: TDD is mandatory, not optional
-4. **Run Pint**: Format code before committing (`vendor/bin/pint --dirty`)
+4. **Run Pint and PHPStan**: `vendor/bin/pint --dirty` and `ddev exec vendor/bin/phpstan analyse --memory-limit=1G`
 5. **Comprehensive Tests**: Include unit, feature, and E2E tests where applicable
 6. **Documentation**: Update specs and README as needed
 
@@ -450,8 +498,8 @@ Contributions are welcome! Please follow these guidelines:
 3. Write failing tests
 4. Implement feature
 5. Verify all tests pass
-6. Run Pint for code formatting
-7. Submit pull request with reference to feature spec
+6. Run Pint and PHPStan
+7. Submit pull request with reference to feature spec. `ci / pest`, `ci / e2e` and `lint / quality` must pass before merge
 
 ## License
 
