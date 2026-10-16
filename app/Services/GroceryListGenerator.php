@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
 use App\Enums\SourceType;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
@@ -24,7 +25,7 @@ class GroceryListGenerator
      *
      * Sorted by IngredientCategory declaration order first, then alphabetically by name.
      *
-     * @return \Illuminate\Support\Collection<int, array{name: string, quantity: numeric|null, unit: string|null, category: string, category_label: string}>
+     * @return \Illuminate\Support\Collection<int, array{name: string, quantity: float|int|string|null, unit: string|null, category: string, category_label: string}>
      */
     public function getIngredientPreview(MealPlan $mealPlan, int $userId): Collection
     {
@@ -136,6 +137,10 @@ class GroceryListGenerator
 
         $mealPlan = $groceryList->mealPlan;
 
+        if (! $mealPlan instanceof MealPlan) {
+            throw new \InvalidArgumentException('Grocery list meal plan not found');
+        }
+
         // Collect existing items (including soft-deleted)
         $existingItems = $groceryList->groceryItems()->withTrashed()->get();
 
@@ -244,6 +249,8 @@ class GroceryListGenerator
     /**
      * Collect and aggregate all ingredients from a meal plan.
      * Used by getCategoryItemCounts and getIngredientPreview.
+     *
+     * @return Collection<int, array{name: string, quantity: float|int|string|null, unit: MeasurementUnit|null, category: IngredientCategory, recipe_ids?: array<int, int>|null}>
      */
     private function getAggregatedIngredients(MealPlan $mealPlan, int $userId): Collection
     {
@@ -255,6 +262,8 @@ class GroceryListGenerator
     /**
      * Collect all ingredients from a meal plan's assigned recipes.
      * Applies template-based category resolution for OTHER-categorized ingredients.
+     *
+     * @return Collection<int, array<string, mixed>>
      */
     private function collectIngredientsFromMealPlan(MealPlan $mealPlan, int $userId = 0): Collection
     {
@@ -282,15 +291,19 @@ class GroceryListGenerator
         }
 
         // Scale all ingredients by their serving multipliers and resolve categories via templates
-        return $allIngredients->map(function ($ingredient) use ($userId) {
+        $scaledIngredients = new Collection;
+
+        foreach ($allIngredients as $ingredient) {
             $multiplier = $ingredient['serving_multiplier'];
             unset($ingredient['serving_multiplier']);
 
             $scaled = $this->processIngredients(collect([$ingredient]), $multiplier)->first();
             $scaled['category'] = $this->resolveIngredientCategory($scaled['name'], $scaled['category'], $userId);
 
-            return $scaled;
-        });
+            $scaledIngredients->push($scaled);
+        }
+
+        return $scaledIngredients;
     }
 
     /**
@@ -311,6 +324,9 @@ class GroceryListGenerator
 
     /**
      * Process ingredients with serving multiplier (exposed for testing)
+     *
+     * @param  Collection<int, array<string, mixed>>  $ingredients
+     * @return Collection<int, array<string, mixed>>
      */
     public function processIngredients(Collection $ingredients, float $multiplier): Collection
     {
@@ -319,6 +335,9 @@ class GroceryListGenerator
 
     /**
      * Aggregate ingredients (exposed for testing)
+     *
+     * @param  Collection<int, array<string, mixed>>  $ingredients
+     * @return Collection<int, array{name: string, quantity: float|int|string|null, unit: MeasurementUnit|null, category: IngredientCategory, recipe_ids?: array<int, int>|null}>
      */
     public function aggregateIngredients(Collection $ingredients): Collection
     {
@@ -327,6 +346,9 @@ class GroceryListGenerator
 
     /**
      * Organize ingredients by category (exposed for testing)
+     *
+     * @param  Collection<int, array{name: string, quantity: float|int|string|null, unit: MeasurementUnit|null, category: IngredientCategory, recipe_ids?: array<int, int>|null}>  $ingredients
+     * @return array<string, array<int, array{name: string, quantity: float|int|string|null, unit: MeasurementUnit|null, category: IngredientCategory, recipe_ids?: array<int, int>|null}>>
      */
     public function organizeByCategory(Collection $ingredients): array
     {
