@@ -1016,74 +1016,8 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:aggregateIngredients\\(\\) has parameter \\$ingredients with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:aggregateIngredients\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:collectIngredientsFromMealPlan\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:getAggregatedIngredients\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:getIngredientPreview\\(\\) should return Illuminate\\\\Support\\\\Collection\\<int, array\\{name\\: string, quantity\\: float\\|int\\|numeric\\-string\\|null, unit\\: string\\|null, category\\: string, category_label\\: string\\}\\> but returns Illuminate\\\\Support\\\\Collection\\<int, array\\{name\\: mixed, quantity\\: mixed, unit\\: string\\|null, category\\: string, category_label\\: string\\}\\>\\.$#',
-	'identifier' => 'return.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:organizeByCategory\\(\\) has parameter \\$ingredients with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:organizeByCategory\\(\\) return type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:processIngredients\\(\\) has parameter \\$ingredients with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\GroceryListGenerator\\:\\:processIngredients\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#1 \\$mealPlan of method App\\\\Services\\\\GroceryListGenerator\\:\\:collectIngredientsFromMealPlan\\(\\) expects App\\\\Models\\\\MealPlan, Illuminate\\\\Database\\\\Eloquent\\\\Model\\|null given\\.$#',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Property App\\\\Services\\\\GroceryListGenerator\\:\\:\\$unitConverter is never read, only written\\.$#',
 	'identifier' => 'property.onlyWritten',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Unable to resolve the template type TGroupKey in call to method Illuminate\\\\Support\\\\Collection\\<\\(int\\|string\\),mixed\\>\\:\\:groupBy\\(\\)$#',
-	'identifier' => 'argument.templateType',
 	'count' => 1,
 	'path' => __DIR__ . '/app/Services/GroceryListGenerator.php',
 ];
