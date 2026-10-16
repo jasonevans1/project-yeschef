@@ -302,12 +302,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Access to an undefined property App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:\\$itemsByCategory\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$category\\.$#',
 	'identifier' => 'property.notFound',
 	'count' => 1,
@@ -326,63 +320,9 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:calculateRegenerateDiff\\(\\) return type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:collectIngredientsFromMealPlan\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:getItemsByCategoryProperty\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:rules\\(\\) return type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:selectGroceryItem\\(\\) has parameter \\$item with no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#1 \\$mealPlan of method App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:collectIngredientsFromMealPlan\\(\\) expects App\\\\Models\\\\MealPlan, Illuminate\\\\Database\\\\Eloquent\\\\Model\\|null given\\.$#',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#1 \\$userId of method App\\\\Services\\\\ItemAutoCompleteService\\:\\:query\\(\\) expects int, int\\|string\\|null given\\.$#',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Property App\\\\Livewire\\\\GroceryLists\\\\Show\\:\\:\\$itemQuantity \\(string\\|null\\) does not accept float\\|null\\.$#',
-	'identifier' => 'assign.propertyType',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Unable to resolve the template type TGroupKey in call to method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:groupBy\\(\\)$#',
 	'identifier' => 'argument.templateType',
 	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Using nullsafe property access on non\\-nullable type App\\\\Enums\\\\IngredientCategory\\. Use \\-\\> instead\\.$#',
-	'identifier' => 'nullsafe.neverNull',
-	'count' => 2,
 	'path' => __DIR__ . '/app/Livewire/GroceryLists/Show.php',
 ];
 $ignoreErrors[] = [
