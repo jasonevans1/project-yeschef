@@ -416,36 +416,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\MealPlans\\\\Show\\:\\:getRecipesProperty\\(\\) return type with generic class Illuminate\\\\Database\\\\Eloquent\\\\Collection does not specify its types\\: TKey, TModel$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\MealPlans\\\\Show\\:\\:openNoteForm\\(\\) has parameter \\$date with no type specified\\.$#',
-	'identifier' => 'missingType.parameter',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\MealPlans\\\\Show\\:\\:openNoteForm\\(\\) has parameter \\$mealType with no type specified\\.$#',
-	'identifier' => 'missingType.parameter',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\MealPlans\\\\Show\\:\\:openRecipeSelector\\(\\) has parameter \\$date with no type specified\\.$#',
-	'identifier' => 'missingType.parameter',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\MealPlans\\\\Show\\:\\:openRecipeSelector\\(\\) has parameter \\$mealType with no type specified\\.$#',
-	'identifier' => 'missingType.parameter',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Using nullsafe property access "\\?\\-\\>value" on left side of \\?\\? is unnecessary\\. Use \\-\\> instead\\.$#',
 	'identifier' => 'nullsafe.neverNull',
 	'count' => 1,
