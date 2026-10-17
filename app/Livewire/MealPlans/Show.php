@@ -72,7 +72,7 @@ class Show extends Component
         $this->mealPlan = $mealPlan;
     }
 
-    public function openRecipeSelector($date, $mealType): void
+    public function openRecipeSelector(string $date, string $mealType): void
     {
         $this->selectedDate = $date;
         $this->selectedMealType = $mealType;
@@ -158,7 +158,7 @@ class Show extends Component
 
     // Note methods
 
-    public function openNoteForm($date, $mealType): void
+    public function openNoteForm(string $date, string $mealType): void
     {
         $this->authorize('update', $this->mealPlan);
 
@@ -343,6 +343,9 @@ class Show extends Component
         return redirect()->route('meal-plans.index');
     }
 
+    /**
+     * @return Collection<int, Recipe>
+     */
     public function getRecipesProperty(): Collection
     {
         $query = Recipe::query()
