@@ -771,25 +771,6 @@ $pages->assertNoJavascriptErrors()->assertNoConsoleLogs();
 - Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test` with a specific filename or filter.
 </laravel-boost-guidelines>
 
-## Active Technologies
-- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x (004-rebrand-header)
-- N/A (view-only changes) (004-rebrand-header)
-- PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Laravel Fortify (authentication) (005-delete-grocery-list)
-- MariaDB (production via DDEV), SQLite (development/testing) (005-delete-grocery-list)
-- MariaDB (production via DDEV), SQLite (dev/test) - Recipe model with source_url field (006-import-recipe)
-- PHP 8.3 (Laravel 12) + Laravel Framework 12, Livewire 3, Livewire Flux (UI components) (007-format-ingredient-quantities)
-- RecipeIngredient model with decimal(8,3) quantity field, MeasurementUnit enum (007-format-ingredient-quantities)
-- PHP 8.3 (Laravel 12) + Livewire 3, Livewire Flux (UI components), Alpine.js (included with Livewire), Tailwind CSS 4.x (009-recipe-servings-multiplier)
-- N/A (client-side state only, no database changes) (009-recipe-servings-multiplier)
-- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux 2.10, Tailwind CSS 4.x (010-meal-plan-notes)
-- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Laravel Fortify (auth) (011-share-content)
-- SQLite (dev/test), MariaDB (production via DDEV) (011-share-content)
-- PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux 2 (UI components), Pest 4 (tests) (012-grocery-list-categories)
-- SQLite (test), MariaDB (DDEV) — two new nullable JSON columns (012-grocery-list-categories)
-
-## Recent Changes
-- 004-rebrand-header: Added PHP 8.3, Laravel 12 + Livewire 3, Livewire Flux (UI components), Tailwind CSS 4.x
-
 ## Feature Development
 
 For simple fixes and quick changes, use TDD (when at all possible).
