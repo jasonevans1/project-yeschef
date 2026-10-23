@@ -200,18 +200,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/GroceryLists/Export.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Export\\:\\:mount\\(\\) has no return type specified\\.$#',
-	'identifier' => 'missingType.return',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Export.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Export\\:\\:render\\(\\) has no return type specified\\.$#',
-	'identifier' => 'missingType.return',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Export.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Parameter \\#1 \\$view of function view expects view\\-string\\|null, string given\\.$#',
 	'identifier' => 'argument.type',
 	'count' => 1,

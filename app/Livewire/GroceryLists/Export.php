@@ -14,7 +14,7 @@ class Export extends Component
 
     public GroceryList $groceryList;
 
-    public function mount(GroceryList $groceryList)
+    public function mount(GroceryList $groceryList): void
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
@@ -30,14 +30,12 @@ class Export extends Component
         $this->authorize('view', $this->groceryList);
 
         // Load grocery list with items grouped by category
-        $this->groceryList->load(['groceryItems' => function ($query) {
+        $this->groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = $this->groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
 
         // Generate PDF
         $pdf = Pdf::loadView('grocery-lists.pdf', [
@@ -50,7 +48,7 @@ class Export extends Component
 
         // Return PDF download
         return response()->streamDownload(
-            function () use ($pdf) {
+            function () use ($pdf): void {
                 echo $pdf->output();
             },
             $filename,
@@ -66,14 +64,12 @@ class Export extends Component
         $this->authorize('view', $this->groceryList);
 
         // Load grocery list with items grouped by category
-        $this->groceryList->load(['groceryItems' => function ($query) {
+        $this->groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = $this->groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
 
         // Generate plain text content
         $content = $this->generatePlainText($itemsByCategory);
@@ -83,7 +79,7 @@ class Export extends Component
 
         // Return text download
         return response()->streamDownload(
-            function () use ($content) {
+            function () use ($content): void {
                 echo $content;
             },
             $filename,
@@ -176,7 +172,7 @@ class Export extends Component
         return Str::limit($name, 50, '');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         // This component is primarily for export actions, not rendering a view
         // But we need a render method for Livewire
