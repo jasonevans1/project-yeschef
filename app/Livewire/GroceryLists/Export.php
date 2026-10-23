@@ -2,11 +2,15 @@
 
 namespace App\Livewire\GroceryLists;
 
+use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Export extends Component
 {
@@ -14,7 +18,7 @@ class Export extends Component
 
     public GroceryList $groceryList;
 
-    public function mount(GroceryList $groceryList)
+    public function mount(GroceryList $groceryList): void
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
@@ -25,19 +29,17 @@ class Export extends Component
     /**
      * Export grocery list as PDF
      */
-    public function exportPdf()
+    public function exportPdf(): StreamedResponse
     {
         $this->authorize('view', $this->groceryList);
 
         // Load grocery list with items grouped by category
-        $this->groceryList->load(['groceryItems' => function ($query) {
+        $this->groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = GroceryItem::query()->whereBelongsTo($this->groceryList)->orderBy('category')->orderBy('sort_order')->orderBy('name')->get()->groupBy(fn (GroceryItem $item): string => $item->category->value);
 
         // Generate PDF
         $pdf = Pdf::loadView('grocery-lists.pdf', [
@@ -50,7 +52,7 @@ class Export extends Component
 
         // Return PDF download
         return response()->streamDownload(
-            function () use ($pdf) {
+            function () use ($pdf): void {
                 echo $pdf->output();
             },
             $filename,
@@ -61,19 +63,17 @@ class Export extends Component
     /**
      * Export grocery list as plain text
      */
-    public function exportText()
+    public function exportText(): StreamedResponse
     {
         $this->authorize('view', $this->groceryList);
 
         // Load grocery list with items grouped by category
-        $this->groceryList->load(['groceryItems' => function ($query) {
+        $this->groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = GroceryItem::query()->whereBelongsTo($this->groceryList)->orderBy('category')->orderBy('sort_order')->orderBy('name')->get()->groupBy(fn (GroceryItem $item): string => $item->category->value);
 
         // Generate plain text content
         $content = $this->generatePlainText($itemsByCategory);
@@ -83,7 +83,7 @@ class Export extends Component
 
         // Return text download
         return response()->streamDownload(
-            function () use ($content) {
+            function () use ($content): void {
                 echo $content;
             },
             $filename,
@@ -93,8 +93,10 @@ class Export extends Component
 
     /**
      * Generate plain text format with markdown-style checkboxes
+     *
+     * @param  Collection<array-key, EloquentCollection<int, GroceryItem>>  $itemsByCategory
      */
-    protected function generatePlainText($itemsByCategory): string
+    protected function generatePlainText(Collection $itemsByCategory): string
     {
         $text = '';
 
@@ -176,7 +178,7 @@ class Export extends Component
         return Str::limit($name, 50, '');
     }
 
-    public function render()
+    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
     {
         // This component is primarily for export actions, not rendering a view
         // But we need a render method for Livewire
