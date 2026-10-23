@@ -78,6 +78,20 @@ Use parallel by default for full suite runs; use sequential for debugging flaky 
 - Feature/Integration tests: `tests/Feature/` (organized by domain, e.g. `GroceryList/`, `MealPlans/`, `Recipes/`)
 - E2E tests: `e2e/`
 - Browser tests (Pest 4): `tests/Browser/`
+- Acceptance scenarios (Pest): `tests/Acceptance/{Plan}/`, domain helpers in `tests/Acceptance/Support/`
+
+## Acceptance Scenarios
+Written by the `acceptance-spec-writer` agent at plan review, approved by the human, then locked by `acceptance-lock` before implementation (`.claude/hooks/acceptance-specs.php`). Locked files cannot be edited by agents until the plan is `completed`.
+
+```bash
+# Run one plan's scenarios
+php artisan test tests/Acceptance/{Plan}
+
+# Task-level runs exclude scenarios that are still red by design
+php artisan test --parallel --exclude-testsuite=Acceptance
+```
+
+The full suite (`php artisan test --parallel`) includes the scenarios and `tests/Feature/AcceptanceSpecsTest.php`, so a plan cannot commit until its scenarios pass and its locked files are unchanged.
 
 ## Database
 - SQLite in-memory for PHP tests (configured in `phpunit.xml`)
