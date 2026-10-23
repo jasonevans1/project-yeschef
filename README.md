@@ -17,7 +17,6 @@
 - [Development](#development)
 - [Testing](#testing)
 - [CI/CD & Control Loops](#cicd--control-loops)
-- [Speckit Development Workflow](#speckit-development-workflow)
 - [Project Architecture](#project-architecture)
 - [Contributing](#contributing)
 - [License](#license)
@@ -26,16 +25,14 @@
 
 **YesChef** is a comprehensive meal planning and recipe management application designed to streamline your cooking workflow. From recipe discovery to grocery shopping, YesChef handles the entire meal planning lifecycle with intelligent features like recipe imports, serving size adjustments, smart grocery lists, and shareable meal plans.
 
-### Built with Claude Code & Speckit
+### Built with Claude Code
 
-This project is developed using **Claude Code** and follows a strict **Test-Driven Development (TDD)** methodology enforced through **Speckit** — a structured feature development framework. Every feature is:
+This project is developed using **Claude Code** and follows a strict **Test-Driven Development (TDD)** methodology. Every feature is:
 
 - **Specified** with clear requirements and acceptance criteria
 - **Planned** with detailed implementation strategies
-- **Tested** BEFORE implementation (TDD is constitutional, not optional)
+- **Tested** BEFORE implementation (TDD is not optional)
 - **Verified** through comprehensive unit, feature, and E2E tests
-
-Our [project constitution](>.specify/memory/constitution.md) ensures consistent quality, maintainability, and adherence to best practices across all features.
 
 ## Features
 
@@ -274,7 +271,7 @@ Use DDEV rather than host PHP. The baseline is calibrated for PHP 8.4, which DDE
 
 ### Testing Philosophy
 
-YesChef follows a **constitutional TDD approach** — tests are written BEFORE implementation. This is a non-negotiable principle enforced by our project governance.
+YesChef follows a **strict TDD approach** — tests are written BEFORE implementation.
 
 ### Test Coverage
 
@@ -359,78 +356,6 @@ Loop PRs are opened by the factory GitHub App, so CI runs on them. Claude in CI 
 
 Repository secrets: `CLAUDE_CODE_OAUTH_TOKEN`, `FACTORY_APP_ID`, `FACTORY_APP_PRIVATE_KEY` and `LARAVEL_CLOUD_DEPLOY_HOOK`. The repository variable `PRODUCTION_URL` holds the production URL. To re-apply settings or upgrade the factory, re-run `~/projects/laravel-factory/adopt/adopt.sh` (add `--ref v2` for a new major version).
 
-## Speckit Development Workflow
-
-### What is Speckit?
-
-**Speckit** is a structured feature development framework integrated with Claude Code that enforces documentation, planning, and test-driven development. Every feature follows a consistent lifecycle from specification to verification.
-
-### Feature Development Process
-
-1. **Specify** (`/specify`)
-   - Create detailed feature specification in `/specs/{feature}/spec.md`
-   - Define user stories, acceptance criteria, and requirements
-   - Establish success metrics
-
-2. **Plan** (`/plan`)
-   - Generate implementation plan in `plan.md`
-   - Identify technical approach and architectural decisions
-   - Map dependencies and phases
-   - Verify constitutional compliance
-
-3. **Tasks** (`/tasks`)
-   - Break down into actionable tasks in `tasks.md`
-   - Mark parallelizable tasks
-   - Define task dependencies
-   - Emphasize TDD requirements
-
-4. **Implement** (`/implement`)
-   - Write tests FIRST (unit, feature, E2E)
-   - Verify tests FAIL
-   - Implement feature code
-   - Verify tests PASS
-
-5. **Verify**
-   - Run full test suite
-   - Check constitutional compliance
-   - Code formatting with Pint
-   - Cross-artifact consistency analysis (`/analyze`)
-
-### Project Constitution
-
-Our [constitution](>.specify/memory/constitution.md) defines 5 core principles:
-
-1. **Livewire-First Architecture**: All features use Livewire components
-2. **Component-Driven Development**: Prefer Flux components over custom implementations
-3. **Test-First Development**: Tests written before implementation (NON-NEGOTIABLE)
-4. **Full-Stack Integration Testing**: E2E tests for critical user journeys
-5. **Developer Experience & Observability**: DDEV, logging, code quality tools
-
-### Available Speckit Commands
-
-Execute via Claude Code:
-
-- `/specify` - Create or update feature specifications
-- `/plan` - Generate implementation plans
-- `/tasks` - Create actionable task lists
-- `/implement` - Execute implementation workflow
-- `/analyze` - Cross-artifact consistency analysis
-- `/clarify` - Identify underspecified areas
-- `/constitution` - Update project governance
-
-### Example Features
-
-See `/specs/` directory for complete feature documentation:
-
-- `001-grocery-item-lookup` - Smart autocomplete system
-- `005-delete-grocery-list` - Soft deletes with audit trails
-- `006-import-recipe` - URL-based recipe importing
-- `007-format-ingredient-quantities` - Fraction display formatting
-- `009-recipe-servings-multiplier` - Dynamic serving adjustments
-- `010-meal-plan-notes` - Standalone meal notes
-
-Each feature includes `spec.md`, `plan.md`, and `tasks.md` with comprehensive documentation.
-
 ## Project Architecture
 
 ### Livewire-First Design
@@ -484,22 +409,19 @@ Route::get('/meal-plans', \App\Livewire\MealPlans\Index::class);
 
 Contributions are welcome! Please follow these guidelines:
 
-1. **Review the Constitution**: Read [>.specify/memory/constitution.md](>.specify/memory/constitution.md)
-2. **Use Speckit Workflow**: All features must follow specify → plan → tasks → implement
-3. **Write Tests First**: TDD is mandatory, not optional
-4. **Run Pint and PHPStan**: `vendor/bin/pint --dirty` and `ddev exec vendor/bin/phpstan analyse --memory-limit=1G`
-5. **Comprehensive Tests**: Include unit, feature, and E2E tests where applicable
-6. **Documentation**: Update specs and README as needed
+1. **Write Tests First**: TDD is mandatory, not optional
+2. **Run Pint and PHPStan**: `vendor/bin/pint --dirty` and `ddev exec vendor/bin/phpstan analyse --memory-limit=1G`
+3. **Comprehensive Tests**: Include unit, feature, and E2E tests where applicable
+4. **Documentation**: Update the README as needed
 
 ### Submitting Changes
 
 1. Create a feature branch from `main`
-2. Use Speckit commands to create spec/plan/tasks
-3. Write failing tests
-4. Implement feature
-5. Verify all tests pass
-6. Run Pint and PHPStan
-7. Submit pull request with reference to feature spec. `ci / pest`, `ci / e2e` and `lint / quality` must pass before merge
+2. Write failing tests
+3. Implement feature
+4. Verify all tests pass
+5. Run Pint and PHPStan
+6. Submit pull request. `ci / pest`, `ci / e2e` and `lint / quality` must pass before merge
 
 ## License
 
@@ -507,4 +429,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with [Claude Code](https://claude.ai/code) using [Speckit](https://github.com/anthropics/claude-code/tree/main/skills/speckit) and Test-Driven Development**
+**Built with [Claude Code](https://claude.ai/code) using Test-Driven Development**
