@@ -2,11 +2,15 @@
 
 namespace App\Livewire\GroceryLists;
 
+use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class Export extends Component
 {
@@ -25,7 +29,7 @@ class Export extends Component
     /**
      * Export grocery list as PDF
      */
-    public function exportPdf()
+    public function exportPdf(): StreamedResponse
     {
         $this->authorize('view', $this->groceryList);
 
@@ -35,7 +39,7 @@ class Export extends Component
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
+        $itemsByCategory = GroceryItem::query()->whereBelongsTo($this->groceryList)->orderBy('category')->orderBy('sort_order')->orderBy('name')->get()->groupBy(fn (GroceryItem $item): string => $item->category->value);
 
         // Generate PDF
         $pdf = Pdf::loadView('grocery-lists.pdf', [
@@ -59,7 +63,7 @@ class Export extends Component
     /**
      * Export grocery list as plain text
      */
-    public function exportText()
+    public function exportText(): StreamedResponse
     {
         $this->authorize('view', $this->groceryList);
 
@@ -69,7 +73,7 @@ class Export extends Component
         }]);
 
         // Group items by category
-        $itemsByCategory = $this->groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
+        $itemsByCategory = GroceryItem::query()->whereBelongsTo($this->groceryList)->orderBy('category')->orderBy('sort_order')->orderBy('name')->get()->groupBy(fn (GroceryItem $item): string => $item->category->value);
 
         // Generate plain text content
         $content = $this->generatePlainText($itemsByCategory);
@@ -89,8 +93,10 @@ class Export extends Component
 
     /**
      * Generate plain text format with markdown-style checkboxes
+     *
+     * @param  Collection<array-key, EloquentCollection<int, GroceryItem>>  $itemsByCategory
      */
-    protected function generatePlainText($itemsByCategory): string
+    protected function generatePlainText(Collection $itemsByCategory): string
     {
         $text = '';
 
