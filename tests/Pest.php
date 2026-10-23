@@ -21,6 +21,14 @@ pest()->extend(Tests\TestCase::class)
     ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
     ->in('Browser');
 
+pest()->extend(Tests\TestCase::class)
+    ->use(Illuminate\Foundation\Testing\RefreshDatabase::class)
+    ->in('Acceptance');
+
+foreach (glob(__DIR__.'/Acceptance/Support/*.php') ?: [] as $acceptanceSupportFile) {
+    require_once $acceptanceSupportFile;
+}
+
 /*
 |--------------------------------------------------------------------------
 | Test-Only Container Bindings
@@ -53,7 +61,7 @@ pest()->beforeEach(function () {
             return isset($testHostMap[$host]) ? [$testHostMap[$host]] : [];
         });
     });
-})->in('Feature', 'Browser');
+})->in('Feature', 'Browser', 'Acceptance');
 
 /*
 |--------------------------------------------------------------------------
