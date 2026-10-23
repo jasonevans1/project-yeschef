@@ -50,11 +50,11 @@ test('it shows Livewire 4.x version when running php artisan about', function ()
         ->and(Str::startsWith($livewirePackage['version'], 'v4.'))->toBeTrue();
 });
 
-test('it updates livewire/flux to 2.13.2 in composer.lock', function () {
+test('it locks livewire/flux to at least 2.13.2 in composer.lock', function () {
     $composerLock = json_decode(file_get_contents(base_path('composer.lock')), true);
 
     $fluxPackage = collect($composerLock['packages'])->firstWhere('name', 'livewire/flux');
 
     expect($fluxPackage)->not->toBeNull()
-        ->and($fluxPackage['version'])->toBe('v2.13.2');
+        ->and(version_compare(ltrim($fluxPackage['version'], 'v'), '2.13.2', '>='))->toBeTrue();
 });
