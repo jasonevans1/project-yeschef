@@ -55,6 +55,7 @@ test.describe('Delete Grocery List', () => {
     await page.waitForTimeout(500);
     await page.fill('#searchQuery','Test Item');
     await page.waitForTimeout(300);
+    await page.press('#searchQuery', 'Escape'); // close autocomplete so it can't cover Save
     await page.locator('button[wire\\:click="addManualItem"]').click();
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(1000);
@@ -140,6 +141,7 @@ test.describe('Delete Grocery List', () => {
       await page.waitForTimeout(500);
       await page.fill('#searchQuery',itemName);
       await page.waitForTimeout(300);
+      await page.press('#searchQuery', 'Escape'); // close autocomplete so it can't cover Save
       await page.locator('button[wire\\:click="addManualItem"]').click();
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(1000);
@@ -248,6 +250,7 @@ test.describe('Delete Grocery List', () => {
       await page.waitForTimeout(500);
       await page.fill('#searchQuery',`Item ${i}`);
       await page.waitForTimeout(300);
+      await page.press('#searchQuery', 'Escape'); // close autocomplete so it can't cover Save
       await page.locator('button[wire\\:click="addManualItem"]').click();
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(800);
