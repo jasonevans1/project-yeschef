@@ -7,6 +7,7 @@ use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
 use App\Models\Ingredient;
 use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use App\Services\IngredientCategorizationService;
 use App\Services\QuantityFormatter;
 use Illuminate\Contracts\View\View;
@@ -45,6 +46,7 @@ class Edit extends Component
     public ?string $difficulty = null;
 
     #[Validate('nullable|array')]
+    /** @var array<int, string> */
     public array $dietary_tags = [];
 
     #[Validate('required|string|min:10')]
@@ -54,6 +56,7 @@ class Edit extends Component
     public ?string $image_url = null;
 
     #[Validate('required|array|min:1')]
+    /** @var array<int, array{ingredient_name: string, quantity: float|string|null, unit: string|null, notes: string|null}> */
     public array $ingredients = [];
 
     public function mount(Recipe $recipe): void
@@ -74,17 +77,24 @@ class Edit extends Component
         $this->instructions = $recipe->instructions;
         $this->image_url = $recipe->image_url;
 
-        $this->ingredients = $recipe->recipeIngredients()
-            ->with('ingredient')
+        $recipeIngredients = RecipeIngredient::query()
+            ->where('recipe_id', $recipe->id)
             ->orderBy('sort_order')
-            ->get()
-            ->map(fn ($ri) => [
-                'ingredient_name' => $ri->ingredient->name,
-                'quantity' => $ri->quantity ? (float) $ri->quantity : null,
-                'unit' => $ri->unit?->value,
-                'notes' => $ri->notes,
-            ])
-            ->toArray();
+            ->get();
+
+        $ingredientNames = Ingredient::query()
+            ->whereIn('id', $recipeIngredients->pluck('ingredient_id'))
+            ->pluck('name', 'id');
+
+        $this->ingredients = [];
+        foreach ($recipeIngredients as $recipeIngredient) {
+            $this->ingredients[] = [
+                'ingredient_name' => (string) $ingredientNames->get($recipeIngredient->ingredient_id),
+                'quantity' => $recipeIngredient->quantity ? (float) $recipeIngredient->quantity : null,
+                'unit' => $recipeIngredient->unit?->value,
+                'notes' => $recipeIngredient->notes,
+            ];
+        }
 
         if (empty($this->ingredients)) {
             $this->ingredients = [
@@ -151,7 +161,7 @@ class Edit extends Component
 
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
-                ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
+                ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], (int) auth()->id())]
             );
 
             if (in_array($ingredient->id, $addedIngredientIds, true)) {
