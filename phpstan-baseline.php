@@ -416,42 +416,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$ingredient\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$notes\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$quantity\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$unit\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#1 \\$callback of method Illuminate\\\\Database\\\\Eloquent\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:map\\(\\) contains unresolvable type\\.$#',
-	'identifier' => 'argument.unresolvableType',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#2 \\$userId of method App\\\\Services\\\\IngredientCategorizationService\\:\\:resolve\\(\\) expects int, int\\|string\\|null given\\.$#',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Property App\\\\Livewire\\\\Recipes\\\\Edit\\:\\:\\$dietary_tags type has no value type specified in iterable type array\\.$#',
 	'identifier' => 'missingType.iterableValue',
 	'count' => 1,
@@ -460,12 +424,6 @@ $ignoreErrors[] = [
 $ignoreErrors[] = [
 	'message' => '#^Property App\\\\Livewire\\\\Recipes\\\\Edit\\:\\:\\$ingredients type has no value type specified in iterable type array\\.$#',
 	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Return type of call to method Illuminate\\\\Database\\\\Eloquent\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:map\\(\\) contains unresolvable type\\.$#',
-	'identifier' => 'method.unresolvableReturnType',
 	'count' => 1,
 	'path' => __DIR__ . '/app/Livewire/Recipes/Edit.php',
 ];
