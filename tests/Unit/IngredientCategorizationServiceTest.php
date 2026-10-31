@@ -158,3 +158,68 @@ it('is case insensitive for name matching', function () {
     expect($service->resolve('Greek Yogurt', $user->id))->toBe(IngredientCategory::DAIRY);
     expect($service->resolve('greek yogurt', $user->id))->toBe(IngredientCategory::DAIRY);
 });
+
+dataset('keyword categories', function () {
+    $map = [
+        'wine-beer-and-spirits' => ['wine', 'beer', 'spirits', 'liquor', 'whiskey', 'vodka', 'rum'],
+        'beverages' => ['juice', 'soda', 'water', 'coffee', 'tea'],
+        'produce' => ['lettuce', 'tomato', 'onion', 'garlic', 'pepper', 'carrot', 'celery', 'potato', 'spinach', 'broccoli', 'cucumber', 'apple', 'banana', 'orange', 'lemon', 'lime', 'herb', 'basil', 'parsley', 'cilantro'],
+        'dairy' => ['milk', 'cheese', 'butter', 'cream', 'yogurt', 'ricotta', 'mozzarella', 'parmesan', 'cheddar'],
+        'meat' => ['chicken', 'beef', 'pork', 'turkey', 'lamb', 'bacon', 'sausage'],
+        'seafood' => ['fish', 'salmon', 'tuna', 'shrimp', 'crab', 'lobster', 'cod', 'tilapia'],
+        'bakery' => ['bread', 'bun', 'roll', 'tortilla', 'pita', 'bagel'],
+        'cooking-and-baking' => ['flour', 'sugar', 'salt', 'oil', 'vinegar', 'spice', 'cumin', 'paprika', 'oregano'],
+        'grains-and-pasta' => ['rice', 'pasta', 'beans'],
+        'soups-and-canned-goods' => ['sauce'],
+        'frozen' => ['frozen'],
+    ];
+
+    foreach ($map as $category => $keywords) {
+        foreach ($keywords as $keyword) {
+            yield $keyword => [$keyword, $category];
+        }
+    }
+});
+
+it('categorizes by keyword', function (string $keyword, string $category) {
+    $service = new IngredientCategorizationService;
+
+    expect($service->resolve('Zz'.strtoupper($keyword), 0))->toBe(IngredientCategory::from($category));
+})->with('keyword categories');
+
+it('treats user id 1 as a real user and still skips lookup for zero and negative ids', function () {
+    $user = User::factory()->create();
+    UserItemTemplate::factory()->create([
+        'user_id' => $user->id,
+        'name' => 'zyzzyva extract',
+        'category' => IngredientCategory::SNACKS,
+    ]);
+
+    $service = new IngredientCategorizationService;
+
+    expect($service->resolve('zyzzyva extract', $user->id))->toBe(IngredientCategory::SNACKS)
+        ->and($service->resolve('zyzzyva extract', -1))->toBe(IngredientCategory::OTHER)
+        ->and($service->resolve('zyzzyva extract', 0))->toBe(IngredientCategory::OTHER);
+});
+
+it('looks up user templates for user id 1', function () {
+    $user = User::factory()->create(['id' => 1]);
+    UserItemTemplate::factory()->create([
+        'user_id' => 1,
+        'name' => 'zyzzyva extract',
+        'category' => IngredientCategory::SNACKS,
+    ]);
+
+    expect((new IngredientCategorizationService)->resolve('zyzzyva extract', 1))->toBe(IngredientCategory::SNACKS);
+});
+
+it('does not use any user template when no user id is passed', function () {
+    User::factory()->create(['id' => 1]);
+    UserItemTemplate::factory()->create([
+        'user_id' => 1,
+        'name' => 'zyzzyva extract',
+        'category' => IngredientCategory::SNACKS,
+    ]);
+
+    expect((new IngredientCategorizationService)->resolve('zyzzyva extract'))->toBe(IngredientCategory::OTHER);
+});
