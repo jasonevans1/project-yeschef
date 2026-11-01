@@ -14,20 +14,18 @@ class GroceryListController extends Controller
     /**
      * Export grocery list as PDF
      */
-    public function exportPdf(GroceryList $groceryList)
+    public function exportPdf(GroceryList $groceryList): \Illuminate\Http\Response
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
 
         // Load grocery list with items grouped by category
-        $groceryList->load(['groceryItems' => function ($query) {
+        $groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = $groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
 
         // Generate PDF
         $pdf = Pdf::loadView('grocery-lists.pdf', [
@@ -51,14 +49,12 @@ class GroceryListController extends Controller
         $this->authorize('view', $groceryList);
 
         // Load grocery list with items grouped by category
-        $groceryList->load(['groceryItems' => function ($query) {
+        $groceryList->load(['groceryItems' => function ($query): void {
             $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
         }]);
 
         // Group items by category
-        $itemsByCategory = $groceryList->groceryItems->groupBy(function ($item) {
-            return $item->category->value;
-        });
+        $itemsByCategory = $groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
 
         // Generate plain text content
         $content = $this->generatePlainText($groceryList, $itemsByCategory);
