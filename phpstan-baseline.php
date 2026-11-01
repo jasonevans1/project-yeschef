@@ -44,12 +44,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Http\\\\Controllers\\\\GroceryListController\\:\\:exportText\\(\\) has no return type specified\\.$#',
-	'identifier' => 'missingType.return',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Method App\\\\Http\\\\Controllers\\\\GroceryListController\\:\\:generatePlainText\\(\\) has parameter \\$itemsByCategory with no type specified\\.$#',
 	'identifier' => 'missingType.parameter',
 	'count' => 1,

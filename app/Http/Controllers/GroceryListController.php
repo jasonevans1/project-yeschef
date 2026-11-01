@@ -43,7 +43,7 @@ class GroceryListController extends Controller
     /**
      * Export grocery list as plain text
      */
-    public function exportText(GroceryList $groceryList)
+    public function exportText(GroceryList $groceryList): \Illuminate\Http\Response
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
