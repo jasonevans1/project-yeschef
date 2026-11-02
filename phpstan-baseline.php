@@ -554,30 +554,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Models/ContentShare.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Array has 5 duplicate keys with value 0 \\(0\\.25, 0\\.33, 0\\.5, 0\\.66, 0\\.75\\)\\.$#',
-	'identifier' => 'array.duplicateKey',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Models/GroceryItem.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Class App\\\\Models\\\\GroceryItem uses generic trait Illuminate\\\\Database\\\\Eloquent\\\\Factories\\\\HasFactory but does not specify its types\\: TFactory$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Models/GroceryItem.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Invalid array key type float\\.$#',
-	'identifier' => 'array.invalidKey',
-	'count' => 5,
-	'path' => __DIR__ . '/app/Models/GroceryItem.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Models\\\\GroceryItem\\:\\:groceryList\\(\\) return type with generic class Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\BelongsTo does not specify its types\\: TRelatedModel, TDeclaringModel$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Models/GroceryItem.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Using nullsafe property access "\\?\\-\\>value" on left side of \\?\\? is unnecessary\\. Use \\-\\> instead\\.$#',
 	'identifier' => 'nullsafe.neverNull',
 	'count' => 1,
@@ -864,12 +840,6 @@ $ignoreErrors[] = [
 	'identifier' => 'missingType.generics',
 	'count' => 1,
 	'path' => __DIR__ . '/app/Models/UserItemTemplate.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$user_id\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Observers/GroceryItemObserver.php',
 ];
 $ignoreErrors[] = [
 	'message' => '#^Using nullsafe property access on non\\-nullable type App\\\\Enums\\\\IngredientCategory\\. Use \\-\\> instead\\.$#',
