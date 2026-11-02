@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Enums\SourceType;
+use Database\Factories\GroceryItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -12,6 +13,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GroceryItem extends Model
 {
+    /** @use HasFactory<GroceryItemFactory> */
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
@@ -44,6 +46,9 @@ class GroceryItem extends Model
 
     // Relationships
 
+    /**
+     * @return BelongsTo<GroceryList, $this>
+     */
     public function groceryList(): BelongsTo
     {
         return $this->belongsTo(GroceryList::class);
@@ -92,18 +97,18 @@ class GroceryItem extends Model
 
         // Common fractions
         $fractions = [
-            0.25 => '¼',
-            0.33 => '⅓',
-            0.5 => '½',
-            0.66 => '⅔',
-            0.75 => '¾',
+            [0.25, '¼'],
+            [0.33, '⅓'],
+            [0.5, '½'],
+            [0.66, '⅔'],
+            [0.75, '¾'],
         ];
 
         $whole = floor($decimal);
         $fractional = $decimal - $whole;
 
         // Find closest fraction
-        foreach ($fractions as $value => $symbol) {
+        foreach ($fractions as [$value, $symbol]) {
             if (abs($fractional - $value) < 0.05) {
                 return $whole > 0 ? "{$whole}{$symbol}" : $symbol;
             }
