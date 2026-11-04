@@ -920,48 +920,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:formatSuggestion\\(\\) return type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:mergeAndDeduplicate\\(\\) has parameter \\$commonTemplates with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:mergeAndDeduplicate\\(\\) has parameter \\$userTemplates with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:mergeAndDeduplicate\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:query\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:queryCommonTemplates\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Services\\\\ItemAutoCompleteService\\:\\:queryUserTemplates\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Services/ItemAutoCompleteService.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Cannot access offset 0 on list\\<string\\>\\|false\\.$#',
 	'identifier' => 'offsetAccess.nonOffsetAccessible',
 	'count' => 1,
