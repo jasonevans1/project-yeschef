@@ -16,6 +16,8 @@ class ItemAutoCompleteService
      * 2. Common default templates (by usage_count DESC)
      *
      * Uses LIKE-based search with prefix matching first, then contains matching.
+     *
+     * @return Collection<int, UserItemTemplate>|Collection<int, UserItemTemplate|CommonItemTemplate>
      */
     public function query(int $userId, string $searchTerm, int $limit = 10): Collection
     {
@@ -43,6 +45,8 @@ class ItemAutoCompleteService
 
     /**
      * Query user's personal item templates.
+     *
+     * @return Collection<int, UserItemTemplate>
      */
     protected function queryUserTemplates(int $userId, string $searchTerm, int $limit): Collection
     {
@@ -74,6 +78,8 @@ class ItemAutoCompleteService
 
     /**
      * Query common default item templates.
+     *
+     * @return Collection<int, CommonItemTemplate>
      */
     protected function queryCommonTemplates(string $searchTerm, int $limit): Collection
     {
@@ -103,6 +109,10 @@ class ItemAutoCompleteService
      * Merge user and common templates, removing duplicates.
      *
      * User templates take precedence over common templates with the same name.
+     *
+     * @param  Collection<int, UserItemTemplate>  $userTemplates
+     * @param  Collection<int, CommonItemTemplate>  $commonTemplates
+     * @return Collection<int, UserItemTemplate|CommonItemTemplate>
      */
     protected function mergeAndDeduplicate(Collection $userTemplates, Collection $commonTemplates, int $limit): Collection
     {
@@ -120,6 +130,8 @@ class ItemAutoCompleteService
 
     /**
      * Format template for API response.
+     *
+     * @return array{id: int, name: string, category: mixed, unit: mixed, default_quantity: mixed, is_user_template: bool}
      */
     public function formatSuggestion($template): array
     {
