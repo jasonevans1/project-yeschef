@@ -223,3 +223,15 @@ it('does not use any user template when no user id is passed', function () {
 
     expect((new IngredientCategorizationService)->resolve('zyzzyva extract'))->toBe(IngredientCategory::OTHER);
 });
+
+it('never matches a user template stored under user id zero when resolving with the no-user sentinel', function () {
+    User::factory()->create(['id' => 0]);
+    UserItemTemplate::factory()->create([
+        'user_id' => 0,
+        'name' => 'zyzzyva extract',
+        'category' => IngredientCategory::SNACKS,
+    ]);
+
+    expect((new IngredientCategorizationService)->resolve('zyzzyva extract', 0))->toBe(IngredientCategory::OTHER)
+        ->and((new IngredientCategorizationService)->resolve('zyzzyva extract'))->toBe(IngredientCategory::OTHER);
+});
