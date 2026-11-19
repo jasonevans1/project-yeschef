@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class GroceryListController extends Controller
@@ -20,13 +22,7 @@ class GroceryListController extends Controller
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
 
-        // Load grocery list with items grouped by category
-        $groceryList->load(['groceryItems' => function ($query): void {
-            $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
-        }]);
-
-        // Group items by category
-        $itemsByCategory = $groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
+        $itemsByCategory = $this->groupItemsByCategory($groceryList);
 
         // Generate PDF
         $pdf = Pdf::loadView('grocery-lists.pdf', [
@@ -49,13 +45,7 @@ class GroceryListController extends Controller
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
 
-        // Load grocery list with items grouped by category
-        $groceryList->load(['groceryItems' => function ($query): void {
-            $query->orderBy('category')->orderBy('sort_order')->orderBy('name');
-        }]);
-
-        // Group items by category
-        $itemsByCategory = $groceryList->groceryItems->groupBy(fn ($item) => $item->category->value);
+        $itemsByCategory = $this->groupItemsByCategory($groceryList);
 
         // Generate plain text content
         $content = $this->generatePlainText($groceryList, $itemsByCategory);
@@ -70,9 +60,28 @@ class GroceryListController extends Controller
     }
 
     /**
-     * Generate plain text format with markdown-style checkboxes
+     * Group a grocery list's items by category value
+     *
+     * @return Collection<string, Collection<int, GroceryItem>>
      */
-    protected function generatePlainText(GroceryList $groceryList, $itemsByCategory): string
+    protected function groupItemsByCategory(GroceryList $groceryList): Collection
+    {
+        return GroceryItem::query()
+            ->where('grocery_list_id', $groceryList->id)
+            ->orderBy('category')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get()
+            ->toBase()
+            ->groupBy(fn (GroceryItem $item): string => $item->category->value);
+    }
+
+    /**
+     * Generate plain text format with markdown-style checkboxes
+     *
+     * @param  Collection<string, Collection<int, GroceryItem>>  $itemsByCategory
+     */
+    protected function generatePlainText(GroceryList $groceryList, Collection $itemsByCategory): string
     {
         $text = '';
 

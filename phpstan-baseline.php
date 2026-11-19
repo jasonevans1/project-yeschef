@@ -26,12 +26,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Http/Controllers/GroceryItemController.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$category\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 2,
-	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$name\\.$#',
 	'identifier' => 'property.notFound',
 	'count' => 1,
@@ -41,18 +35,6 @@ $ignoreErrors[] = [
 	'message' => '#^If condition is always true\\.$#',
 	'identifier' => 'if.alwaysTrue',
 	'count' => 1,
-	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Http\\\\Controllers\\\\GroceryListController\\:\\:generatePlainText\\(\\) has parameter \\$itemsByCategory with no type specified\\.$#',
-	'identifier' => 'missingType.parameter',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Unable to resolve the template type TGroupKey in call to method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:groupBy\\(\\)$#',
-	'identifier' => 'argument.templateType',
-	'count' => 2,
 	'path' => __DIR__ . '/app/Http/Controllers/GroceryListController.php',
 ];
 $ignoreErrors[] = [
