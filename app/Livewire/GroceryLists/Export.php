@@ -5,6 +5,8 @@ namespace App\Livewire\GroceryLists;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
@@ -178,7 +180,7 @@ class Export extends Component
         return Str::limit($name, 50, '');
     }
 
-    public function render(): \Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+    public function render(): Factory|View
     {
         // This component is primarily for export actions, not rendering a view
         // But we need a render method for Livewire

@@ -7,8 +7,10 @@ use App\Models\CommonItemTemplate;
 use App\Models\User;
 use App\Models\UserItemTemplate;
 use App\Services\IngredientCategorizationService;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 it('returns the category from the user item template when a match exists', function () {
     $user = User::factory()->create();

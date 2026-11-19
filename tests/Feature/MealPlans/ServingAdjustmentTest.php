@@ -1,10 +1,13 @@
 <?php
 
 use App\Enums\MealType;
+use App\Enums\MeasurementUnit;
+use App\Models\Ingredient;
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\GroceryListGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -171,10 +174,10 @@ it('uses serving_multiplier in grocery list generation via ServingSizeScaler ser
     // Create a recipe with ingredients
     $recipe = Recipe::factory()
         ->hasAttached(
-            \App\Models\Ingredient::factory()->create(['name' => 'Chicken Breast']),
+            Ingredient::factory()->create(['name' => 'Chicken Breast']),
             [
                 'quantity' => 2,
-                'unit' => \App\Enums\MeasurementUnit::LB,
+                'unit' => MeasurementUnit::LB,
                 'sort_order' => 0,
             ]
         )
@@ -190,7 +193,7 @@ it('uses serving_multiplier in grocery list generation via ServingSizeScaler ser
     ]);
 
     // Generate grocery list
-    $groceryListGenerator = app(\App\Services\GroceryListGenerator::class);
+    $groceryListGenerator = app(GroceryListGenerator::class);
     $groceryList = $groceryListGenerator->generate($mealPlan);
 
     expect($groceryList)->not->toBeNull();

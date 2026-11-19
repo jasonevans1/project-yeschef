@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\CommonItemTemplate;
 use Illuminate\Database\Seeder;
 
 class CommonItemTemplateSeeder extends Seeder
@@ -177,7 +178,7 @@ class CommonItemTemplateSeeder extends Seeder
         ];
 
         foreach ($items as $item) {
-            \App\Models\CommonItemTemplate::create($item);
+            CommonItemTemplate::create($item);
         }
 
         $this->command->info('Seeded '.count($items).' common item templates');

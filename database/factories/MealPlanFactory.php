@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\MealPlan;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\MealPlan>
+ * @extends Factory<MealPlan>
  */
 class MealPlanFactory extends Factory
 {
@@ -21,7 +23,7 @@ class MealPlanFactory extends Factory
         $endDate = (clone $startDate)->modify("+{$durationDays} days");
 
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'name' => fake()->words(rand(2, 4), true),
             'start_date' => $startDate,
             'end_date' => $endDate,

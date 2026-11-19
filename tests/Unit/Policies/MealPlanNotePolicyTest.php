@@ -7,11 +7,12 @@ use App\Models\MealPlanNote;
 use App\Models\User;
 use App\Policies\MealPlanNotePolicy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 // view/update/delete delegate to the parent meal plan's policy, which queries ContentShare
 // for non-owners, so this needs a full Laravel app + database — Pest.php only auto-binds
 // Tests\TestCase/RefreshDatabase for Feature/Browser, so bind them locally for this file.
-uses(Tests\TestCase::class, RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 // FR-011 (partial): note access is restricted to the plan owner, by delegation to MealPlanPolicy.
 // create()/viewAny() are unconditional — MealPlanNotePolicy::create() receives no note instance,

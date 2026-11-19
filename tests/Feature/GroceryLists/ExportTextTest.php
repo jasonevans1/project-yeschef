@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
@@ -48,16 +50,16 @@ test('text format includes category headers', function () {
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Milk',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
         'quantity' => 1,
-        'unit' => \App\Enums\MeasurementUnit::GALLON,
+        'unit' => MeasurementUnit::GALLON,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Chicken Breast',
-        'category' => \App\Enums\IngredientCategory::MEAT,
+        'category' => IngredientCategory::MEAT,
         'quantity' => 2,
-        'unit' => \App\Enums\MeasurementUnit::LB,
+        'unit' => MeasurementUnit::LB,
     ]);
 
     $response = $this->actingAs($user)
@@ -79,7 +81,7 @@ test('text format includes item checkboxes in markdown style', function () {
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Tomatoes',
-        'category' => \App\Enums\IngredientCategory::PRODUCE,
+        'category' => IngredientCategory::PRODUCE,
     ]);
 
     $response = $this->actingAs($user)
@@ -117,8 +119,8 @@ test('text export includes item names with quantities and units', function () {
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Flour',
         'quantity' => 2.5,
-        'unit' => \App\Enums\MeasurementUnit::CUP,
-        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
+        'unit' => MeasurementUnit::CUP,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $response = $this->actingAs($user)
@@ -139,19 +141,19 @@ test('text export groups items by category', function () {
     // Create items in different categories
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Milk',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
     ]);
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Eggs',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
     ]);
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Chicken',
-        'category' => \App\Enums\IngredientCategory::MEAT,
+        'category' => IngredientCategory::MEAT,
     ]);
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Carrots',
-        'category' => \App\Enums\IngredientCategory::PRODUCE,
+        'category' => IngredientCategory::PRODUCE,
     ]);
 
     $response = $this->actingAs($user)
@@ -235,7 +237,7 @@ test('text export handles items without quantities', function () {
         'name' => 'Bananas',
         'quantity' => null,
         'unit' => null,
-        'category' => \App\Enums\IngredientCategory::PRODUCE,
+        'category' => IngredientCategory::PRODUCE,
     ]);
 
     $response = $this->actingAs($user)
@@ -254,13 +256,13 @@ test('text export shows purchased items differently', function () {
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Purchased Item',
         'purchased' => true,
-        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Unpurchased Item',
         'purchased' => false,
-        'category' => \App\Enums\IngredientCategory::SOUPS_AND_CANNED_GOODS,
+        'category' => IngredientCategory::SOUPS_AND_CANNED_GOODS,
     ]);
 
     $response = $this->actingAs($user)

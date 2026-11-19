@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Ingredient;
+use App\Models\Recipe;
+use App\Models\RecipeIngredient;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\RecipeIngredient>
+ * @extends Factory<RecipeIngredient>
  */
 class RecipeIngredientFactory extends Factory
 {
@@ -17,8 +20,8 @@ class RecipeIngredientFactory extends Factory
     public function definition(): array
     {
         return [
-            'recipe_id' => \App\Models\Recipe::factory(),
-            'ingredient_id' => \App\Models\Ingredient::factory(),
+            'recipe_id' => Recipe::factory(),
+            'ingredient_id' => Ingredient::factory(),
             'quantity' => fake()->randomFloat(2, 0.25, 10),
             'unit' => fake()->randomElement(['tsp', 'tbsp', 'cup', 'oz', 'lb', 'gram', 'whole', 'piece']),
             'sort_order' => 0,

@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\GroceryItemController;
+use App\Http\Controllers\GroceryListController;
+use App\Http\Controllers\MealAssignmentController;
+use App\Http\Controllers\MealPlanController;
+use App\Http\Controllers\RecipeController;
 use App\Livewire\Dashboard;
 use App\Livewire\GroceryLists\Create as GroceryListsCreate;
 use App\Livewire\GroceryLists\Generate as GroceryListsGenerate;
@@ -47,7 +52,7 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('recipes/import/preview', RecipesImportPreview::class)->name('recipes.import.preview'); // US3 - T036
     Route::livewire('recipes/{recipe}', RecipesShow::class)->name('recipes.show');
     Route::livewire('recipes/{recipe}/edit', RecipesEdit::class)->name('recipes.edit'); // US5 - T101, T102
-    Route::delete('recipes/{recipe}', [\App\Http\Controllers\RecipeController::class, 'destroy'])->name('recipes.destroy'); // US5 - T103
+    Route::delete('recipes/{recipe}', [RecipeController::class, 'destroy'])->name('recipes.destroy'); // US5 - T103
 
     // Meal Plan Routes
     Route::livewire('meal-plans', MealPlansIndex::class)->name('meal-plans.index');
@@ -56,14 +61,14 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('meal-plans/{mealPlan}/edit', MealPlansEdit::class)->name('meal-plans.edit');
 
     // Meal Plan Actions (POST/PUT/DELETE)
-    Route::post('meal-plans', [\App\Http\Controllers\MealPlanController::class, 'store'])->name('meal-plans.store');
-    Route::put('meal-plans/{mealPlan}', [\App\Http\Controllers\MealPlanController::class, 'update'])->name('meal-plans.update');
-    Route::delete('meal-plans/{mealPlan}', [\App\Http\Controllers\MealPlanController::class, 'destroy'])->name('meal-plans.destroy');
+    Route::post('meal-plans', [MealPlanController::class, 'store'])->name('meal-plans.store');
+    Route::put('meal-plans/{mealPlan}', [MealPlanController::class, 'update'])->name('meal-plans.update');
+    Route::delete('meal-plans/{mealPlan}', [MealPlanController::class, 'destroy'])->name('meal-plans.destroy');
 
     // Meal Plan Assignment Routes (nested resource)
-    Route::post('meal-plans/{mealPlan}/assignments', [\App\Http\Controllers\MealAssignmentController::class, 'store'])->name('meal-plans.assignments.store');
-    Route::put('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'update'])->name('meal-plans.assignments.update');
-    Route::delete('meal-plans/{mealPlan}/assignments/{assignment}', [\App\Http\Controllers\MealAssignmentController::class, 'destroy'])->name('meal-plans.assignments.destroy');
+    Route::post('meal-plans/{mealPlan}/assignments', [MealAssignmentController::class, 'store'])->name('meal-plans.assignments.store');
+    Route::put('meal-plans/{mealPlan}/assignments/{assignment}', [MealAssignmentController::class, 'update'])->name('meal-plans.assignments.update');
+    Route::delete('meal-plans/{mealPlan}/assignments/{assignment}', [MealAssignmentController::class, 'destroy'])->name('meal-plans.assignments.destroy');
 
     // Grocery List Routes (authenticated)
     Route::livewire('grocery-lists', GroceryListsIndex::class)->name('grocery-lists.index'); // US3 - T074
@@ -72,16 +77,16 @@ Route::middleware(['auth'])->group(function () {
     Route::livewire('grocery-lists/generate/{mealPlan}', GroceryListsGenerate::class)->name('grocery-lists.generate'); // US3 - T076, T077
 
     // Grocery List Export Routes (US8 - T126)
-    Route::get('grocery-lists/{groceryList}/export/pdf', [\App\Http\Controllers\GroceryListController::class, 'exportPdf'])->name('grocery-lists.export.pdf');
-    Route::get('grocery-lists/{groceryList}/export/text', [\App\Http\Controllers\GroceryListController::class, 'exportText'])->name('grocery-lists.export.text');
+    Route::get('grocery-lists/{groceryList}/export/pdf', [GroceryListController::class, 'exportPdf'])->name('grocery-lists.export.pdf');
+    Route::get('grocery-lists/{groceryList}/export/text', [GroceryListController::class, 'exportText'])->name('grocery-lists.export.text');
 
     // Shared Grocery List Route (US8 - T129)
     Route::livewire('grocery-lists/shared/{token}', GroceryListsShared::class)->name('grocery-lists.shared');
 
     // Grocery List Item Actions (POST/PUT/DELETE)
-    Route::post('grocery-lists/{groceryList}/items', [\App\Http\Controllers\GroceryItemController::class, 'store'])->name('grocery-lists.items.store'); // US4 - T087
-    Route::put('grocery-lists/{groceryList}/items/{item}', [\App\Http\Controllers\GroceryItemController::class, 'update'])->name('grocery-lists.items.update'); // US4 - T088
-    Route::delete('grocery-lists/{groceryList}/items/{item}', [\App\Http\Controllers\GroceryItemController::class, 'destroy'])->name('grocery-lists.items.destroy'); // US4 - T089
+    Route::post('grocery-lists/{groceryList}/items', [GroceryItemController::class, 'store'])->name('grocery-lists.items.store'); // US4 - T087
+    Route::put('grocery-lists/{groceryList}/items/{item}', [GroceryItemController::class, 'update'])->name('grocery-lists.items.update'); // US4 - T088
+    Route::delete('grocery-lists/{groceryList}/items/{item}', [GroceryItemController::class, 'destroy'])->name('grocery-lists.items.destroy'); // US4 - T089
 
     // Settings Routes
     Route::redirect('settings', 'settings/profile');

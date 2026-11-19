@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\SharePermission;
+use App\Models\ContentShare;
 use App\Models\GroceryList;
 use App\Models\MealPlan;
 use App\Models\Recipe;
@@ -10,7 +11,7 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ContentShare>
+ * @extends Factory<ContentShare>
  */
 class ContentShareFactory extends Factory
 {

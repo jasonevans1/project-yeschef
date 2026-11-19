@@ -6,6 +6,7 @@ use App\Livewire\Recipes\Import;
 use App\Livewire\Recipes\ImportPreview;
 use App\Models\Recipe;
 use App\Models\User;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
@@ -291,7 +292,7 @@ test('shows error when request times out', function () {
     $user = User::factory()->create();
 
     Http::fake(function () {
-        throw new \Illuminate\Http\Client\ConnectionException('cURL error 28: Operation timed out after 30000 milliseconds');
+        throw new ConnectionException('cURL error 28: Operation timed out after 30000 milliseconds');
     });
 
     $component = Livewire::actingAs($user)
@@ -399,7 +400,7 @@ test('shows error when connection fails', function () {
     $user = User::factory()->create();
 
     Http::fake(function () {
-        throw new \Illuminate\Http\Client\ConnectionException('Connection refused');
+        throw new ConnectionException('Connection refused');
     });
 
     $component = Livewire::actingAs($user)

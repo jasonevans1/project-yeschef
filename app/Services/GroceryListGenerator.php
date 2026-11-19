@@ -25,7 +25,7 @@ class GroceryListGenerator
      *
      * Sorted by IngredientCategory declaration order first, then alphabetically by name.
      *
-     * @return \Illuminate\Support\Collection<int, array{name: string, quantity: float|int|string|null, unit: string|null, category: string, category_label: string}>
+     * @return Collection<int, array{name: string, quantity: float|int|string|null, unit: string|null, category: string, category_label: string}>
      */
     public function getIngredientPreview(MealPlan $mealPlan, int $userId): Collection
     {
@@ -37,7 +37,7 @@ class GroceryListGenerator
             ->map(function (array $ingredient): array {
                 /** @var IngredientCategory $category */
                 $category = $ingredient['category'];
-                /** @var \App\Enums\MeasurementUnit|null $unit */
+                /** @var MeasurementUnit|null $unit */
                 $unit = $ingredient['unit'];
 
                 return [

@@ -3,10 +3,12 @@
 namespace Database\Factories;
 
 use App\Enums\IngredientCategory;
+use App\Models\GroceryItem;
+use App\Models\GroceryList;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GroceryItem>
+ * @extends Factory<GroceryItem>
  */
 class GroceryItemFactory extends Factory
 {
@@ -18,7 +20,7 @@ class GroceryItemFactory extends Factory
     public function definition(): array
     {
         return [
-            'grocery_list_id' => \App\Models\GroceryList::factory(),
+            'grocery_list_id' => GroceryList::factory(),
             'name' => fake()->word(),
             'quantity' => fake()->randomFloat(2, 0.5, 10),
             'unit' => fake()->randomElement(['tsp', 'tbsp', 'cup', 'oz', 'lb', 'gram', 'whole', 'piece']),

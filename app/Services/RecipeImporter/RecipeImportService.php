@@ -2,7 +2,11 @@
 
 namespace App\Services\RecipeImporter;
 
+use App\Exceptions\CloudflareBlockedException;
+use App\Exceptions\InvalidHTTPStatusException;
 use App\Exceptions\MalformedRecipeDataException;
+use App\Exceptions\MissingRecipeDataException;
+use App\Exceptions\NetworkTimeoutException;
 
 class RecipeImportService
 {
@@ -16,11 +20,11 @@ class RecipeImportService
      *
      * @return array<string, mixed> The transformed recipe data
      *
-     * @throws \App\Exceptions\NetworkTimeoutException If request times out
-     * @throws \App\Exceptions\InvalidHTTPStatusException If HTTP status is not 2xx
-     * @throws \App\Exceptions\CloudflareBlockedException If Cloudflare challenge detected
-     * @throws \App\Exceptions\MissingRecipeDataException If no recipe data found
-     * @throws \App\Exceptions\MalformedRecipeDataException If recipe data is invalid or incomplete
+     * @throws NetworkTimeoutException If request times out
+     * @throws InvalidHTTPStatusException If HTTP status is not 2xx
+     * @throws CloudflareBlockedException If Cloudflare challenge detected
+     * @throws MissingRecipeDataException If no recipe data found
+     * @throws MalformedRecipeDataException If recipe data is invalid or incomplete
      * @throws \Exception If connection fails
      */
     public function fetchAndParse(string $url): array
@@ -45,7 +49,7 @@ class RecipeImportService
      *
      * @return array<string, mixed>
      *
-     * @throws \App\Exceptions\MissingRecipeDataException If no recipe found
+     * @throws MissingRecipeDataException If no recipe found
      * @throws MalformedRecipeDataException If the file is invalid or incomplete
      */
     public function parseJson(string $json): array

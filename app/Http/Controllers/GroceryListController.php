@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\GroceryList;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
 class GroceryListController extends Controller
@@ -14,7 +15,7 @@ class GroceryListController extends Controller
     /**
      * Export grocery list as PDF
      */
-    public function exportPdf(GroceryList $groceryList): \Illuminate\Http\Response
+    public function exportPdf(GroceryList $groceryList): Response
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);
@@ -43,7 +44,7 @@ class GroceryListController extends Controller
     /**
      * Export grocery list as plain text
      */
-    public function exportText(GroceryList $groceryList): \Illuminate\Http\Response
+    public function exportText(GroceryList $groceryList): Response
     {
         // Check if user owns this grocery list
         $this->authorize('view', $groceryList);

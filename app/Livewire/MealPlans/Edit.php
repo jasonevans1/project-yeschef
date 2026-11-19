@@ -3,6 +3,7 @@
 namespace App\Livewire\MealPlans;
 
 use App\Models\MealPlan;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Validate;
 use Livewire\Component;
@@ -41,8 +42,8 @@ class Edit extends Component
         $this->validate();
 
         // Custom validation: max 28 days duration
-        $start = \Carbon\Carbon::parse($this->start_date);
-        $end = \Carbon\Carbon::parse($this->end_date);
+        $start = Carbon::parse($this->start_date);
+        $end = Carbon::parse($this->end_date);
 
         if ($start->diffInDays($end) > 28) {
             $this->addError('end_date', 'The meal plan duration cannot exceed 28 days.');

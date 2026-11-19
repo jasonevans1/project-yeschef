@@ -1,10 +1,12 @@
 <?php
 
+use App\Enums\IngredientCategory;
 use App\Livewire\GroceryLists\Shared;
 use App\Livewire\GroceryLists\Show;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
@@ -34,7 +36,7 @@ test('user can generate shareable link', function () {
 
     expect($groceryList->share_expires_at)
         ->not->toBeNull()
-        ->toBeInstanceOf(\Illuminate\Support\Carbon::class);
+        ->toBeInstanceOf(Carbon::class);
 });
 
 test('generating shareable link creates UUID token', function () {
@@ -285,12 +287,12 @@ test('shared list displays items grouped by category', function () {
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Milk',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
     ]);
 
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Chicken',
-        'category' => \App\Enums\IngredientCategory::MEAT,
+        'category' => IngredientCategory::MEAT,
     ]);
 
     Livewire::actingAs($otherUser)

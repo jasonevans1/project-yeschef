@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\RecipeImporter;
 
+use App\Exceptions\BlockedUrlException;
 use App\Exceptions\InvalidHTTPStatusException;
 use App\Exceptions\NetworkTimeoutException;
 use Exception;
@@ -24,7 +25,7 @@ class RecipeFetcher
      * Redirects are followed manually (Guzzle auto-redirect is disabled) so
      * that each hop can be validated.
      *
-     * @throws \App\Exceptions\BlockedUrlException If the URL (or any redirect) is unsafe
+     * @throws BlockedUrlException If the URL (or any redirect) is unsafe
      * @throws NetworkTimeoutException If the request times out
      * @throws InvalidHTTPStatusException If the final response status is not 2xx
      * @throws Exception If connection fails or redirect limit exceeded

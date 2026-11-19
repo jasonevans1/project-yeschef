@@ -17,6 +17,7 @@ use App\Models\Recipe;
 use App\Models\RecipeIngredient;
 use App\Models\User;
 use App\Models\UserItemTemplate;
+use App\Services\GroceryListGenerator;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Livewire;
 
@@ -557,7 +558,7 @@ describe('regeneration', function () {
 
     it('applies serving multipliers when collecting ingredients', function () {
         MealAssignment::query()->update(['serving_multiplier' => 2.0]);
-        $generator = app(App\Services\GroceryListGenerator::class);
+        $generator = app(GroceryListGenerator::class);
         $generator->generate($this->mealPlan);
 
         showComponent($this, $this->mpList)

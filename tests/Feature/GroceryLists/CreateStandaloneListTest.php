@@ -2,6 +2,8 @@
 
 use App\Models\GroceryList;
 use App\Models\User;
+use Carbon\Carbon;
+use Illuminate\Validation\ValidationException;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -32,38 +34,38 @@ test('validation requires name', function () {
         'name' => '',
     ];
 
-    $this->expectException(\Illuminate\Validation\ValidationException::class);
+    $this->expectException(ValidationException::class);
 
     // Test validation through Livewire component (when it exists)
     // For now, test at model level
     $validated = validator($groceryListData, [
         'name' => 'required|string|min:3|max:255',
     ])->validate();
-})->throws(\Illuminate\Validation\ValidationException::class);
+})->throws(ValidationException::class);
 
 test('validation requires name to be at least 3 characters', function () {
     $groceryListData = [
         'name' => 'ab',
     ];
 
-    $this->expectException(\Illuminate\Validation\ValidationException::class);
+    $this->expectException(ValidationException::class);
 
     validator($groceryListData, [
         'name' => 'required|string|min:3|max:255',
     ])->validate();
-})->throws(\Illuminate\Validation\ValidationException::class);
+})->throws(ValidationException::class);
 
 test('validation requires name to be at most 255 characters', function () {
     $groceryListData = [
         'name' => str_repeat('a', 256),
     ];
 
-    $this->expectException(\Illuminate\Validation\ValidationException::class);
+    $this->expectException(ValidationException::class);
 
     validator($groceryListData, [
         'name' => 'required|string|min:3|max:255',
     ])->validate();
-})->throws(\Illuminate\Validation\ValidationException::class);
+})->throws(ValidationException::class);
 
 test('list saved with meal_plan_id null', function () {
     $groceryList = $this->user->groceryLists()->create([
@@ -166,7 +168,7 @@ test('standalone list has generated_at timestamp set on creation', function () {
     $groceryList->refresh();
 
     expect($groceryList->generated_at)->not->toBeNull()
-        ->and($groceryList->generated_at)->toBeInstanceOf(\Carbon\Carbon::class);
+        ->and($groceryList->generated_at)->toBeInstanceOf(Carbon::class);
 
     $this->assertDatabaseHas('grocery_lists', [
         'id' => $groceryList->id,

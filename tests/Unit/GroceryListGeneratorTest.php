@@ -20,8 +20,10 @@ use App\Services\IngredientAggregator;
 use App\Services\IngredientCategorizationService;
 use App\Services\ServingSizeScaler;
 use App\Services\UnitConverter;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
-uses(Tests\TestCase::class, Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(TestCase::class, RefreshDatabase::class);
 
 test('grocery list generator can be instantiated', function () {
     $unitConverter = new UnitConverter;

@@ -9,6 +9,7 @@ use App\Models\Ingredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\GroceryListGenerator;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -60,7 +61,7 @@ test('user can generate grocery list from meal plan', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class)
         ->and($groceryList->user_id)->toBe($this->user->id)
@@ -114,7 +115,7 @@ test('list contains all ingredients from assigned recipes', function () {
         'meal_type' => 'dinner',
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList->groceryItems()->count())->toBe(3);
 
@@ -158,7 +159,7 @@ test('duplicate ingredients with same unit are aggregated', function () {
         'meal_type' => 'breakfast',
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     // Should have only 1 milk item with aggregated quantity
     $milkItems = $groceryList->groceryItems->where('name', 'Milk');
@@ -205,7 +206,7 @@ test('duplicate ingredients with different compatible units are aggregated using
         'meal_type' => 'breakfast',
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     // Should have only 1 milk item with aggregated quantity
     // 2 cups (16 fl oz) + 1 pint (16 fl oz) = 32 fl oz = 1 quart or 4 cups
@@ -265,7 +266,7 @@ test('items are organized by category', function () {
         'meal_type' => 'dinner',
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     $items = $groceryList->groceryItems;
 
@@ -303,7 +304,7 @@ test('grocery list is linked to source meal plan', function () {
         'meal_type' => 'dinner',
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList->meal_plan_id)->toBe($mealPlan->id)
         ->and($groceryList->user_id)->toBe($this->user->id)
@@ -335,7 +336,7 @@ test('serving multipliers are applied correctly', function () {
         'serving_multiplier' => 1.5,
     ]);
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     $flourItem = $groceryList->groceryItems->where('name', 'Flour')->first();
 
@@ -351,7 +352,7 @@ test('empty meal plan generates empty list with helpful message', function () {
 
     // No meal assignments
 
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class)
         ->and($groceryList->groceryItems()->count())->toBe(0)

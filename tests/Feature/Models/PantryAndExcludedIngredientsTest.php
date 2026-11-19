@@ -4,8 +4,9 @@ declare(strict_types=1);
 
 use App\Models\GroceryList;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 
-uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 it('stores and retrieves pantry_items as an array on User', function () {
     $user = User::factory()->create([

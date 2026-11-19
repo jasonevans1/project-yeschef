@@ -2,10 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Enums\IngredientCategory;
+use App\Models\CommonItemTemplate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\CommonItemTemplate>
+ * @extends Factory<CommonItemTemplate>
  */
 class CommonItemTemplateFactory extends Factory
 {
@@ -18,7 +20,7 @@ class CommonItemTemplateFactory extends Factory
     {
         return [
             'name' => fake()->unique()->words(2, true),
-            'category' => fake()->randomElement(\App\Enums\IngredientCategory::cases()),
+            'category' => fake()->randomElement(IngredientCategory::cases()),
             'unit' => null,
             'default_quantity' => null,
             'search_keywords' => null,

@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
+use App\Livewire\GroceryLists\Show;
 use App\Models\CommonItemTemplate;
+use App\Models\GroceryList;
 use App\Models\User;
 use App\Services\ItemAutoCompleteService;
+use Livewire\Livewire;
 
 beforeEach(function () {
     // Seed common item templates
@@ -82,7 +85,7 @@ test('category auto-populates on selection', function () {
 // T018: Test user can override suggested values
 test('user can override suggested values', function () {
     $user = User::factory()->create();
-    $groceryList = \App\Models\GroceryList::factory()->for($user)->create();
+    $groceryList = GroceryList::factory()->for($user)->create();
 
     $this->actingAs($user);
 
@@ -107,11 +110,11 @@ test('user can override suggested values', function () {
 // Test: Selecting a template populates the visible item name field
 test('selecting a template from autocomplete populates the visible item name field', function () {
     $user = User::factory()->create();
-    $groceryList = \App\Models\GroceryList::factory()->for($user)->create();
+    $groceryList = GroceryList::factory()->for($user)->create();
 
     $this->actingAs($user);
 
-    \Livewire\Livewire::test(\App\Livewire\GroceryLists\Show::class, ['groceryList' => $groceryList])
+    Livewire::test(Show::class, ['groceryList' => $groceryList])
         ->call('openAddItemForm')
         ->call('selectGroceryItem', [
             'id' => 1,
@@ -129,12 +132,12 @@ test('selecting a template from autocomplete populates the visible item name fie
 // Test: User can add custom item not in autocomplete
 test('user can add custom item that does not match autocomplete', function () {
     $user = User::factory()->create();
-    $groceryList = \App\Models\GroceryList::factory()->for($user)->create();
+    $groceryList = GroceryList::factory()->for($user)->create();
 
     $this->actingAs($user);
 
     // Use Livewire to test the component
-    \Livewire\Livewire::test(\App\Livewire\GroceryLists\Show::class, ['groceryList' => $groceryList])
+    Livewire::test(Show::class, ['groceryList' => $groceryList])
         ->call('openAddItemForm')
         ->set('searchQuery', 'My Custom Item')
         ->set('itemQuantity', 5)

@@ -8,6 +8,7 @@ use App\Enums\SourceType;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
+use Carbon\Carbon;
 
 use function Pest\Laravel\actingAs;
 
@@ -189,7 +190,7 @@ test('user can mark items as purchased in standalone list', function () {
 
     expect($item->purchased)->toBeTrue()
         ->and($item->purchased_at)->not->toBeNull()
-        ->and($item->purchased_at)->toBeInstanceOf(\Carbon\Carbon::class);
+        ->and($item->purchased_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('user can unmark items as purchased in standalone list', function () {

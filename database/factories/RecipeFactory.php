@@ -2,10 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\Ingredient;
+use App\Models\Recipe;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Recipe>
+ * @extends Factory<Recipe>
  */
 class RecipeFactory extends Factory
 {
@@ -20,7 +23,7 @@ class RecipeFactory extends Factory
         $dietaryTags = ['vegetarian', 'vegan', 'gluten-free', 'dairy-free', 'keto', 'paleo', 'low-carb', 'high-protein'];
 
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'name' => fake()->words(rand(2, 4), true),
             'description' => fake()->optional(0.8)->paragraph(),
             'prep_time' => fake()->numberBetween(5, 60),
@@ -52,18 +55,18 @@ class RecipeFactory extends Factory
      */
     public function withIngredients(?int $count = null): static
     {
-        return $this->afterCreating(function (\App\Models\Recipe $recipe) use ($count) {
+        return $this->afterCreating(function (Recipe $recipe) use ($count) {
             $ingredientCount = $count ?? fake()->numberBetween(3, 10);
             $units = ['tsp', 'tbsp', 'cup', 'oz', 'lb', 'gram', 'whole', 'piece'];
 
             // Get all available ingredients, or create some if none exist
-            $availableIngredients = \App\Models\Ingredient::all();
+            $availableIngredients = Ingredient::all();
             if ($availableIngredients->isEmpty()) {
                 // Create some if none exist (fallback)
                 for ($j = 0; $j < 20; $j++) {
-                    \App\Models\Ingredient::factory()->create();
+                    Ingredient::factory()->create();
                 }
-                $availableIngredients = \App\Models\Ingredient::all();
+                $availableIngredients = Ingredient::all();
             }
 
             // Randomly select ingredients from available ones

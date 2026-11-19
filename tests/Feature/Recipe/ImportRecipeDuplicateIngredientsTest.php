@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Livewire\Recipes\ImportPreview;
 use App\Models\Recipe;
 use App\Models\User;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Cache;
 use Livewire\Livewire;
 
@@ -278,7 +279,7 @@ test('duplicate detection does not cause constraint violation', function () {
         Livewire::actingAs($user)
             ->test(ImportPreview::class)
             ->call('save');
-    })->not->toThrow(\Illuminate\Database\QueryException::class);
+    })->not->toThrow(QueryException::class);
 
     $recipe = Recipe::where('name', 'Transaction Test Recipe')->first();
     expect($recipe->recipeIngredients)->toHaveCount(1);

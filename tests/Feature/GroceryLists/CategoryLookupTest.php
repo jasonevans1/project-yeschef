@@ -12,9 +12,10 @@ use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
 use App\Models\UserItemTemplate;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
-uses(Illuminate\Foundation\Testing\RefreshDatabase::class);
+uses(RefreshDatabase::class);
 
 // ──────────────────────────────────────────────────────────
 // T020: Feature tests for template-based categorization (US2)

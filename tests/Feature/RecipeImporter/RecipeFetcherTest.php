@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Exceptions\BlockedUrlException;
+use App\Exceptions\InvalidHTTPStatusException;
+use App\Exceptions\NetworkTimeoutException;
 use App\Services\RecipeImporter\RecipeFetcher;
 use App\Services\RecipeImporter\UrlSafetyValidator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,7 +59,7 @@ test('throws exception on network timeout', function () {
     });
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\NetworkTimeoutException::class);
+        ->toThrow(NetworkTimeoutException::class);
 });
 
 test('throws exception on connection error', function () {
@@ -66,7 +68,7 @@ test('throws exception on connection error', function () {
     });
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(\Exception::class);
+        ->toThrow(Exception::class);
 });
 
 test('handles HTTP 404 error', function () {
@@ -75,7 +77,7 @@ test('handles HTTP 404 error', function () {
     ]);
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
+        ->toThrow(InvalidHTTPStatusException::class);
 });
 
 test('handles HTTP 500 server error', function () {
@@ -84,7 +86,7 @@ test('handles HTTP 500 server error', function () {
     ]);
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
+        ->toThrow(InvalidHTTPStatusException::class);
 });
 
 test('respects 30 second timeout configuration', function () {
@@ -217,7 +219,7 @@ it('stops and errors after exceeding the maximum redirect count', function () {
     ]);
 
     expect(fn () => $this->fetcher->fetch('https://example.com/r0'))
-        ->toThrow(\Exception::class);
+        ->toThrow(Exception::class);
 });
 
 it('still throws InvalidHTTPStatusException on a non-2xx final response', function () {
@@ -226,7 +228,7 @@ it('still throws InvalidHTTPStatusException on a non-2xx final response', functi
     ]);
 
     expect(fn () => $this->fetcher->fetch('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
+        ->toThrow(InvalidHTTPStatusException::class);
 });
 
 it('still sends browser-like headers on a redirected request', function () {

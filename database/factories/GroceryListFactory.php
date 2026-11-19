@@ -2,10 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Enums\IngredientCategory;
+use App\Models\GroceryList;
+use App\Models\MealPlan;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GroceryList>
+ * @extends Factory<GroceryList>
  */
 class GroceryListFactory extends Factory
 {
@@ -17,8 +21,8 @@ class GroceryListFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
-            'meal_plan_id' => \App\Models\MealPlan::factory(),
+            'user_id' => User::factory(),
+            'meal_plan_id' => MealPlan::factory(),
             'name' => fake()->words(rand(2, 4), true),
             'generated_at' => now(),
         ];
@@ -39,8 +43,8 @@ class GroceryListFactory extends Factory
      */
     public function withItems(int $generatedCount = 5, int $manualCount = 3): static
     {
-        return $this->afterCreating(function (\App\Models\GroceryList $groceryList) use ($generatedCount, $manualCount) {
-            $categories = array_map(fn ($c) => $c->value, \App\Enums\IngredientCategory::cases());
+        return $this->afterCreating(function (GroceryList $groceryList) use ($generatedCount, $manualCount) {
+            $categories = array_map(fn ($c) => $c->value, IngredientCategory::cases());
             $units = ['cup', 'oz', 'lb', 'whole', 'piece'];
 
             for ($i = 0; $i < $generatedCount; $i++) {

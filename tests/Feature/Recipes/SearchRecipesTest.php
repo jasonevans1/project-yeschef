@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Recipes\Index;
 use App\Models\Ingredient;
 use App\Models\Recipe;
 use App\Models\User;
@@ -172,7 +173,7 @@ test('url contains search parameters for shareability', function () {
     // Use Livewire test to verify URL parameters are set correctly
     // Livewire components use the #[Url] attribute to persist query parameters
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Recipes\Index::class, [
+        ->test(Index::class, [
             'search' => 'pasta',
             'mealTypes' => ['dinner'],
             'dietaryTags' => ['vegetarian'],
@@ -318,7 +319,7 @@ test('sort persists in url', function () {
     Recipe::factory()->create(['user_id' => null]);
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Recipes\Index::class, ['sortBy' => 'name_asc'])
+        ->test(Index::class, ['sortBy' => 'name_asc'])
         ->assertSet('sortBy', 'name_asc')
         ->assertStatus(200);
 });
@@ -332,7 +333,7 @@ test('changing sort resets pagination', function () {
     // Simulate changing sort - the updatedSortBy method should reset page
     Livewire::actingAs($user)
         ->withQueryParams(['page' => 2])
-        ->test(\App\Livewire\Recipes\Index::class)
+        ->test(Index::class)
         ->set('sortBy', 'name_asc')
         ->assertStatus(200);
 });
@@ -418,7 +419,7 @@ test('my recipes filter persists in url', function () {
     Recipe::factory()->create(['user_id' => $user->id]);
 
     Livewire::actingAs($user)
-        ->test(\App\Livewire\Recipes\Index::class, ['myRecipesOnly' => true])
+        ->test(Index::class, ['myRecipesOnly' => true])
         ->assertSet('myRecipesOnly', true)
         ->assertStatus(200);
 });
@@ -431,7 +432,7 @@ test('changing my recipes filter resets pagination', function () {
 
     Livewire::actingAs($user)
         ->withQueryParams(['page' => 2])
-        ->test(\App\Livewire\Recipes\Index::class)
+        ->test(Index::class)
         ->set('myRecipesOnly', true)
         ->assertStatus(200);
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MealAssignment;
 use App\Models\MealPlan;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,7 @@ class MealAssignmentController extends Controller
         ]);
 
         // Validate date is within meal plan range
-        $date = \Carbon\Carbon::parse($validated['date']);
+        $date = Carbon::parse($validated['date']);
         if ($date->lt($mealPlan->start_date) || $date->gt($mealPlan->end_date)) {
             return back()->withErrors(['date' => 'The date must be within the meal plan range.']);
         }

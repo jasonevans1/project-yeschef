@@ -10,6 +10,7 @@ use App\Models\Ingredient;
 use App\Models\MealPlan;
 use App\Models\Recipe;
 use App\Models\User;
+use App\Services\GroceryListGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
@@ -45,7 +46,7 @@ test('grocery list items reflect serving multipliers', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -106,7 +107,7 @@ test('multiple recipes with different multipliers aggregate correctly', function
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -149,7 +150,7 @@ test('fractional results are handled correctly with decimals', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -192,7 +193,7 @@ test('fractional results with thirds are handled correctly', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -236,7 +237,7 @@ test('very small fractional multipliers produce correct small quantities', funct
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -279,7 +280,7 @@ test('large multipliers produce correct large quantities', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 
@@ -339,7 +340,7 @@ test('aggregation works correctly with scaled quantities from same recipe used m
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     expect($groceryList)->toBeInstanceOf(GroceryList::class);
 

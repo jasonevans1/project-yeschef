@@ -382,7 +382,7 @@ test('cannot regenerate standalone grocery list', function () {
     $generator = app(GroceryListGenerator::class);
 
     expect(fn () => $generator->regenerate($standaloneList))
-        ->toThrow(\InvalidArgumentException::class, 'Cannot regenerate a standalone grocery list');
+        ->toThrow(InvalidArgumentException::class, 'Cannot regenerate a standalone grocery list');
 });
 
 // ──────────────────────────────────────────────────────────

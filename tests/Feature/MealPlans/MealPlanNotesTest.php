@@ -1,10 +1,16 @@
 <?php
 
+use App\Enums\IngredientCategory;
 use App\Enums\MealType;
+use App\Enums\MeasurementUnit;
 use App\Livewire\MealPlans\Show;
+use App\Models\GroceryList;
+use App\Models\Ingredient;
 use App\Models\MealPlan;
 use App\Models\MealPlanNote;
+use App\Models\Recipe;
 use App\Models\User;
+use App\Services\GroceryListGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -282,16 +288,16 @@ it('excludes notes from grocery list generation', function () {
     ]);
 
     // Create a recipe with ingredients
-    $recipe = \App\Models\Recipe::factory()->create(['servings' => 4]);
-    $ingredient = \App\Models\Ingredient::factory()->create([
+    $recipe = Recipe::factory()->create(['servings' => 4]);
+    $ingredient = Ingredient::factory()->create([
         'name' => 'chicken breast',
-        'category' => \App\Enums\IngredientCategory::MEAT,
+        'category' => IngredientCategory::MEAT,
     ]);
 
     $recipe->recipeIngredients()->create([
         'ingredient_id' => $ingredient->id,
         'quantity' => 1,
-        'unit' => \App\Enums\MeasurementUnit::LB,
+        'unit' => MeasurementUnit::LB,
     ]);
 
     // Assign recipe to meal plan
@@ -312,7 +318,7 @@ it('excludes notes from grocery list generation', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     // Should only have ingredients from the recipe, not from notes
     expect($groceryList->groceryItems()->count())->toBe(1);
@@ -343,9 +349,9 @@ it('generates empty grocery list when meal plan has only notes', function () {
     ]);
 
     // Generate grocery list
-    $groceryList = app(\App\Services\GroceryListGenerator::class)->generate($mealPlan);
+    $groceryList = app(GroceryListGenerator::class)->generate($mealPlan);
 
     // Should be empty since notes don't contribute ingredients
-    expect($groceryList)->toBeInstanceOf(\App\Models\GroceryList::class);
+    expect($groceryList)->toBeInstanceOf(GroceryList::class);
     expect($groceryList->groceryItems()->count())->toBe(0);
 });

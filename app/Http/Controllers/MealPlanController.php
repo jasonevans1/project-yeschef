@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MealPlan;
+use Carbon\Carbon;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
 
@@ -23,8 +24,8 @@ class MealPlanController extends Controller
         ]);
 
         // Custom validation: max 28 days duration
-        $start = \Carbon\Carbon::parse($validated['start_date']);
-        $end = \Carbon\Carbon::parse($validated['end_date']);
+        $start = Carbon::parse($validated['start_date']);
+        $end = Carbon::parse($validated['end_date']);
 
         if ($start->diffInDays($end) > 28) {
             return back()->withErrors(['end_date' => 'The meal plan duration cannot exceed 28 days.']);
@@ -56,8 +57,8 @@ class MealPlanController extends Controller
         ]);
 
         // Custom validation: max 28 days duration
-        $start = \Carbon\Carbon::parse($validated['start_date']);
-        $end = \Carbon\Carbon::parse($validated['end_date']);
+        $start = Carbon::parse($validated['start_date']);
+        $end = Carbon::parse($validated['end_date']);
 
         if ($start->diffInDays($end) > 28) {
             return back()->withErrors(['end_date' => 'The meal plan duration cannot exceed 28 days.']);

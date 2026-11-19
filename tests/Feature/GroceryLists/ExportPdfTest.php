@@ -1,5 +1,7 @@
 <?php
 
+use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
@@ -63,15 +65,15 @@ test('PDF contains all items grouped by category', function () {
     // Create items in different categories
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Milk',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
     ]);
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Chicken',
-        'category' => \App\Enums\IngredientCategory::MEAT,
+        'category' => IngredientCategory::MEAT,
     ]);
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Eggs',
-        'category' => \App\Enums\IngredientCategory::DAIRY,
+        'category' => IngredientCategory::DAIRY,
     ]);
 
     $response = $this->actingAs($user)
@@ -144,7 +146,7 @@ test('PDF export includes item quantities and units', function () {
     GroceryItem::factory()->for($groceryList)->create([
         'name' => 'Flour',
         'quantity' => 2.5,
-        'unit' => \App\Enums\MeasurementUnit::CUP,
+        'unit' => MeasurementUnit::CUP,
     ]);
 
     $response = $this->actingAs($user)

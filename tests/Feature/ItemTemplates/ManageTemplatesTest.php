@@ -6,8 +6,10 @@ use App\Enums\IngredientCategory;
 use App\Enums\MeasurementUnit;
 use App\Livewire\Settings\ItemTemplates;
 use App\Livewire\Settings\ItemTemplatesEdit;
+use App\Models\CommonItemTemplate;
 use App\Models\User;
 use App\Models\UserItemTemplate;
+use App\Services\ItemAutoCompleteService;
 use Livewire\Livewire;
 
 // T051: Test viewing all user templates
@@ -93,7 +95,7 @@ test('editing template updates autocomplete suggestions', function () {
     $template->refresh();
 
     // Verify autocomplete service returns the updated template
-    $service = app(\App\Services\ItemAutoCompleteService::class);
+    $service = app(ItemAutoCompleteService::class);
     $results = $service->query($user->id, 'mil');
     $suggestions = $results->map(fn ($t) => $service->formatSuggestion($t));
 
@@ -133,7 +135,7 @@ test('deleting user template falls back to common defaults in autocomplete', fun
     $user = User::factory()->create();
 
     // Create a common default for milk
-    \App\Models\CommonItemTemplate::create([
+    CommonItemTemplate::create([
         'name' => 'milk',
         'category' => IngredientCategory::DAIRY,
         'unit' => MeasurementUnit::GALLON,
@@ -149,7 +151,7 @@ test('deleting user template falls back to common defaults in autocomplete', fun
     ]);
 
     // Verify user template appears in autocomplete
-    $service = app(\App\Services\ItemAutoCompleteService::class);
+    $service = app(ItemAutoCompleteService::class);
     $results = $service->query($user->id, 'mil');
     $suggestions = $results->map(fn ($t) => $service->formatSuggestion($t));
 

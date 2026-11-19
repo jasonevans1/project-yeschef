@@ -2,10 +2,14 @@
 
 namespace Database\Factories;
 
+use App\Enums\IngredientCategory;
+use App\Enums\MeasurementUnit;
+use App\Models\User;
+use App\Models\UserItemTemplate;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\UserItemTemplate>
+ * @extends Factory<UserItemTemplate>
  */
 class UserItemTemplateFactory extends Factory
 {
@@ -17,10 +21,10 @@ class UserItemTemplateFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'name' => fake()->words(2, true),
-            'category' => fake()->randomElement(\App\Enums\IngredientCategory::cases()),
-            'unit' => fake()->randomElement(\App\Enums\MeasurementUnit::cases()),
+            'category' => fake()->randomElement(IngredientCategory::cases()),
+            'unit' => fake()->randomElement(MeasurementUnit::cases()),
             'default_quantity' => fake()->randomFloat(3, 0.25, 10),
             'usage_count' => fake()->numberBetween(0, 20),
             'last_used_at' => now(),

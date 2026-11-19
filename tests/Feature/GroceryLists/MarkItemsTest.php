@@ -6,6 +6,7 @@ use App\Enums\SourceType;
 use App\Models\GroceryItem;
 use App\Models\GroceryList;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 beforeEach(function () {
     $this->user = User::factory()->create();
@@ -38,7 +39,7 @@ test('user can mark item as purchased', function () {
 
     expect($item->purchased)->toBeTrue()
         ->and($item->purchased_at)->not->toBeNull()
-        ->and($item->purchased_at)->toBeInstanceOf(\Illuminate\Support\Carbon::class);
+        ->and($item->purchased_at)->toBeInstanceOf(Carbon::class);
 });
 
 test('user can unmark item as purchased', function () {
@@ -85,7 +86,7 @@ test('purchased_at timestamp is set when item is marked purchased', function () 
     $item->refresh();
 
     expect($item->purchased_at)->not->toBeNull()
-        ->and($item->purchased_at)->toBeInstanceOf(\Illuminate\Support\Carbon::class)
+        ->and($item->purchased_at)->toBeInstanceOf(Carbon::class)
         ->and($item->purchased_at->timestamp)->toBeGreaterThanOrEqual($beforeTimestamp->timestamp)
         ->and($item->purchased_at->timestamp)->toBeLessThanOrEqual(now()->timestamp);
 });

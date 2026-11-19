@@ -1,6 +1,8 @@
 <?php
 
 use App\Exceptions\CloudflareBlockedException;
+use App\Exceptions\MalformedRecipeDataException;
+use App\Exceptions\MissingRecipeDataException;
 use App\Services\RecipeImporter\MicrodataParser;
 
 beforeEach(function () {
@@ -64,14 +66,14 @@ test('throws exception when no Recipe found in HTML', function () {
 HTML;
 
     expect(fn () => $this->parser->parse($html))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 });
 
 test('throws exception when HTML has no JSON-LD script tags', function () {
     $html = '<html><body>Plain HTML with no structured data</body></html>';
 
     expect(fn () => $this->parser->parse($html))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 });
 
 test('throws exception for malformed JSON', function () {
@@ -91,7 +93,7 @@ test('throws exception for malformed JSON', function () {
 HTML;
 
     expect(fn () => $this->parser->parse($html))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+        ->toThrow(MalformedRecipeDataException::class);
 });
 
 test('parses Recipe from @graph array', function () {
@@ -261,12 +263,12 @@ HTML;
 
 test('throws exception for empty HTML', function () {
     expect(fn () => $this->parser->parse(''))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 });
 
 test('throws exception for HTML with only whitespace', function () {
     expect(fn () => $this->parser->parse('   '))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 });
 
 test('handles top-level array with Recipe object', function () {
@@ -422,17 +424,17 @@ it('normalizes HowToStep instructions when parsing JSON', function () {
 
 it('throws MalformedRecipeDataException for invalid JSON', function () {
     expect(fn () => $this->parser->parseJson('{not json'))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class, 'Invalid JSON format.');
+        ->toThrow(MalformedRecipeDataException::class, 'Invalid JSON format.');
 });
 
 it('throws MissingRecipeDataException with a file-specific message when JSON contains no Recipe', function () {
     expect(fn () => $this->parser->parseJson('{"@type":"Thing"}'))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
+        ->toThrow(MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
 });
 
 it('throws MissingRecipeDataException for empty JSON input', function (string $input) {
     expect(fn () => $this->parser->parseJson($input))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
+        ->toThrow(MissingRecipeDataException::class, 'No schema.org Recipe found in this file.');
 })->with(['empty' => [''], 'whitespace' => ["  \n\t "]]);
 
 it('parses JSON that starts with a UTF-8 BOM', function () {
@@ -443,7 +445,7 @@ it('parses JSON that starts with a UTF-8 BOM', function () {
 
 it('throws MissingRecipeDataException when JSON decodes to a scalar', function (string $json) {
     expect(fn () => $this->parser->parseJson($json))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 })->with(['string' => ['"x"'], 'int' => ['42'], 'bool' => ['true'], 'null' => ['null']]);
 
 it('skips non-array items in a top-level JSON array', function () {
@@ -462,5 +464,5 @@ test('parse still reports Invalid JSON-LD format for malformed script tags', fun
     $html = '<html><head><script type="application/ld+json">{bad</script></head></html>';
 
     expect(fn () => $this->parser->parse($html))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class, 'Invalid JSON-LD format.');
+        ->toThrow(MalformedRecipeDataException::class, 'Invalid JSON-LD format.');
 });

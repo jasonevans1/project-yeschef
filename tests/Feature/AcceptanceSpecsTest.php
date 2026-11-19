@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
+use Illuminate\Contracts\Process\ProcessResult;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 
 /**
- * @return Illuminate\Contracts\Process\ProcessResult
+ * @return ProcessResult
  */
 function runAcceptanceSpecs(string $root, array $arguments, string $input = '')
 {

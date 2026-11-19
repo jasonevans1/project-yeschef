@@ -1,6 +1,11 @@
 <?php
 
+use App\Exceptions\InvalidHTTPStatusException;
+use App\Exceptions\MalformedRecipeDataException;
+use App\Exceptions\MissingRecipeDataException;
+use App\Exceptions\NetworkTimeoutException;
 use App\Services\RecipeImporter\RecipeImportService;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 beforeEach(function () {
@@ -58,7 +63,7 @@ test('throws exception when URL returns 404', function () {
     ]);
 
     expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\InvalidHTTPStatusException::class);
+        ->toThrow(InvalidHTTPStatusException::class);
 });
 
 test('throws exception when no recipe found in HTML', function () {
@@ -69,16 +74,16 @@ test('throws exception when no recipe found in HTML', function () {
     ]);
 
     expect(fn () => $this->service->fetchAndParse('https://example.com/article'))
-        ->toThrow(\App\Exceptions\MissingRecipeDataException::class);
+        ->toThrow(MissingRecipeDataException::class);
 });
 
 test('throws exception on network timeout', function () {
     Http::fake(function () {
-        throw new \Illuminate\Http\Client\ConnectionException('Connection timed out');
+        throw new ConnectionException('Connection timed out');
     });
 
     expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\NetworkTimeoutException::class);
+        ->toThrow(NetworkTimeoutException::class);
 });
 
 test('parses ISO 8601 durations to minutes', function () {
@@ -402,7 +407,7 @@ HTML;
     ]);
 
     expect(fn () => $this->service->fetchAndParse('https://example.com/recipe'))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+        ->toThrow(MalformedRecipeDataException::class);
 });
 
 test('preserves original ingredient array for later processing', function () {
@@ -608,12 +613,12 @@ it('throws MalformedRecipeDataException when JSON recipe lacks name, instruction
     unset($data[$field]);
 
     expect(fn () => $this->service->parseJson(json_encode($data)))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+        ->toThrow(MalformedRecipeDataException::class);
 })->with(['name', 'recipeInstructions', 'recipeIngredient']);
 
 it('throws MalformedRecipeDataException when name is not a string or recipeIngredient is not an array', function (array $override) {
     expect(fn () => $this->service->parseJson(recipeJson($override)))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+        ->toThrow(MalformedRecipeDataException::class);
 })->with([
     'numeric name' => [['name' => 123]],
     'array name' => [['name' => ['a']]],
@@ -625,7 +630,7 @@ it('drops non-string ingredient items and throws when none remain', function () 
 
     expect($result['recipeIngredient'])->toBe(['flour', 'eggs'])
         ->and(fn () => $this->service->parseJson(recipeJson(['recipeIngredient' => [5, '', null]])))
-        ->toThrow(\App\Exceptions\MalformedRecipeDataException::class);
+        ->toThrow(MalformedRecipeDataException::class);
 });
 
 it('nulls a non-string description', function () {
@@ -636,14 +641,14 @@ it('reports malformed file errors without mentioning a page', function () {
     try {
         $this->service->parseJson(recipeJson(['name' => 123]));
         $this->fail('Expected exception');
-    } catch (\App\Exceptions\MalformedRecipeDataException $e) {
+    } catch (MalformedRecipeDataException $e) {
         expect($e->getMessage())->toContain('recipe file')->not->toContain('page');
     }
 
     try {
         $this->service->parseJson('{not json');
         $this->fail('Expected exception');
-    } catch (\App\Exceptions\MalformedRecipeDataException $e) {
+    } catch (MalformedRecipeDataException $e) {
         expect($e->getMessage())->toContain('recipe file')->not->toContain('page');
     }
 });
