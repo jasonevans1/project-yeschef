@@ -141,10 +141,15 @@ This project is developed using **Claude Code** and follows a strict **Test-Driv
 
 1. **Clone the repository**
 
-   ```bash
-   git clone <repository-url>
-   cd project-tabletop
-   ```
+```bash
+git clone https://github.com/jasonevans1/project-yeschef.git
+cd project-yeschef
+```
+
+Automatic way:
+```shell
+./install.sh
+```
 
 2. **Install PHP dependencies**
 
