@@ -55,19 +55,21 @@ class Generate extends Component
         $this->recipeCount = $mealPlan->mealAssignments()->count();
 
         // Load saved preferences
-        $this->savedPreferences = auth()->user()->grocery_category_exclusions ?? [];
+        $user = auth()->user();
+        $userId = (int) $user->id;
+        $this->savedPreferences = (array) ($user->grocery_category_exclusions ?? []);
 
         // Pre-populate exclusions: existing list takes precedence over saved preferences
-        $this->excludedCategories = $this->existingList?->excluded_categories
+        $this->excludedCategories = $this->existingList->excluded_categories
             ?? $this->savedPreferences;
 
         // Load category item counts and ingredient preview when recipes exist
         if ($this->recipeCount > 0) {
             $generator = app(GroceryListGenerator::class);
-            $this->categoryItemCounts = $generator->getCategoryItemCounts($mealPlan, auth()->id());
+            $this->categoryItemCounts = $generator->getCategoryItemCounts($mealPlan, $userId);
 
             // Load ingredient preview (real data — replaces heuristic)
-            $this->ingredientPreview = $generator->getIngredientPreview($mealPlan, auth()->id())
+            $this->ingredientPreview = $generator->getIngredientPreview($mealPlan, $userId)
                 ->toArray();
         }
 
@@ -75,11 +77,11 @@ class Generate extends Component
         $this->estimatedItemCount = count($this->ingredientPreview);
 
         // Load pantry
-        $this->savedPantry = auth()->user()->pantry_items ?? [];
+        $this->savedPantry = (array) ($user->pantry_items ?? []);
 
         // Pre-populate excludedIngredients:
         // existing list's excluded_ingredients takes precedence over pantry
-        $this->excludedIngredients = $this->existingList?->excluded_ingredients ?? $this->savedPantry;
+        $this->excludedIngredients = $this->existingList->excluded_ingredients ?? $this->savedPantry;
     }
 
     public function generate(): mixed
