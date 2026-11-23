@@ -3,7 +3,10 @@
 namespace App\Livewire\GroceryLists;
 
 use App\Enums\IngredientCategory;
+use App\Models\GroceryItem;
 use App\Models\GroceryList;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -16,7 +19,7 @@ class Shared extends Component
 
     public string $token;
 
-    public function mount(string $token)
+    public function mount(string $token): void
     {
         $this->token = $token;
 
@@ -39,26 +42,29 @@ class Shared extends Component
 
     /**
      * Get items grouped by category for display
+     *
+     * @return Collection<int|string, EloquentCollection<int, GroceryItem>>
      */
     public function getItemsByCategoryProperty(): Collection
     {
         // Load items with soft deletes excluded, ordered by category and sort_order
-        $items = $this->groceryList->groceryItems()
+        $items = GroceryItem::query()
+            ->where('grocery_list_id', $this->groceryList->id)
             ->orderBy('category')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
 
         // Group by category
-        return $items->groupBy(function ($item) {
+        return $items->groupBy(function (GroceryItem $item): string {
             return $item->category->value;
         });
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.grocery-lists.shared', [
-            'itemsByCategory' => $this->itemsByCategory,
+            'itemsByCategory' => $this->getItemsByCategoryProperty(),
             'categories' => IngredientCategory::cases(),
         ]);
     }
