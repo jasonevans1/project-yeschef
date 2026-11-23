@@ -158,42 +158,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/GroceryLists/Index.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Access to an undefined property App\\\\Livewire\\\\GroceryLists\\\\Shared\\:\\:\\$itemsByCategory\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$category\\.$#',
-	'identifier' => 'property.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Shared\\:\\:getItemsByCategoryProperty\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#',
-	'identifier' => 'missingType.generics',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Shared\\:\\:mount\\(\\) has no return type specified\\.$#',
-	'identifier' => 'missingType.return',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Method App\\\\Livewire\\\\GroceryLists\\\\Shared\\:\\:render\\(\\) has no return type specified\\.$#',
-	'identifier' => 'missingType.return',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Unable to resolve the template type TGroupKey in call to method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:groupBy\\(\\)$#',
-	'identifier' => 'argument.templateType',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/GroceryLists/Shared.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$category\\.$#',
 	'identifier' => 'property.notFound',
 	'count' => 1,
