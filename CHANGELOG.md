@@ -10,3 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Bootstrap script to simplify web app installation
+
+### Changed
+
+- Updated PHP dependencies to fix security vulnerabilities
