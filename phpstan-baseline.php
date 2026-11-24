@@ -278,42 +278,6 @@ $ignoreErrors[] = [
 	'path' => __DIR__ . '/app/Livewire/MealPlans/Show.php',
 ];
 $ignoreErrors[] = [
-	'message' => '#^Call to an undefined method Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:recipeIngredients\\(\\)\\.$#',
-	'identifier' => 'method.notFound',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Parameter \\#2 \\$userId of method App\\\\Services\\\\IngredientCategorizationService\\:\\:resolve\\(\\) expects int, int\\|string\\|null given\\.$#',
-	'identifier' => 'argument.type',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Property App\\\\Livewire\\\\Recipes\\\\Create\\:\\:\\$dietary_tags type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Property App\\\\Livewire\\\\Recipes\\\\Create\\:\\:\\$ingredients type has no value type specified in iterable type array\\.$#',
-	'identifier' => 'missingType.iterableValue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Strict comparison using \\!\\=\\= between mixed and null will always evaluate to true\\.$#',
-	'identifier' => 'notIdentical.alwaysTrue',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
-	'message' => '#^Strict comparison using \\=\\=\\= between mixed and null will always evaluate to false\\.$#',
-	'identifier' => 'identical.alwaysFalse',
-	'count' => 1,
-	'path' => __DIR__ . '/app/Livewire/Recipes/Create.php',
-];
-$ignoreErrors[] = [
 	'message' => '#^Property App\\\\Livewire\\\\Recipes\\\\Edit\\:\\:\\$dietary_tags type has no value type specified in iterable type array\\.$#',
 	'identifier' => 'missingType.iterableValue',
 	'count' => 1,

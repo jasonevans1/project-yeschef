@@ -6,6 +6,7 @@ use App\Enums\IngredientCategory;
 use App\Enums\MealType;
 use App\Enums\MeasurementUnit;
 use App\Models\Ingredient;
+use App\Models\Recipe;
 use App\Services\IngredientCategorizationService;
 use App\Services\QuantityFormatter;
 use Illuminate\Contracts\View\View;
@@ -38,6 +39,7 @@ class Create extends Component
     #[Validate('nullable|string')]
     public ?string $difficulty = null;
 
+    /** @var array<int, string> */
     #[Validate('nullable|array')]
     public array $dietary_tags = [];
 
@@ -47,6 +49,7 @@ class Create extends Component
     #[Validate('nullable|url|max:255')]
     public ?string $image_url = null;
 
+    /** @var array<int, array{ingredient_name: string, quantity: float|int|string|null, unit: string|null, notes: string|null}> */
     #[Validate('required|array|min:1')]
     public array $ingredients = [];
 
@@ -91,7 +94,11 @@ class Create extends Component
         $this->validate();
         $this->validateIngredients();
 
-        $recipe = auth()->user()->recipes()->create([
+        $user = auth()->user();
+        abort_unless($user !== null, 403);
+
+        $recipe = Recipe::query()->create([
+            'user_id' => $user->id,
             'name' => $this->name,
             'description' => $this->description,
             'prep_time' => $this->prep_time,
@@ -113,7 +120,7 @@ class Create extends Component
 
             $ingredient = Ingredient::firstOrCreate(
                 ['name' => strtolower(trim($ingredientData['ingredient_name']))],
-                ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], auth()->id())]
+                ['category' => $categorizationService->resolve($ingredientData['ingredient_name'], $user->id)]
             );
 
             if (in_array($ingredient->id, $addedIngredientIds, true)) {
@@ -139,7 +146,7 @@ class Create extends Component
     private function parseIngredientQuantities(): void
     {
         foreach ($this->ingredients as $index => $ingredient) {
-            if (! isset($ingredient['quantity']) || $ingredient['quantity'] === null || $ingredient['quantity'] === '') {
+            if (! isset($ingredient['quantity']) || $ingredient['quantity'] === '') {
                 continue;
             }
 
@@ -162,7 +169,7 @@ class Create extends Component
                 $this->addError("ingredients.{$index}.ingredient_name", 'Ingredient name is required.');
             }
 
-            if (isset($ingredient['quantity']) && $ingredient['quantity'] !== null && $ingredient['quantity'] <= 0) {
+            if (isset($ingredient['quantity']) && $ingredient['quantity'] <= 0) {
                 $this->addError("ingredients.{$index}.quantity", 'Quantity must be a number or fraction (e.g. 1/2, 1 1/2).');
             }
         }
