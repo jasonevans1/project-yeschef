@@ -31,7 +31,7 @@ function uploadRecipeFile(?string $json = null, string $name = 'recipe.json'): U
 }
 
 /**
- * Livewire's test harness leaves a `.json.json` metadata sidecar; ignore it.
+ * Livewire's test harness leaves a `.json.json` or `.bin.json` metadata sidecar; ignore it.
  *
  * @return array<int, string>
  */
@@ -39,7 +39,7 @@ function uploadedTempFiles(): array
 {
     return array_values(array_filter(
         Storage::disk('tmp-for-tests')->allFiles(),
-        fn (string $path): bool => ! str_ends_with($path, '.json.json')
+        fn (string $path): bool => ! str_ends_with($path, '.json.json') && ! str_ends_with($path, '.bin.json')
     ));
 }
 
